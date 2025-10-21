@@ -2,10 +2,37 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
-import { ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
+import { ReactNode, useEffect } from 'react'
 
 export default function GuideLayout({ children }: { children: ReactNode }) {
-  const { user, logout } = useAuth()
+  const { user, logout, isAuthenticated, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    // Wait for loading to finish
+    if (!loading && !isAuthenticated) {
+      console.log('❌ Not authenticated, redirecting to login...')
+      router.push('/login')
+    }
+  }, [isAuthenticated, loading, router])
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='text-4xl mb-4'>⏳</div>
+          <p className='text-gray-600'>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated || !user) {
+    return null
+  }
 
   return (
     <div className='min-h-screen bg-gray-50'>

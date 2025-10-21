@@ -17,7 +17,6 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // TODO: Connect to GraphQL API
       const response = await fetch('http://localhost:3001/graphql', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,6 +30,7 @@ export default function LoginPage() {
                   id
                   username
                   email
+                  fullName
                   roles
                 }
               }
@@ -40,23 +40,35 @@ export default function LoginPage() {
         })
       })
 
-      const { data, errors } = await response.json()
+      const result = await response.json()
 
-      if (errors) {
-        throw new Error(errors[0].message)
+      if (!response.ok) {
+        console.error('HTTP Error:', response.status, result)
+        throw new Error(`Server error: ${response.status}`)
       }
 
-      if (data?.login) {
+      if (result.errors && result.errors.length > 0) {
+        console.error('GraphQL Errors:', result.errors)
+        const errorMessage = result.errors[0].message || 'Login failed'
+        throw new Error(errorMessage)
+      }
+
+      if (result.data?.login) {
         // Store tokens
-        localStorage.setItem('authToken', data.login.access_token)
-        localStorage.setItem('refreshToken', data.login.refresh_token)
-        localStorage.setItem('user', JSON.stringify(data.login.user))
+        localStorage.setItem('authToken', result.data.login.access_token)
+        localStorage.setItem('refreshToken', result.data.login.refresh_token)
+        localStorage.setItem('user', JSON.stringify(result.data.login.user))
+
+        console.log('✅ Login successful, redirecting to dashboard...')
 
         // Redirect to dashboard
         router.push('/dashboard')
+      } else {
+        throw new Error('No data returned from server')
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to login')
+      console.error('Login error:', err)
+      setError(err.message || 'Failed to login. Please check your credentials.')
     } finally {
       setLoading(false)
     }

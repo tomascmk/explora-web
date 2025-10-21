@@ -2,31 +2,30 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 // Paths that don't require authentication
-const publicPaths = ['/', '/login', '/register', '/guides', '/tourists']
+const publicPaths = [
+  '/',
+  '/login',
+  '/register',
+  '/guides',
+  '/tourists',
+  '/api',
+  '/_next',
+  '/favicon.ico'
+]
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Check if path is public
-  const isPublicPath = publicPaths.some(
-    (path) => pathname === path || pathname.startsWith('/_next')
-  )
+  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path))
 
   if (isPublicPath) {
     return NextResponse.next()
   }
 
-  // Check for auth token
-  const token = request.cookies.get('authToken')?.value
-
-  if (!token) {
-    // Redirect to login if accessing protected route without token
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('redirect', pathname)
-    return NextResponse.redirect(url)
-  }
-
+  // For protected routes, let the client-side auth handle it
+  // since we're using localStorage for tokens (not httpOnly cookies)
+  // The AuthContext and page-level checks will handle authentication
   return NextResponse.next()
 }
 
