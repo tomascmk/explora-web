@@ -61,7 +61,8 @@ export default function RegisterPage() {
               email: formData.email,
               fullName: formData.fullName,
               password: formData.password,
-              confirmPassword: formData.confirmPassword
+              confirmPassword: formData.confirmPassword,
+              roles: 'GUIDE'
             }
           }
         })
@@ -172,6 +173,9 @@ export default function RegisterPage() {
               placeholder='••••••••'
               required
             />
+            <p className='text-xs text-gray-500 mt-1'>
+              Must contain uppercase, lowercase, number, and special character
+            </p>
           </div>
 
           <div>

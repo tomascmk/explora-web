@@ -14,7 +14,10 @@ export default function TouristsLanding() {
               <Link href='/' className='text-gray-600 hover:text-gray-900'>
                 Home
               </Link>
-              <Link href='/guides' className='text-gray-600 hover:text-gray-900'>
+              <Link
+                href='/guides'
+                className='text-gray-600 hover:text-gray-900'
+              >
                 For Guides
               </Link>
               <Link href='/login' className='text-gray-600 hover:text-gray-900'>
@@ -40,8 +43,8 @@ export default function TouristsLanding() {
                 Discover Authentic Local Experiences
               </h1>
               <p className='text-xl text-gray-600 mb-8'>
-                Explore the world through the eyes of local expert guides. From hidden gems to
-                iconic landmarks, find your perfect adventure.
+                Explore the world through the eyes of local expert guides. From
+                hidden gems to iconic landmarks, find your perfect adventure.
               </p>
               <div className='flex gap-4 mb-6'>
                 <Link
@@ -64,8 +67,12 @@ export default function TouristsLanding() {
                   ))}
                 </div>
                 <div>
-                  <p className='text-sm font-semibold'>50,000+ Happy Travelers</p>
-                  <p className='text-xs text-gray-600'>⭐⭐⭐⭐⭐ 4.9/5 Average Rating</p>
+                  <p className='text-sm font-semibold'>
+                    50,000+ Happy Travelers
+                  </p>
+                  <p className='text-xs text-gray-600'>
+                    ⭐⭐⭐⭐⭐ 4.9/5 Average Rating
+                  </p>
                 </div>
               </div>
             </div>
@@ -82,7 +89,9 @@ export default function TouristsLanding() {
       {/* Popular Destinations */}
       <section className='py-20 px-4'>
         <div className='max-w-7xl mx-auto'>
-          <h2 className='text-4xl font-bold text-center mb-4'>Popular Destinations</h2>
+          <h2 className='text-4xl font-bold text-center mb-4'>
+            Popular Destinations
+          </h2>
           <p className='text-xl text-gray-600 text-center mb-16'>
             Explore the most loved tours worldwide
           </p>
@@ -150,7 +159,9 @@ export default function TouristsLanding() {
       {/* Tour Types */}
       <section className='py-20 px-4 bg-gray-50'>
         <div className='max-w-7xl mx-auto'>
-          <h2 className='text-4xl font-bold text-center mb-16'>Choose Your Style</h2>
+          <h2 className='text-4xl font-bold text-center mb-16'>
+            Choose Your Style
+          </h2>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
             <TourTypeCard
               title='Self-Guided Tours'
@@ -160,7 +171,7 @@ export default function TouristsLanding() {
                 'Interactive maps',
                 'Offline access',
                 'Available 24/7',
-                'Multiple languages',
+                'Multiple languages'
               ]}
               icon='📱'
               color='purple'
@@ -173,7 +184,7 @@ export default function TouristsLanding() {
                 'Small group sizes',
                 'Live Q&A',
                 'Personalized experience',
-                'Skip-the-line access',
+                'Skip-the-line access'
               ]}
               icon='👥'
               color='pink'
@@ -185,7 +196,9 @@ export default function TouristsLanding() {
       {/* Features for Tourists */}
       <section className='py-20 px-4'>
         <div className='max-w-7xl mx-auto'>
-          <h2 className='text-4xl font-bold text-center mb-16'>Why Travelers Love Us</h2>
+          <h2 className='text-4xl font-bold text-center mb-16'>
+            Why Travelers Love Us
+          </h2>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
             <TouristFeature
               icon='💳'
@@ -215,7 +228,7 @@ export default function TouristsLanding() {
             <TouristFeature
               icon='🎁'
               title='Exclusive Experiences'
-              description='Access unique tours you won&apos;t find anywhere else, curated by local experts.'
+              description="Access unique tours you won't find anywhere else, curated by local experts."
             />
           </div>
         </div>
@@ -230,8 +243,8 @@ export default function TouristsLanding() {
                 Download the Explora App
               </h2>
               <p className='text-xl text-purple-100 mb-8'>
-                Take your tours offline, get real-time navigation, and access exclusive mobile-only
-                deals.
+                Take your tours offline, get real-time navigation, and access
+                exclusive mobile-only deals.
               </p>
               <ul className='space-y-4 mb-8'>
                 <li className='flex items-center text-white'>
@@ -281,7 +294,9 @@ export default function TouristsLanding() {
       {/* Testimonials */}
       <section className='py-20 px-4 bg-gray-50'>
         <div className='max-w-7xl mx-auto'>
-          <h2 className='text-4xl font-bold text-center mb-16'>What Travelers Say</h2>
+          <h2 className='text-4xl font-bold text-center mb-16'>
+            What Travelers Say
+          </h2>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
             <TravelTestimonial
               name='Emma Wilson'
@@ -315,7 +330,8 @@ export default function TouristsLanding() {
             Start Your Next Adventure Today
           </h2>
           <p className='text-xl text-purple-100 mb-8'>
-            Join thousands of travelers discovering the world through authentic local experiences.
+            Join thousands of travelers discovering the world through authentic
+            local experiences.
           </p>
           <Link
             href='/register'
@@ -330,8 +346,8 @@ export default function TouristsLanding() {
       <footer className='bg-gray-900 text-white py-12 px-4'>
         <div className='max-w-7xl mx-auto text-center'>
           <p className='text-gray-400'>
-            &copy; 2025 Explora. All rights reserved. • Your gateway to authentic travel
-            experiences.
+            &copy; 2025 Explora. All rights reserved. • Your gateway to
+            authentic travel experiences.
           </p>
         </div>
       </footer>
@@ -344,7 +360,7 @@ function DestinationCard({
   country,
   tours,
   image,
-  priceFrom,
+  priceFrom
 }: {
   city: string
   country: string
@@ -376,7 +392,7 @@ function TourTypeCard({
   description,
   features,
   icon,
-  color,
+  color
 }: {
   title: string
   description: string
@@ -407,7 +423,7 @@ function TourTypeCard({
 function TouristFeature({
   icon,
   title,
-  description,
+  description
 }: {
   icon: string
   title: string
@@ -427,7 +443,7 @@ function TravelTestimonial({
   location,
   tourName,
   rating,
-  content,
+  content
 }: {
   name: string
   location: string
@@ -453,4 +469,3 @@ function TravelTestimonial({
     </div>
   )
 }
-

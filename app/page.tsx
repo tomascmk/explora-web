@@ -25,7 +25,10 @@ export default function MainLanding() {
               >
                 For Tourists
               </Link>
-              <Link href='/login' className='text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200'>
+              <Link
+                href='/login'
+                className='text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200'
+              >
                 Login
               </Link>
               <Link
@@ -44,7 +47,7 @@ export default function MainLanding() {
         {/* Animated Background Gradient */}
         <div className='absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-pink-600/5'></div>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-200/20 via-transparent to-transparent'></div>
-        
+
         <div className='max-w-7xl mx-auto relative z-10'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-16 items-center'>
             <div className='space-y-8'>
@@ -53,7 +56,7 @@ export default function MainLanding() {
                   ✨ The Future of Travel
                 </span>
               </div>
-              
+
               <h1 className='text-6xl lg:text-7xl font-black leading-tight'>
                 <span className='bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent'>
                   Discover
@@ -65,13 +68,17 @@ export default function MainLanding() {
                 <br />
                 <span className='text-gray-900'>Experiences</span>
               </h1>
-              
+
               <p className='text-2xl text-gray-600 leading-relaxed max-w-xl'>
-                Connect with passionate local guides who transform ordinary trips into 
-                <span className='text-blue-600 font-semibold'> extraordinary adventures</span>. 
-                Your journey, your way.
+                Connect with passionate local guides who transform ordinary
+                trips into
+                <span className='text-blue-600 font-semibold'>
+                  {' '}
+                  extraordinary adventures
+                </span>
+                . Your journey, your way.
               </p>
-              
+
               <div className='flex flex-col sm:flex-row gap-4 pt-4'>
                 <Link
                   href='/tourists'
@@ -101,11 +108,15 @@ export default function MainLanding() {
                 <div>
                   <div className='flex items-center gap-1 mb-1'>
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <span key={i} className='text-yellow-400 text-xl'>★</span>
+                      <span key={i} className='text-yellow-400 text-xl'>
+                        ★
+                      </span>
                     ))}
                   </div>
                   <p className='text-sm text-gray-600 font-medium'>
-                    Loved by <span className='font-bold text-gray-900'>50,000+</span> travelers
+                    Loved by{' '}
+                    <span className='font-bold text-gray-900'>50,000+</span>{' '}
+                    travelers
                   </p>
                 </div>
               </div>
@@ -119,15 +130,21 @@ export default function MainLanding() {
                 <div className='absolute inset-0 flex items-center justify-center'>
                   <div className='text-center space-y-4'>
                     <div className='text-8xl'>🌍</div>
-                    <p className='text-white text-2xl font-bold'>Your Adventure Awaits</p>
+                    <p className='text-white text-2xl font-bold'>
+                      Your Adventure Awaits
+                    </p>
                   </div>
                 </div>
                 {/* Floating Cards */}
                 <div className='absolute top-10 right-10 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-xl transform rotate-6 hover:rotate-0 transition-transform duration-300'>
-                  <p className='text-sm font-semibold text-gray-900'>⭐ 4.9/5 Rating</p>
+                  <p className='text-sm font-semibold text-gray-900'>
+                    ⭐ 4.9/5 Rating
+                  </p>
                 </div>
                 <div className='absolute bottom-10 left-10 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-xl transform -rotate-6 hover:rotate-0 transition-transform duration-300'>
-                  <p className='text-sm font-semibold text-gray-900'>🎯 1000+ Tours</p>
+                  <p className='text-sm font-semibold text-gray-900'>
+                    🎯 1000+ Tours
+                  </p>
                 </div>
               </div>
             </div>
@@ -140,12 +157,17 @@ export default function MainLanding() {
         {/* Decorative Elements */}
         <div className='absolute top-0 left-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-20'></div>
         <div className='absolute bottom-0 right-0 w-96 h-96 bg-purple-100 rounded-full blur-3xl opacity-20'></div>
-        
+
         <div className='max-w-7xl mx-auto relative z-10'>
           <div className='text-center mb-20'>
-            <span className='text-blue-600 font-semibold text-sm uppercase tracking-wider'>Simple & Seamless</span>
+            <span className='text-blue-600 font-semibold text-sm uppercase tracking-wider'>
+              Simple & Seamless
+            </span>
             <h2 className='text-5xl lg:text-6xl font-black text-gray-900 mt-4 mb-6'>
-              How It <span className='bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>Works</span>
+              How It{' '}
+              <span className='bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
+                Works
+              </span>
             </h2>
             <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
               Your journey from discovery to adventure in three effortless steps
@@ -160,9 +182,15 @@ export default function MainLanding() {
                 <div className='w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300'>
                   <span className='text-3xl font-black text-white'>1</span>
                 </div>
-                <h3 className='text-2xl font-bold mb-4 text-gray-900'>Discover</h3>
+                <h3 className='text-2xl font-bold mb-4 text-gray-900'>
+                  Discover
+                </h3>
                 <p className='text-gray-600 leading-relaxed'>
-                  Explore curated tours from <span className='font-semibold text-blue-600'>passionate local experts</span> in destinations worldwide. Find your perfect adventure.
+                  Explore curated tours from{' '}
+                  <span className='font-semibold text-blue-600'>
+                    passionate local experts
+                  </span>{' '}
+                  in destinations worldwide. Find your perfect adventure.
                 </p>
                 <div className='mt-6 flex justify-center'>
                   <span className='text-4xl'>🔍</span>
@@ -177,9 +205,19 @@ export default function MainLanding() {
                 <div className='w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300'>
                   <span className='text-3xl font-black text-white'>2</span>
                 </div>
-                <h3 className='text-2xl font-bold mb-4 text-gray-900'>Choose</h3>
+                <h3 className='text-2xl font-bold mb-4 text-gray-900'>
+                  Choose
+                </h3>
                 <p className='text-gray-600 leading-relaxed'>
-                  Select between <span className='font-semibold text-purple-600'>self-guided audio tours</span> or <span className='font-semibold text-purple-600'>live in-person experiences</span>. Your journey, your way.
+                  Select between{' '}
+                  <span className='font-semibold text-purple-600'>
+                    self-guided audio tours
+                  </span>{' '}
+                  or{' '}
+                  <span className='font-semibold text-purple-600'>
+                    live in-person experiences
+                  </span>
+                  . Your journey, your way.
                 </p>
                 <div className='mt-6 flex justify-center gap-3'>
                   <span className='text-3xl'>📱</span>
@@ -195,9 +233,19 @@ export default function MainLanding() {
                 <div className='w-20 h-20 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300'>
                   <span className='text-3xl font-black text-white'>3</span>
                 </div>
-                <h3 className='text-2xl font-bold mb-4 text-gray-900'>Explore</h3>
+                <h3 className='text-2xl font-bold mb-4 text-gray-900'>
+                  Explore
+                </h3>
                 <p className='text-gray-600 leading-relaxed'>
-                  Embark on your adventure, discover <span className='font-semibold text-pink-600'>hidden gems</span>, and create <span className='font-semibold text-pink-600'>unforgettable memories</span> that last a lifetime.
+                  Embark on your adventure, discover{' '}
+                  <span className='font-semibold text-pink-600'>
+                    hidden gems
+                  </span>
+                  , and create{' '}
+                  <span className='font-semibold text-pink-600'>
+                    unforgettable memories
+                  </span>{' '}
+                  that last a lifetime.
                 </p>
                 <div className='mt-6 flex justify-center'>
                   <span className='text-4xl'>✨</span>
@@ -294,26 +342,27 @@ export default function MainLanding() {
         <div className='absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600'></div>
         <div className='absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,_rgba(255,255,255,0.1)_0%,_transparent_50%)]'></div>
         <div className='absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,_rgba(255,255,255,0.1)_0%,_transparent_50%)]'></div>
-        
+
         <div className='max-w-5xl mx-auto text-center relative z-10'>
           <div className='inline-block mb-6'>
             <span className='bg-white/20 backdrop-blur-sm text-white text-sm font-bold px-6 py-2 rounded-full'>
               🚀 Join 50,000+ Travelers
             </span>
           </div>
-          
+
           <h2 className='text-5xl lg:text-6xl font-black text-white mb-8 leading-tight'>
-            Your Next Adventure<br />
+            Your Next Adventure
+            <br />
             <span className='bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent'>
               Starts Here
             </span>
           </h2>
-          
+
           <p className='text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed'>
-            Stop dreaming. Start exploring. Connect with passionate local guides 
+            Stop dreaming. Start exploring. Connect with passionate local guides
             and transform the way you experience the world.
           </p>
-          
+
           <div className='flex flex-col sm:flex-row justify-center gap-6'>
             <Link
               href='/register'
@@ -357,7 +406,8 @@ export default function MainLanding() {
                 Explora
               </h3>
               <p className='text-gray-400 leading-relaxed mb-6'>
-                Transforming the way the world explores, one adventure at a time.
+                Transforming the way the world explores, one adventure at a
+                time.
               </p>
               <div className='flex gap-4'>
                 <div className='w-10 h-10 bg-white/10 rounded-full hover:bg-white/20 transition-colors duration-200 flex items-center justify-center cursor-pointer'>
@@ -374,38 +424,73 @@ export default function MainLanding() {
             <div>
               <h4 className='font-bold mb-4 text-white'>For Tourists</h4>
               <ul className='space-y-3 text-gray-400'>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Browse Tours</li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>How It Works</li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Mobile App</li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Gift Cards</li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Browse Tours
+                </li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  How It Works
+                </li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Mobile App
+                </li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Gift Cards
+                </li>
               </ul>
             </div>
             <div>
               <h4 className='font-bold mb-4 text-white'>For Guides</h4>
               <ul className='space-y-3 text-gray-400'>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Become a Guide</li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Guide Dashboard</li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Pricing</li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Resources</li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Become a Guide
+                </li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Guide Dashboard
+                </li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Pricing
+                </li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Resources
+                </li>
               </ul>
             </div>
             <div>
               <h4 className='font-bold mb-4 text-white'>Company</h4>
               <ul className='space-y-3 text-gray-400'>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>About Us</li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Contact</li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Terms of Service</li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>Privacy Policy</li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  About Us
+                </li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Contact
+                </li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Terms of Service
+                </li>
+                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                  Privacy Policy
+                </li>
               </ul>
             </div>
           </div>
           <div className='border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4'>
-            <p className='text-gray-400 text-sm'>&copy; 2025 Explora. All rights reserved. Built with ❤️ for travelers.</p>
+            <p className='text-gray-400 text-sm'>
+              &copy; 2025 Explora. All rights reserved. Built with ❤️ for
+              travelers.
+            </p>
             <div className='flex gap-6 text-gray-400 text-sm'>
-              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>English</span>
-              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>Español</span>
-              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>Français</span>
-              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>Português</span>
+              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                English
+              </span>
+              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                Español
+              </span>
+              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                Français
+              </span>
+              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>
+                Português
+              </span>
             </div>
           </div>
         </div>
