@@ -2,12 +2,13 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { ReactNode, useEffect } from 'react'
 
 export default function GuideLayout({ children }: { children: ReactNode }) {
   const { user, logout, isAuthenticated, loading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     // Wait for loading to finish
@@ -48,30 +49,34 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
                 Explora Guide
               </Link>
               <div className='hidden md:flex gap-6'>
-                <NavLink href='/dashboard'>Dashboard</NavLink>
-                <NavLink href='/tours'>Tours</NavLink>
-                <NavLink href='/balance'>Balance</NavLink>
-                <NavLink href='/orders'>Orders</NavLink>
-                <NavLink href='/agenda'>Agenda</NavLink>
-                <NavLink href='/feedback'>Feedback</NavLink>
-                <NavLink href='/claims'>Claims</NavLink>
+                <NavLink href='/dashboard' active={pathname === '/dashboard'}>Dashboard</NavLink>
+                <NavLink href='/tours' active={pathname.startsWith('/tours')}>Tours</NavLink>
+                <NavLink href='/balance' active={pathname === '/balance'}>Balance</NavLink>
+                <NavLink href='/orders' active={pathname === '/orders'}>Orders</NavLink>
+                <NavLink href='/agenda' active={pathname === '/agenda'}>Agenda</NavLink>
+                <NavLink href='/feedback' active={pathname === '/feedback'}>Feedback</NavLink>
+                <NavLink href='/claims' active={pathname === '/claims'}>Claims</NavLink>
               </div>
             </div>
             <div className='flex items-center gap-4'>
               {user && (
-                <span className='text-sm text-gray-600'>
+                <span className='text-sm font-medium text-gray-700'>
                   {user.fullName || user.username}
                 </span>
               )}
               <Link
                 href='/settings'
-                className='text-gray-600 hover:text-gray-900'
+                className={`text-sm font-medium transition-colors duration-200 ${
+                  pathname === '/settings'
+                    ? 'text-blue-600 font-semibold'
+                    : 'text-gray-600 hover:text-blue-600'
+                }`}
               >
                 Settings
               </Link>
               <button
                 onClick={logout}
-                className='text-sm text-gray-600 hover:text-gray-900'
+                className='text-sm font-medium text-gray-600 hover:text-red-600 transition-colors duration-200'
               >
                 Logout
               </button>
@@ -86,11 +91,23 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
   )
 }
 
-function NavLink({ href, children }: { href: string; children: ReactNode }) {
+function NavLink({ 
+  href, 
+  children, 
+  active = false 
+}: { 
+  href: string
+  children: ReactNode
+  active?: boolean
+}) {
   return (
     <Link
       href={href}
-      className='text-gray-600 hover:text-gray-900 font-medium text-sm'
+      className={`font-semibold text-sm transition-all duration-200 px-3 py-1 rounded-md ${
+        active 
+          ? 'text-blue-600 bg-blue-50' 
+          : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
+      }`}
     >
       {children}
     </Link>

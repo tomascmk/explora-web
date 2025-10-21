@@ -213,7 +213,10 @@ export default function RegisterPage() {
         </div>
 
         <div className='mt-4 text-center'>
-          <Link href='/' className='text-sm text-gray-600 hover:text-gray-900 font-medium'>
+          <Link
+            href='/'
+            className='text-sm text-gray-600 hover:text-gray-900 font-medium'
+          >
             ← Back to home
           </Link>
         </div>

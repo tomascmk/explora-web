@@ -20,36 +20,36 @@
 
 ### Primary Colors
 
-| Color | Hex | Tailwind | Usage |
-|-------|-----|----------|-------|
-| **Blue Primary** | #2563EB | `blue-600` | Primary CTA, links, accents |
-| **Purple** | #7C3AED | `purple-600` | Secondary accents, gradients |
-| **Pink** | #EC4899 | `pink-600` | Tertiary accents, gradients |
-| **Green Success** | #16A34A | `green-600` | Success states, positive metrics |
-| **Red Error** | #DC2626 | `red-600` | Errors, negative metrics |
-| **Yellow Warning** | #CA8A04 | `yellow-600` | Warnings, ratings |
+| Color              | Hex     | Tailwind     | Usage                            |
+| ------------------ | ------- | ------------ | -------------------------------- |
+| **Blue Primary**   | #2563EB | `blue-600`   | Primary CTA, links, accents      |
+| **Purple**         | #7C3AED | `purple-600` | Secondary accents, gradients     |
+| **Pink**           | #EC4899 | `pink-600`   | Tertiary accents, gradients      |
+| **Green Success**  | #16A34A | `green-600`  | Success states, positive metrics |
+| **Red Error**      | #DC2626 | `red-600`    | Errors, negative metrics         |
+| **Yellow Warning** | #CA8A04 | `yellow-600` | Warnings, ratings                |
 
 ### Text Colors (HIGH CONTRAST)
 
-| Usage | Color | Tailwind | Contrast Ratio |
-|-------|-------|----------|----------------|
-| **Headings (H1-H2)** | #111827 | `text-gray-900` + `font-bold` | 14:1 ✅ |
-| **Subheadings (H3-H4)** | #111827 | `text-gray-900` + `font-semibold` | 14:1 ✅ |
-| **Labels** | #111827 | `text-gray-900` + `font-semibold` | 14:1 ✅ |
-| **Body Text** | #374151 | `text-gray-700` | 8.6:1 ✅ |
-| **Secondary Text** | #4B5563 | `text-gray-600` | 7:1 ✅ |
-| **Disabled Text** | #6B7280 | `text-gray-500` | 4.5:1 ⚠️ (use sparingly) |
+| Usage                   | Color   | Tailwind                          | Contrast Ratio           |
+| ----------------------- | ------- | --------------------------------- | ------------------------ |
+| **Headings (H1-H2)**    | #111827 | `text-gray-900` + `font-bold`     | 14:1 ✅                  |
+| **Subheadings (H3-H4)** | #111827 | `text-gray-900` + `font-semibold` | 14:1 ✅                  |
+| **Labels**              | #111827 | `text-gray-900` + `font-semibold` | 14:1 ✅                  |
+| **Body Text**           | #374151 | `text-gray-700`                   | 8.6:1 ✅                 |
+| **Secondary Text**      | #4B5563 | `text-gray-600`                   | 7:1 ✅                   |
+| **Disabled Text**       | #6B7280 | `text-gray-500`                   | 4.5:1 ⚠️ (use sparingly) |
 
 **❌ NEVER USE** `text-gray-400` for important text (contrast ratio 2.8:1 - FAILS WCAG)
 
 ### Background Colors
 
-| Usage | Color | Tailwind |
-|-------|-------|----------|
-| **Page Background** | Gradient | `bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50` |
-| **Card Background** | #FFFFFF | `bg-white` |
-| **Section Background** | #F9FAFB | `bg-gray-50` |
-| **Hover State** | #F3F4F6 | `hover:bg-gray-100` |
+| Usage                  | Color    | Tailwind                                                   |
+| ---------------------- | -------- | ---------------------------------------------------------- |
+| **Page Background**    | Gradient | `bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50` |
+| **Card Background**    | #FFFFFF  | `bg-white`                                                 |
+| **Section Background** | #F9FAFB  | `bg-gray-50`                                               |
+| **Hover State**        | #F3F4F6  | `hover:bg-gray-100`                                        |
 
 ---
 
@@ -61,7 +61,7 @@
 // Page Title (H1)
 <h1 className='text-3xl font-bold text-gray-900 mb-6'>
 
-// Section Title (H2)  
+// Section Title (H2)
 <h2 className='text-2xl font-bold text-gray-900 mb-4'>
 
 // Card Title (H3)
@@ -147,9 +147,7 @@
     className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900'
     placeholder='guide@example.com'
   />
-  <p className='text-xs text-gray-600 mt-1 font-medium'>
-    Helper text
-  </p>
+  <p className='text-xs text-gray-600 mt-1 font-medium'>Helper text</p>
 </div>
 ```
 
@@ -225,39 +223,39 @@ className='bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600'
 
 ```tsx
 // Backdrop Blur
-className='backdrop-blur-md bg-white/70'
+className = 'backdrop-blur-md bg-white/70'
 
 // Card with Blur
-className='bg-white/50 backdrop-blur-sm border border-white/20'
+className = 'bg-white/50 backdrop-blur-sm border border-white/20'
 ```
 
 ### Shadows
 
 ```tsx
 // Small
-className='shadow-sm hover:shadow-md'
+className = 'shadow-sm hover:shadow-md'
 
 // Medium
-className='shadow-md hover:shadow-lg'
+className = 'shadow-md hover:shadow-lg'
 
 // Large
-className='shadow-xl hover:shadow-2xl'
+className = 'shadow-xl hover:shadow-2xl'
 
 // Colored Shadow
-className='shadow-2xl hover:shadow-blue-500/50'
+className = 'shadow-2xl hover:shadow-blue-500/50'
 ```
 
 ### Hover States
 
 ```tsx
 // Scale Transform
-className='hover:scale-105 transition-transform duration-300'
+className = 'hover:scale-105 transition-transform duration-300'
 
 // Shadow + Scale
-className='hover:shadow-xl hover:scale-105 transition-all duration-300'
+className = 'hover:shadow-xl hover:scale-105 transition-all duration-300'
 
 // Background Change
-className='hover:bg-gray-100 transition-colors duration-200'
+className = 'hover:bg-gray-100 transition-colors duration-200'
 ```
 
 ---
@@ -266,23 +264,23 @@ className='hover:bg-gray-100 transition-colors duration-200'
 
 ### Padding
 
-| Size | Class | Usage |
-|------|-------|-------|
-| XS | `p-2` | Tight spacing, badges |
-| SM | `p-4` | Card padding (mobile) |
-| MD | `p-6` | Card padding (standard) |
-| LG | `p-8` | Page padding, large cards |
-| XL | `p-12` | Section padding |
+| Size | Class  | Usage                     |
+| ---- | ------ | ------------------------- |
+| XS   | `p-2`  | Tight spacing, badges     |
+| SM   | `p-4`  | Card padding (mobile)     |
+| MD   | `p-6`  | Card padding (standard)   |
+| LG   | `p-8`  | Page padding, large cards |
+| XL   | `p-12` | Section padding           |
 
 ### Margins
 
-| Size | Class | Usage |
-|------|-------|-------|
-| XS | `mb-2` | Form fields spacing |
-| SM | `mb-4` | Component spacing |
-| MD | `mb-6` | Section spacing |
-| LG | `mb-8` | Page section spacing |
-| XL | `mb-12` | Major section spacing |
+| Size | Class   | Usage                 |
+| ---- | ------- | --------------------- |
+| XS   | `mb-2`  | Form fields spacing   |
+| SM   | `mb-4`  | Component spacing     |
+| MD   | `mb-6`  | Section spacing       |
+| LG   | `mb-8`  | Page section spacing  |
+| XL   | `mb-12` | Major section spacing |
 
 ---
 
@@ -290,16 +288,16 @@ className='hover:bg-gray-100 transition-colors duration-200'
 
 ```tsx
 // Mobile First
-className='grid-cols-1'
+className = 'grid-cols-1'
 
 // Tablet (≥768px)
-className='md:grid-cols-2'
+className = 'md:grid-cols-2'
 
-// Desktop (≥1024px)  
-className='lg:grid-cols-4'
+// Desktop (≥1024px)
+className = 'lg:grid-cols-4'
 
 // Large Desktop (≥1280px)
-className='xl:grid-cols-5'
+className = 'xl:grid-cols-5'
 ```
 
 ---
@@ -309,15 +307,18 @@ className='xl:grid-cols-5'
 ### Minimum Requirements
 
 1. **Color Contrast**:
+
    - Text on white: Minimum 7:1 ratio (use `text-gray-700` or darker)
    - Large text: Minimum 4.5:1 ratio
    - UI components: Minimum 3:1 ratio
 
 2. **Focus States**:
+
    - All interactive elements MUST have `focus:ring-2`
    - Use `focus:ring-blue-500` for consistency
 
 3. **Font Sizes**:
+
    - Minimum body text: `text-sm` (14px)
    - Minimum labels: `text-sm` (14px)
    - Buttons: `text-base` or `text-lg` (16px+)
@@ -400,4 +401,3 @@ transform rotate-6 hover:rotate-0
 ---
 
 **Use this guide to ensure visual consistency and accessibility across all pages!**
-

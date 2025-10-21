@@ -9,17 +9,20 @@
 ### Error: "Failed to read RSC payload - React version mismatch"
 
 **Error Message**:
+
 ```
-Failed to read a RSC payload created by a development version of React 
+Failed to read a RSC payload created by a development version of React
 on the server while using a production version on the client.
 ```
 
 **Causa**:
+
 - Caché corrupto de Next.js/Turbopack
 - Node modules mezclados entre versiones
 - HMR (Hot Module Replacement) error
 
 **Solución**:
+
 ```bash
 cd /Users/tomascormack/Documents/GitHub/explora-web
 
@@ -43,16 +46,19 @@ pnpm dev
 ### Error: "Module factory is not available" (HMR)
 
 **Error Message**:
+
 ```
-Module 9097 was instantiated but the module factory is not available. 
+Module 9097 was instantiated but the module factory is not available.
 It might have been deleted in an HMR update.
 ```
 
 **Causa**:
+
 - Turbopack HMR error después de cambios de código
 - Caché corrupto
 
 **Solución Quick**:
+
 ```bash
 # Opción 1: Reiniciar servidor
 pkill -f "next dev"
@@ -61,6 +67,7 @@ pnpm dev
 ```
 
 **Solución Completa**:
+
 ```bash
 # Si persiste, limpiar caché
 cd /Users/tomascormack/Documents/GitHub/explora-web
@@ -69,6 +76,7 @@ pnpm dev
 ```
 
 **En el navegador**:
+
 - Hard refresh: **Cmd+Shift+R** (Mac) o **Ctrl+Shift+R** (Windows/Linux)
 
 ---
@@ -76,10 +84,12 @@ pnpm dev
 ### Error: Login/Register "Failed to fetch"
 
 **Causa**:
+
 - Backend no está corriendo
 - Puerto 3001 ocupado por otro proceso
 
 **Solución**:
+
 ```bash
 # 1. Verificar si backend está corriendo
 curl http://localhost:3001/graphql
@@ -100,16 +110,19 @@ pnpm run start:dev
 ### Error: TypeORM Enum Mismatch
 
 **Error Message**:
+
 ```
 invalid input value for enum users_roles_enum: "tourist"
 ```
 
 **Causa**:
+
 - Enum en base de datos tiene valores viejos (minúsculas)
 - Código usa valores nuevos (MAYÚSCULAS)
 - TypeORM `synchronize: true` intenta migrar y falla
 
 **Solución**:
+
 ```bash
 # 1. Limpiar base de datos completamente
 cd /Users/tomascormack/Documents/GitHub/explora-api
@@ -125,6 +138,7 @@ pnpm run start:dev
 ```
 
 **Solución Quirúrgica** (si no quieres perder datos):
+
 ```bash
 # Eliminar solo el enum problemático
 docker exec explora_db psql -U explora -d explora_db -c "DROP TYPE IF EXISTS users_roles_enum CASCADE;"
@@ -140,6 +154,7 @@ pnpm run start:dev
 ### Error: Registration "Field roles was not provided"
 
 **Error Message**:
+
 ```
 Field "roles" of required type "String!" was not provided
 ```
@@ -148,6 +163,7 @@ Field "roles" of required type "String!" was not provided
 ✅ Ya está arreglado en código (commit `fd94d04`)
 
 Asegúrate de tener la última versión:
+
 ```bash
 cd /Users/tomascormack/Documents/GitHub/explora-web
 git pull
@@ -159,23 +175,27 @@ pnpm install
 ### Error: Password Validation
 
 **Error Message**:
+
 ```
-La contraseña debe contener al menos una letra mayúscula, 
+La contraseña debe contener al menos una letra mayúscula,
 una minúscula, un número y un carácter especial
 ```
 
 **Causa**:
+
 - El backend tiene validación estricta de contraseñas
 
 **Solución**:
 Usa una contraseña que cumpla todos los requisitos:
 
 ✅ **Ejemplos válidos**:
+
 - `Password123!`
 - `Guide@2025`
 - `MySecure#Pass1`
 
 ❌ **Ejemplos inválidos**:
+
 - `password123` (falta mayúscula y especial)
 - `Password` (falta número y especial)
 - `PASSWORD123!` (falta minúscula)
@@ -185,11 +205,13 @@ Usa una contraseña que cumpla todos los requisitos:
 ### Error: Port Already in Use
 
 **Error Message**:
+
 ```
 Port 3000 is already in use
 ```
 
 **Solución**:
+
 ```bash
 # Ver qué está usando el puerto
 lsof -i :3000
@@ -208,6 +230,7 @@ pkill -f "next dev"
 **Síntoma**: Infinite redirects a `/login`
 
 **Causa**:
+
 - Middleware buscando token en cookies
 - Token almacenado en localStorage
 
@@ -223,6 +246,7 @@ El middleware ahora usa client-side auth con `AuthContext`.
 **Síntoma**: Labels gris claro, texto difícil de leer
 
 **Causa**:
+
 - Browser theme (dark mode) interfiriendo
 - Estilos Tailwind sobrescritos por browser
 
@@ -232,6 +256,7 @@ El middleware ahora usa client-side auth con `AuthContext`.
 El `globals.css` ahora fuerza light mode y colores específicos.
 
 **Si persiste**:
+
 - Hard refresh: **Cmd+Shift+R**
 - Limpia caché del navegador
 - Desactiva extensiones del navegador
@@ -262,6 +287,7 @@ pnpm dev
 ```
 
 En el navegador:
+
 - Cerrar TODAS las pestañas de localhost:3000
 - Limpiar caché: DevTools → Application → Clear storage
 - Abrir nueva pestaña incógnito
@@ -420,4 +446,3 @@ docker-compose up -d
 
 **Desarrollado por**: Tomas Cormack  
 **Mantener actualizado** después de cada nuevo tipo de error encontrado
-

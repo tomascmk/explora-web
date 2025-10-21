@@ -21,7 +21,9 @@ export default function GuideDashboardPage() {
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         {/* Revenue Chart */}
         <div className='bg-white rounded-lg shadow p-6'>
-          <h2 className='text-xl font-bold text-gray-900 mb-4'>Revenue This Month</h2>
+          <h2 className='text-xl font-bold text-gray-900 mb-4'>
+            Revenue This Month
+          </h2>
           <div className='h-64 flex items-center justify-center text-gray-500 font-medium'>
             Chart Component (Recharts)
           </div>
@@ -29,7 +31,9 @@ export default function GuideDashboardPage() {
 
         {/* Recent Feedback */}
         <div className='bg-white rounded-lg shadow p-6'>
-          <h2 className='text-xl font-bold text-gray-900 mb-4'>Recent Feedback</h2>
+          <h2 className='text-xl font-bold text-gray-900 mb-4'>
+            Recent Feedback
+          </h2>
           <div className='space-y-4'>
             <FeedbackItem
               tour='Historic City Tour'
@@ -66,7 +70,9 @@ function MetricCard({
       <p className='text-sm font-semibold text-gray-700 mb-1'>{title}</p>
       <p className='text-3xl font-black text-gray-900 mb-2'>{value}</p>
       <p
-        className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}
+        className={`text-sm font-medium ${
+          isPositive ? 'text-green-600' : 'text-red-600'
+        }`}
       >
         {change} from last period
       </p>
