@@ -81,18 +81,18 @@ export default function LoginPage() {
           <h1 className='text-3xl font-bold text-gray-900 mb-2'>
             Welcome Back
           </h1>
-          <p className='text-gray-600'>Sign in to your guide account</p>
+          <p className='text-gray-700'>Sign in to your guide account</p>
         </div>
 
         <form onSubmit={handleSubmit} className='space-y-6'>
           {error && (
-            <div className='bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm'>
+            <div className='bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm font-medium border border-red-200'>
               {error}
             </div>
           )}
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-semibold text-gray-900 mb-2'>
               Email
             </label>
             <input
@@ -106,7 +106,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-semibold text-gray-900 mb-2'>
               Password
             </label>
             <input
@@ -128,18 +128,18 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className='mt-6 text-center text-sm text-gray-600'>
+        <div className='mt-6 text-center text-sm text-gray-700'>
           Don't have an account?{' '}
           <Link
             href='/register'
-            className='text-blue-600 hover:underline font-medium'
+            className='text-blue-600 hover:underline font-semibold'
           >
             Register as a Guide
           </Link>
         </div>
 
         <div className='mt-4 text-center'>
-          <Link href='/' className='text-sm text-gray-500 hover:text-gray-700'>
+          <Link href='/' className='text-sm text-gray-600 hover:text-gray-900 font-medium'>
             ← Back to home
           </Link>
         </div>

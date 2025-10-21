@@ -21,15 +21,15 @@ export default function GuideDashboardPage() {
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         {/* Revenue Chart */}
         <div className='bg-white rounded-lg shadow p-6'>
-          <h2 className='text-xl font-semibold mb-4'>Revenue This Month</h2>
-          <div className='h-64 flex items-center justify-center text-gray-400'>
+          <h2 className='text-xl font-bold text-gray-900 mb-4'>Revenue This Month</h2>
+          <div className='h-64 flex items-center justify-center text-gray-500 font-medium'>
             Chart Component (Recharts)
           </div>
         </div>
 
         {/* Recent Feedback */}
         <div className='bg-white rounded-lg shadow p-6'>
-          <h2 className='text-xl font-semibold mb-4'>Recent Feedback</h2>
+          <h2 className='text-xl font-bold text-gray-900 mb-4'>Recent Feedback</h2>
           <div className='space-y-4'>
             <FeedbackItem
               tour='Historic City Tour'
@@ -63,10 +63,10 @@ function MetricCard({
 
   return (
     <div className='bg-white rounded-lg shadow p-6'>
-      <p className='text-sm text-gray-600 mb-1'>{title}</p>
-      <p className='text-2xl font-bold mb-2'>{value}</p>
+      <p className='text-sm font-semibold text-gray-700 mb-1'>{title}</p>
+      <p className='text-3xl font-black text-gray-900 mb-2'>{value}</p>
       <p
-        className={`text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}
+        className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}
       >
         {change} from last period
       </p>
@@ -88,7 +88,7 @@ function FeedbackItem({
   return (
     <div className='border-b pb-4 last:border-0'>
       <div className='flex justify-between items-start mb-2'>
-        <p className='font-medium'>{tour}</p>
+        <p className='font-semibold text-gray-900'>{tour}</p>
         <div className='flex'>
           {Array.from({ length: rating }).map((_, i) => (
             <span key={i} className='text-yellow-400'>
@@ -97,8 +97,8 @@ function FeedbackItem({
           ))}
         </div>
       </div>
-      <p className='text-sm text-gray-600 mb-1'>{comment}</p>
-      <p className='text-xs text-gray-400'>- {author}</p>
+      <p className='text-sm text-gray-700 mb-1'>{comment}</p>
+      <p className='text-xs text-gray-600 font-medium'>- {author}</p>
     </div>
   )
 }

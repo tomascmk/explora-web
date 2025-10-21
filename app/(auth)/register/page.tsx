@@ -105,18 +105,18 @@ export default function RegisterPage() {
           <h1 className='text-3xl font-bold text-gray-900 mb-2'>
             Become a Guide
           </h1>
-          <p className='text-gray-600'>Join our community of local experts</p>
+          <p className='text-gray-700'>Join our community of local experts</p>
         </div>
 
         <form onSubmit={handleSubmit} className='space-y-4'>
           {error && (
-            <div className='bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm'>
+            <div className='bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm font-medium border border-red-200'>
               {error}
             </div>
           )}
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-semibold text-gray-900 mb-2'>
               Username
             </label>
             <input
@@ -131,7 +131,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-semibold text-gray-900 mb-2'>
               Full Name
             </label>
             <input
@@ -146,7 +146,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-semibold text-gray-900 mb-2'>
               Email
             </label>
             <input
@@ -161,7 +161,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-semibold text-gray-900 mb-2'>
               Password
             </label>
             <input
@@ -173,13 +173,13 @@ export default function RegisterPage() {
               placeholder='••••••••'
               required
             />
-            <p className='text-xs text-gray-500 mt-1'>
+            <p className='text-xs text-gray-600 mt-1 font-medium'>
               Must contain uppercase, lowercase, number, and special character
             </p>
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-semibold text-gray-900 mb-2'>
               Confirm Password
             </label>
             <input
@@ -202,18 +202,18 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <div className='mt-6 text-center text-sm text-gray-600'>
+        <div className='mt-6 text-center text-sm text-gray-700'>
           Already have an account?{' '}
           <Link
             href='/login'
-            className='text-blue-600 hover:underline font-medium'
+            className='text-blue-600 hover:underline font-semibold'
           >
             Sign In
           </Link>
         </div>
 
         <div className='mt-4 text-center'>
-          <Link href='/' className='text-sm text-gray-500 hover:text-gray-700'>
+          <Link href='/' className='text-sm text-gray-600 hover:text-gray-900 font-medium'>
             ← Back to home
           </Link>
         </div>
