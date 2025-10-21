@@ -61,30 +61,37 @@ export default function RegisterPage() {
               email: formData.email,
               fullName: formData.fullName,
               password: formData.password,
-              confirmPassword: formData.confirmPassword,
-              roles: 'GUIDE' // Register as guide
+              confirmPassword: formData.confirmPassword
             }
           }
         })
       })
 
-      const { data, errors } = await response.json()
+      const result = await response.json()
 
-      if (errors) {
-        throw new Error(errors[0].message)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      if (data?.register) {
+      if (result.errors && result.errors.length > 0) {
+        console.error('GraphQL Errors:', result.errors)
+        throw new Error(result.errors[0].message || 'Registration failed')
+      }
+
+      if (result.data?.register) {
         // Store tokens
-        localStorage.setItem('authToken', data.register.access_token)
-        localStorage.setItem('refreshToken', data.register.refresh_token)
-        localStorage.setItem('user', JSON.stringify(data.register.user))
+        localStorage.setItem('authToken', result.data.register.access_token)
+        localStorage.setItem('refreshToken', result.data.register.refresh_token)
+        localStorage.setItem('user', JSON.stringify(result.data.register.user))
 
         // Redirect to dashboard
         router.push('/dashboard')
+      } else {
+        throw new Error('No data returned from server')
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to register')
+      console.error('Registration error:', err)
+      setError(err.message || 'Failed to register. Please try again.')
     } finally {
       setLoading(false)
     }
