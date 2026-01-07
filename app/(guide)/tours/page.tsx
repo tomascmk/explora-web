@@ -9,13 +9,32 @@ import { toast } from 'sonner'
 import { GET_TOURS_BY_GUIDE, DELETE_TOUR } from '@/graphql/tours'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 
+interface Tour {
+  id: string
+  title: string
+  description: string
+  status: string
+  createdAt: string
+  media?: Array<{ url: string }>
+  categories?: Array<{ name: string }>
+  tourSteps?: Array<{ id: string }>
+}
+
+interface GetToursByGuideData {
+  toursByGuide: Tour[]
+}
+
+interface GetToursByGuideVars {
+  guideId: string | undefined
+}
+
 export default function ToursPage() {
   const { user } = useAuth()
   console.log('Rendering ToursPage with user:', user?.id)
   const router = useRouter()
   const [filter, setFilter] = useState('all')
 
-  const { data, loading, refetch } = useQuery(GET_TOURS_BY_GUIDE, {
+  const { data, loading, refetch } = useQuery<GetToursByGuideData, GetToursByGuideVars>(GET_TOURS_BY_GUIDE, {
     variables: { guideId: user?.id },
     skip: !user?.id,
   })
@@ -64,12 +83,18 @@ export default function ToursPage() {
   const tours = data?.toursByGuide || []
 
   // Filter tours based on selected filter
-  // Note: Backend doesn't have status field yet, so all tours are shown for now
-  const filteredTours = tours.filter((tour: any) => {
+  const filteredTours = tours.filter((tour) => {
     if (filter === 'all') return true
-    // TODO: Implement status filtering when backend supports it
-    return true
+    return tour.status === filter
   })
+
+  // Calculate counts for each status
+  const counts = {
+    all: tours.length,
+    active: tours.filter((t) => t.status === 'active').length,
+    draft: tours.filter((t) => t.status === 'draft').length,
+    archived: tours.filter((t) => t.status === 'archived').length
+  }
 
   if (loading) {
     return (
@@ -99,25 +124,25 @@ export default function ToursPage() {
           active={filter === 'all'}
           onClick={() => setFilter('all')}
         >
-          All Tours ({tours.length})
+          All Tours ({counts.all})
         </FilterButton>
         <FilterButton
           active={filter === 'active'}
           onClick={() => setFilter('active')}
         >
-          Active
+          Active ({counts.active})
         </FilterButton>
         <FilterButton
           active={filter === 'draft'}
           onClick={() => setFilter('draft')}
         >
-          Draft
+          Draft ({counts.draft})
         </FilterButton>
         <FilterButton
           active={filter === 'archived'}
           onClick={() => setFilter('archived')}
         >
-          Archived
+          Archived ({counts.archived})
         </FilterButton>
       </div>
 

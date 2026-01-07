@@ -6,6 +6,7 @@ export const GET_TOURS_BY_GUIDE = gql`
       id
       title
       description
+      status
       createdAt
       guide {
         id
@@ -15,6 +16,35 @@ export const GET_TOURS_BY_GUIDE = gql`
       tourSteps {
         id
         title
+        latitude
+        longitude
+        order
+      }
+      media {
+        id
+        url
+        type
+      }
+      categories {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const GET_TOUR_BY_ID = gql`
+  query GetTour($id: String!) {
+    tour(id: $id) {
+      id
+      title
+      description
+      status
+      createdAt
+      tourSteps {
+        id
+        title
+        description
         latitude
         longitude
         order
@@ -57,6 +87,38 @@ export const UPDATE_TOUR = gql`
       id
       title
       description
+    }
+  }
+`;
+
+export const UPDATE_TOUR_STEP = gql`
+  mutation UpdateTourStep($input: UpdateTourStepInput!) {
+    updateTourStep(input: $input) {
+      id
+      title
+      description
+      latitude
+      longitude
+      order
+    }
+  }
+`;
+
+export const DELETE_TOUR_STEP = gql`
+  mutation DeleteTourStep($id: String!) {
+    removeTourStep(id: $id) {
+      success
+      message
+    }
+  }
+`;
+
+export const CREATE_TOUR_STEP = gql`
+  mutation CreateTourStep($input: CreateTourStepInput!) {
+    createTourStep(input: $input) {
+      id
+      title
+      order
     }
   }
 `;
