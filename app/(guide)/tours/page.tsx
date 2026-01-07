@@ -1,15 +1,68 @@
 'use client'
 
+import { useQuery, useMutation } from '@apollo/client/react'
+import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { GET_TOURS_BY_GUIDE, DELETE_TOUR } from '@/graphql/tours'
 
 export default function ToursPage() {
+  const { user } = useAuth()
+  console.log('Rendering ToursPage with user:', user?.id)
+  const router = useRouter()
   const [filter, setFilter] = useState('all')
+
+  const { data, loading, refetch } = useQuery(GET_TOURS_BY_GUIDE, {
+    variables: { guideId: user?.id },
+    skip: !user?.id,
+  })
+
+  const [deleteTour, { loading: deleting }] = useMutation(DELETE_TOUR, {
+    onCompleted: () => {
+      refetch()
+    },
+  })
+
+  const handleDelete = async (id: string, title: string) => {
+    if (confirm(`¿Estás seguro de eliminar "${title}"?`)) {
+      try {
+        await deleteTour({ variables: { id } })
+      } catch (error) {
+        console.error('Error deleting tour:', error)
+        alert('Error al eliminar el tour')
+      }
+    }
+  }
+
+  const handleEdit = (id: string) => {
+    router.push(`/tours/${id}/edit`)
+  }
+
+  const tours = data?.toursByGuide || []
+
+  // Filter tours based on selected filter
+  // Note: Backend doesn't have status field yet, so all tours are shown for now
+  const filteredTours = tours.filter((tour: any) => {
+    if (filter === 'all') return true
+    // TODO: Implement status filtering when backend supports it
+    return true
+  })
+
+  if (loading) {
+    return (
+      <div className='p-8'>
+        <div className='flex justify-center items-center h-64'>
+          <div className='text-gray-600'>Cargando tours...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className='p-8'>
       <div className='flex justify-between items-center mb-8'>
-        <h1 className='text-3xl font-bold'>My Tours</h1>
+        <h1 className='text-3xl font-bold'>Real Tours List</h1>
         <Link
           href='/tours/create'
           className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition'
@@ -24,7 +77,7 @@ export default function ToursPage() {
           active={filter === 'all'}
           onClick={() => setFilter('all')}
         >
-          All Tours
+          All Tours ({tours.length})
         </FilterButton>
         <FilterButton
           active={filter === 'active'}
@@ -47,36 +100,35 @@ export default function ToursPage() {
       </div>
 
       {/* Tours Grid */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-        {/* Example Tours */}
-        <TourCard
-          title='Historic City Tour'
-          description='Walk through centuries of history'
-          price={75}
-          bookings={45}
-          rating={4.8}
-          status='active'
-          image='/placeholder-tour.jpg'
-        />
-        <TourCard
-          title='Food & Wine Experience'
-          description='Taste the authentic local cuisine'
-          price={95}
-          bookings={32}
-          rating={4.9}
-          status='active'
-          image='/placeholder-tour.jpg'
-        />
-        <TourCard
-          title='Sunset Photography Tour'
-          description='Capture the perfect golden hour'
-          price={60}
-          bookings={18}
-          rating={4.7}
-          status='draft'
-          image='/placeholder-tour.jpg'
-        />
-      </div>
+      {filteredTours.length === 0 ? (
+        <div className='text-center py-16'>
+          <p className='text-gray-500 text-lg mb-4'>No tours yet</p>
+          <Link
+            href='/tours/create'
+            className='inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition'
+          >
+            Create your first tour
+          </Link>
+        </div>
+      ) : (
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          {filteredTours.map((tour: any) => (
+            <TourCard
+              key={tour.id}
+              id={tour.id}
+              title={tour.title}
+              description={tour.description}
+              stepsCount={tour.tourSteps?.length || 0}
+              image={tour.media?.[0]?.url}
+              categories={tour.categories}
+              createdAt={tour.createdAt}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              deleting={deleting}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -105,55 +157,73 @@ function FilterButton({
 }
 
 function TourCard({
+  id,
   title,
   description,
-  price,
-  bookings,
-  rating,
-  status,
-  image
+  stepsCount,
+  image,
+  categories,
+  createdAt,
+  onEdit,
+  onDelete,
+  deleting
 }: {
+  id: string
   title: string
   description: string
-  price: number
-  bookings: number
-  rating: number
-  status: string
-  image: string
+  stepsCount: number
+  image?: string
+  categories?: any[]
+  createdAt: string
+  onEdit: (id: string) => void
+  onDelete: (id: string, title: string) => void
+  deleting: boolean
 }) {
+  const formattedDate = new Date(createdAt).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+
   return (
     <div className='bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition'>
-      <div className='h-48 bg-gradient-to-r from-blue-400 to-indigo-500'></div>
+      {image ? (
+        <div
+          className='h-48 bg-cover bg-center'
+          style={{ backgroundImage: `url(${image})` }}
+        />
+      ) : (
+        <div className='h-48 bg-gradient-to-r from-blue-400 to-indigo-500' />
+      )}
       <div className='p-6'>
         <div className='flex justify-between items-start mb-2'>
           <h3 className='text-lg font-semibold'>{title}</h3>
-          <span
-            className={`px-2 py-1 rounded text-xs ${
-              status === 'active'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-gray-100 text-gray-800'
-            }`}
+          {categories && categories.length > 0 && (
+            <span className='px-2 py-1 rounded text-xs bg-blue-100 text-blue-800'>
+              {categories[0].name}
+            </span>
+          )}
+        </div>
+        <p className='text-sm text-gray-600 mb-4 line-clamp-2'>{description}</p>
+        <div className='flex justify-between items-center text-sm mb-4'>
+          <div className='text-gray-600'>
+            <span className='font-semibold'>{stepsCount}</span> paradas
+          </div>
+          <div className='text-gray-500 text-xs'>{formattedDate}</div>
+        </div>
+        <div className='pt-4 border-t flex gap-2'>
+          <button
+            onClick={() => onEdit(id)}
+            className='flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition text-sm font-medium'
           >
-            {status}
-          </span>
-        </div>
-        <p className='text-sm text-gray-600 mb-4'>{description}</p>
-        <div className='flex justify-between items-center text-sm'>
-          <div>
-            <span className='font-semibold text-lg'>${price}</span>
-            <span className='text-gray-500'>/person</span>
-          </div>
-          <div className='text-right'>
-            <p className='text-gray-600'>{bookings} bookings</p>
-            <p className='text-yellow-600'>★ {rating}</p>
-          </div>
-        </div>
-        <div className='mt-4 pt-4 border-t flex gap-2'>
-          <button className='flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition text-sm'>
             Edit
           </button>
-          <button className='flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm'>
-            View
+          <button
+            onClick={() => onDelete(id, title)}
+            disabled={deleting}
+            className='flex-1 px-4 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 transition text-sm font-medium disabled:opacity-50'
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
           </button>
         </div>
       </div>

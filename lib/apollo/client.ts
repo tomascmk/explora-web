@@ -1,6 +1,6 @@
 'use client'
 
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client'
+import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client/core'
 import { setContext } from '@apollo/client/link/context'
 
 const API_URL =
