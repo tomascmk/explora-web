@@ -5,7 +5,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { GET_TOURS_BY_GUIDE, DELETE_TOUR } from '@/graphql/tours'
+import { ConfirmModal } from '@/components/ui/ConfirmModal'
 
 export default function ToursPage() {
   const { user } = useAuth()
@@ -20,18 +22,38 @@ export default function ToursPage() {
 
   const [deleteTour, { loading: deleting }] = useMutation(DELETE_TOUR, {
     onCompleted: () => {
+      toast.success('Tour eliminado correctamente')
       refetch()
     },
+    onError: (error) => {
+      toast.error('Error al eliminar el tour: ' + error.message)
+    }
   })
 
-  const handleDelete = async (id: string, title: string) => {
-    if (confirm(`¿Estás seguro de eliminar "${title}"?`)) {
-      try {
-        await deleteTour({ variables: { id } })
-      } catch (error) {
-        console.error('Error deleting tour:', error)
-        alert('Error al eliminar el tour')
-      }
+  // Modal State
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean
+    tourId: string
+    tourTitle: string
+  }>({
+    isOpen: false,
+    tourId: '',
+    tourTitle: ''
+  })
+
+  const handleDeleteClick = (id: string, title: string) => {
+    setModalConfig({
+      isOpen: true,
+      tourId: id,
+      tourTitle: title
+    })
+  }
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteTour({ variables: { id: modalConfig.tourId } })
+    } finally {
+      setModalConfig((prev) => ({ ...prev, isOpen: false }))
     }
   }
 
@@ -123,12 +145,25 @@ export default function ToursPage() {
               categories={tour.categories}
               createdAt={tour.createdAt}
               onEdit={handleEdit}
-              onDelete={handleDelete}
-              deleting={deleting}
+              onDelete={handleDeleteClick}
+              deleting={deleting && modalConfig.tourId === tour.id}
             />
           ))}
         </div>
       )}
+
+      {/* Reusable Confirm Modal */}
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={handleConfirmDelete}
+        title='¿Eliminar Tour?'
+        description={`¿Estás seguro de que quieres eliminar "${modalConfig.tourTitle}"? Esta acción no se puede deshacer.`}
+        confirmText='Eliminar'
+        cancelText='Cancelar'
+        variant='danger'
+        loading={deleting}
+      />
     </div>
   )
 }
