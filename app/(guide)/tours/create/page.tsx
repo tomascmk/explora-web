@@ -110,8 +110,8 @@ export default function CreateTourPage() {
         const tourId = data.createTour.id
 
         // Create tour steps
-        for (const waypoint of waypoints) {
-          await fetch('http://localhost:3001/graphql', {
+        const stepPromises = waypoints.map(waypoint => 
+          fetch('http://localhost:3001/graphql', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -126,18 +126,30 @@ export default function CreateTourPage() {
                 }
               `,
               variables: {
-                input: {
-                  tourId,
-                  placeId: tourId, // TODO: Link to actual place
-                  title: waypoint.title,
-                  description: waypoint.description,
-                  latitude: waypoint.latitude,
-                  longitude: waypoint.longitude,
-                  order: waypoint.order
-                }
+                input: (() => {
+                  const payload = {
+                    tourId,
+                    title: waypoint.title,
+                    description: waypoint.description,
+                    latitude: waypoint.latitude,
+                    longitude: waypoint.longitude,
+                    order: waypoint.order
+                  };
+                  console.log('Sending Step Payload:', payload);
+                  return payload;
+                })()
               }
             })
-          })
+          }).then(res => res.json())
+        );
+
+        const stepResults = await Promise.all(stepPromises);
+        
+        // Check for errors in steps
+        const stepErrors = stepResults.filter(r => r.errors);
+        if (stepErrors.length > 0) {
+           console.error('Step creation errors:', stepErrors);
+           throw new Error(`Failed to create ${stepErrors.length} steps. Check console for details.`);
         }
 
         // Success!

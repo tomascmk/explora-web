@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { ReactNode, useEffect } from 'react'
 
 export default function GuideLayout({ children }: { children: ReactNode }) {
@@ -49,13 +49,27 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
                 Explora Guide
               </Link>
               <div className='hidden md:flex gap-6'>
-                <NavLink href='/dashboard' active={pathname === '/dashboard'}>Dashboard</NavLink>
-                <NavLink href='/tours' active={pathname.startsWith('/tours')}>Tours</NavLink>
-                <NavLink href='/balance' active={pathname === '/balance'}>Balance</NavLink>
-                <NavLink href='/orders' active={pathname === '/orders'}>Orders</NavLink>
-                <NavLink href='/agenda' active={pathname === '/agenda'}>Agenda</NavLink>
-                <NavLink href='/feedback' active={pathname === '/feedback'}>Feedback</NavLink>
-                <NavLink href='/claims' active={pathname === '/claims'}>Claims</NavLink>
+                <NavLink href='/dashboard' active={pathname === '/dashboard'}>
+                  Dashboard
+                </NavLink>
+                <NavLink href='/tours' active={pathname.startsWith('/tours')}>
+                  Tours
+                </NavLink>
+                <NavLink href='/balance' active={pathname === '/balance'}>
+                  Balance
+                </NavLink>
+                <NavLink href='/orders' active={pathname === '/orders'}>
+                  Orders
+                </NavLink>
+                <NavLink href='/agenda' active={pathname === '/agenda'}>
+                  Agenda
+                </NavLink>
+                <NavLink href='/feedback' active={pathname === '/feedback'}>
+                  Feedback
+                </NavLink>
+                <NavLink href='/claims' active={pathname === '/claims'}>
+                  Claims
+                </NavLink>
               </div>
             </div>
             <div className='flex items-center gap-4'>
@@ -91,11 +105,11 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
   )
 }
 
-function NavLink({ 
-  href, 
-  children, 
-  active = false 
-}: { 
+function NavLink({
+  href,
+  children,
+  active = false
+}: {
   href: string
   children: ReactNode
   active?: boolean
@@ -104,8 +118,8 @@ function NavLink({
     <Link
       href={href}
       className={`font-semibold text-sm transition-all duration-200 px-3 py-1 rounded-md ${
-        active 
-          ? 'text-blue-600 bg-blue-50' 
+        active
+          ? 'text-blue-600 bg-blue-50'
           : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
       }`}
     >
