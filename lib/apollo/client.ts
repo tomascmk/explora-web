@@ -3,7 +3,6 @@
 import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client/core'
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
-import { Observable } from '@apollo/client/utilities'
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
@@ -69,35 +68,33 @@ const refreshAccessToken = async (): Promise<string | null> => {
 // Error link for handling 401 and refreshing tokens
 const errorLink = onError((errorResponse: any) => {
   const { graphQLErrors, networkError, operation, forward } = errorResponse;
-
+  
   if (graphQLErrors) {
     for (const err of graphQLErrors) {
+      // Check if error is authentication related
       if (err.extensions?.code === 'UNAUTHENTICATED' || err.message === 'Unauthorized') {
-        return new Observable((observer) => {
-          refreshAccessToken()
-            .then((newToken) => {
-              if (newToken) {
-                const headers = operation.getContext().headers || {};
-                operation.setContext({
-                  headers: {
-                    ...headers,
-                    authorization: `Bearer ${newToken}`,
-                  },
-                });
-              }
-              forward(operation).subscribe(observer);
-            })
-            .catch((e) => observer.error(e));
+        // Try to refresh the token and retry
+        refreshAccessToken().then((newToken) => {
+          if (newToken) {
+            // Retry the failed request with new token
+            const oldHeaders = operation.getContext().headers;
+            operation.setContext({
+              headers: {
+                ...oldHeaders,
+                authorization: `Bearer ${newToken}`,
+              },
+            });
+          }
         });
+        // Don't return anything, let the error propagate
+        return;
       }
     }
   }
 
   if (networkError) {
-    console.error(`[Network error]:`, networkError);
+    console.error(`[Network error]: ${networkError}`);
   }
-
-  return forward(operation);
 });
 
 // Auth link
