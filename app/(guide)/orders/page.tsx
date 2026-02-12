@@ -2,7 +2,9 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useQuery } from '@apollo/client/react'
+import { GET_GUIDE_RESERVATIONS } from '@/graphql/reservations'
 
 interface Order {
   id: string
@@ -15,6 +17,7 @@ interface Order {
     title: string
   }
   schedule: {
+    id: string
     startTime: string
   }
   totalAmount: number
@@ -25,60 +28,19 @@ interface Order {
 
 export default function OrdersPage() {
   const { user } = useAuth()
-  const [orders, setOrders] = useState<Order[]>([])
   const [filter, setFilter] = useState<
     'all' | 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'
   >('all')
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (user) {
-      fetchOrders()
+  const { data, loading } = useQuery<{ tourReservationsByGuide: Order[] }>(
+    GET_GUIDE_RESERVATIONS,
+    {
+      variables: { guideId: user?.id },
+      skip: !user
     }
-  }, [user])
+  )
 
-  const fetchOrders = async () => {
-    try {
-      // TODO: Create GraphQL query for guide's tour reservations
-      // Mock data for now
-      setOrders([
-        {
-          id: '1',
-          user: { username: 'John Doe', email: 'john@example.com' },
-          tour: { id: 'tour-1', title: 'Historic City Tour' },
-          schedule: { startTime: new Date(2025, 9, 25, 10, 0).toISOString() },
-          totalAmount: 75,
-          paymentStatus: 'COMPLETED',
-          reservationStatus: 'CONFIRMED',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          user: { username: 'Sarah Smith', email: 'sarah@example.com' },
-          tour: { id: 'tour-2', title: 'Food Tour' },
-          schedule: { startTime: new Date(2025, 9, 26, 15, 0).toISOString() },
-          totalAmount: 95,
-          paymentStatus: 'COMPLETED',
-          reservationStatus: 'CONFIRMED',
-          createdAt: new Date(Date.now() - 86400000).toISOString()
-        },
-        {
-          id: '3',
-          user: { username: 'Mike Johnson', email: 'mike@example.com' },
-          tour: { id: 'tour-1', title: 'Historic City Tour' },
-          schedule: { startTime: new Date(2025, 9, 24, 10, 0).toISOString() },
-          totalAmount: 75,
-          paymentStatus: 'COMPLETED',
-          reservationStatus: 'COMPLETED',
-          createdAt: new Date(Date.now() - 172800000).toISOString()
-        }
-      ])
-    } catch (error) {
-      console.error('Error fetching orders:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const orders = data?.tourReservationsByGuide || []
 
   const filteredOrders =
     filter === 'all'

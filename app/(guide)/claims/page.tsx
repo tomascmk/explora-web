@@ -2,131 +2,52 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useQuery, useMutation } from '@apollo/client/react'
+import { CLAIMS_BY_GUIDE, RESOLVE_CLAIM } from '@/graphql/claims'
 
 interface Claim {
   id: string
-  claimant: {
-    username: string
-    email: string
-  }
-  reservation: {
-    id: string
-    tour: {
-      title: string
-    }
-  }
-  reason: string
+  type: string
+  description: string
   status: string
-  resolution: string | null
-  refundAmount: number | null
+  resolution?: string
   createdAt: string
-  resolvedAt: string | null
+  updatedAt: string
 }
 
 export default function ClaimsPage() {
   const { user } = useAuth()
-  const [claims, setClaims] = useState<Claim[]>([])
   const [filter, setFilter] = useState<
     'all' | 'OPEN' | 'RESOLVED' | 'REJECTED'
   >('all')
-  const [loading, setLoading] = useState(true)
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null)
 
-  useEffect(() => {
-    if (user) {
-      fetchClaims()
-    }
-  }, [user])
+  const { data, loading, refetch } = useQuery<{ claimsByGuide: Claim[] }>(CLAIMS_BY_GUIDE, {
+    skip: !user
+  })
 
-  const fetchClaims = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
-          query: `
-            query ClaimsByGuide($guideId: String!) {
-              claimsByGuide(guideId: $guideId) {
-                id
-                claimant {
-                  username
-                  email
-                }
-                reservation {
-                  id
-                  tour {
-                    title
-                  }
-                }
-                reason
-                status
-                resolution
-                refundAmount
-                createdAt
-                resolvedAt
-              }
-            }
-          `,
-          variables: { guideId: user?.id }
-        })
-      })
-
-      const { data } = await response.json()
-      if (data?.claimsByGuide) {
-        setClaims(data.claimsByGuide)
-      }
-    } catch (error) {
-      console.error('Error fetching claims:', error)
-    } finally {
-      setLoading(false)
+  const [resolveClaimMutation] = useMutation(RESOLVE_CLAIM, {
+    onCompleted: () => {
+      refetch()
+      setSelectedClaim(null)
     }
-  }
+  })
+
+  const claims = data?.claimsByGuide || []
 
   const handleResolve = async (
     claimId: string,
-    resolution: string,
-    refundAmount?: number
+    resolution: string
   ) => {
     try {
-      const response = await fetch('http://localhost:3001/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
-          query: `
-            mutation ResolveClaim($id: String!, $resolution: String!, $resolvedById: String!, $refundAmount: Float) {
-              resolveClaim(
-                id: $id
-                resolution: $resolution
-                resolvedById: $resolvedById
-                refundAmount: $refundAmount
-              ) {
-                id
-                status
-              }
-            }
-          `,
-          variables: {
-            id: claimId,
-            resolution,
-            resolvedById: user?.id,
-            refundAmount
-          }
-        })
+      await resolveClaimMutation({
+        variables: {
+          id: claimId,
+          resolution
+        }
       })
-
-      const { data } = await response.json()
-      if (data?.resolveClaim) {
-        alert('Claim resolved successfully')
-        fetchClaims()
-        setSelectedClaim(null)
-      }
+      alert('Claim resolved successfully')
     } catch (error) {
       console.error('Error resolving claim:', error)
       alert('Failed to resolve claim')
@@ -204,13 +125,10 @@ export default function ClaimsPage() {
                 <div>
                   <div className='flex items-center gap-3 mb-2'>
                     <h3 className='font-semibold'>
-                      {claim.reservation.tour.title}
+                      {claim.type}
                     </h3>
                     <StatusBadge status={claim.status} />
                   </div>
-                  <p className='text-sm text-gray-600'>
-                    From: {claim.claimant.username} ({claim.claimant.email})
-                  </p>
                   <p className='text-xs text-gray-400'>
                     Filed: {format(new Date(claim.createdAt), 'MMM d, yyyy')}
                   </p>
@@ -227,9 +145,9 @@ export default function ClaimsPage() {
 
               <div className='bg-gray-50 rounded p-4 mb-4'>
                 <p className='text-sm font-medium text-gray-700 mb-1'>
-                  Reason:
+                  Description:
                 </p>
-                <p className='text-sm text-gray-600'>{claim.reason}</p>
+                <p className='text-sm text-gray-600'>{claim.description}</p>
               </div>
 
               {claim.resolution && (
@@ -238,11 +156,6 @@ export default function ClaimsPage() {
                     Resolution:
                   </p>
                   <p className='text-sm text-green-600'>{claim.resolution}</p>
-                  {claim.refundAmount && (
-                    <p className='text-sm text-green-600 mt-2'>
-                      Refund amount: ${claim.refundAmount}
-                    </p>
-                  )}
                 </div>
               )}
             </div>
@@ -311,19 +224,13 @@ function ResolutionModal({
 }: {
   claim: Claim
   onClose: () => void
-  onResolve: (id: string, resolution: string, refundAmount?: number) => void
+  onResolve: (id: string, resolution: string) => void
 }) {
   const [resolution, setResolution] = useState('')
-  const [refundAmount, setRefundAmount] = useState('')
-  const [offerRefund, setOfferRefund] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onResolve(
-      claim.id,
-      resolution,
-      offerRefund && refundAmount ? parseFloat(refundAmount) : undefined
-    )
+    onResolve(claim.id, resolution)
   }
 
   return (
@@ -332,8 +239,8 @@ function ResolutionModal({
         <h2 className='text-2xl font-bold mb-6'>Resolve Claim</h2>
 
         <div className='bg-gray-50 rounded p-4 mb-6'>
-          <p className='text-sm text-gray-600 mb-2'>Claim Reason:</p>
-          <p className='text-sm'>{claim.reason}</p>
+          <p className='text-sm text-gray-600 mb-2'>Claim Description:</p>
+          <p className='text-sm'>{claim.description}</p>
         </div>
 
         <form onSubmit={handleSubmit} className='space-y-4'>
@@ -350,37 +257,6 @@ function ResolutionModal({
               required
             />
           </div>
-
-          <div className='flex items-center gap-2'>
-            <input
-              type='checkbox'
-              id='offerRefund'
-              checked={offerRefund}
-              onChange={(e) => setOfferRefund(e.target.checked)}
-              className='w-4 h-4'
-            />
-            <label htmlFor='offerRefund' className='text-sm'>
-              Offer refund to customer
-            </label>
-          </div>
-
-          {offerRefund && (
-            <div>
-              <label className='block text-sm font-medium mb-2'>
-                Refund Amount *
-              </label>
-              <input
-                type='number'
-                min='0'
-                step='0.01'
-                value={refundAmount}
-                onChange={(e) => setRefundAmount(e.target.value)}
-                className='w-full px-4 py-3 border rounded focus:ring-2 focus:ring-blue-500'
-                placeholder='0.00'
-                required={offerRefund}
-              />
-            </div>
-          )}
 
           <div className='flex gap-2 pt-4'>
             <button

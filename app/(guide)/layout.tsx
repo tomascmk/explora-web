@@ -52,15 +52,19 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
                 <NavLink href='/dashboard' active={pathname === '/dashboard'}>
                   Dashboard
                 </NavLink>
-                <NavLink href='/tours' active={pathname.startsWith('/tours')}>
-                  Tours
-                </NavLink>
+                <div data-tour="nav-tours">
+                  <NavLink href='/tours' active={pathname.startsWith('/tours')}>
+                    Tours
+                  </NavLink>
+                </div>
                 <NavLink href='/balance' active={pathname === '/balance'}>
                   Balance
                 </NavLink>
-                <NavLink href='/orders' active={pathname === '/orders'}>
-                  Orders
-                </NavLink>
+                <div data-tour="nav-orders">
+                  <NavLink href='/orders' active={pathname === '/orders'}>
+                    Orders
+                  </NavLink>
+                </div>
                 <NavLink href='/agenda' active={pathname === '/agenda'}>
                   Agenda
                 </NavLink>
@@ -70,24 +74,32 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
                 <NavLink href='/claims' active={pathname === '/claims'}>
                   Claims
                 </NavLink>
+                <NavLink href='/discounts' active={pathname === '/discounts'}>
+                  Discounts
+                </NavLink>
               </div>
             </div>
             <div className='flex items-center gap-4'>
+              <div data-tour="nav-notifications">
+                {/* Placeholder for notification bell - will be added later */}
+              </div>
               {user && (
                 <span className='text-sm font-medium text-gray-700'>
                   {user.fullName || user.username}
                 </span>
               )}
-              <Link
-                href='/settings'
-                className={`text-sm font-medium transition-colors duration-200 ${
-                  pathname === '/settings'
-                    ? 'text-blue-600 font-semibold'
-                    : 'text-gray-600 hover:text-blue-600'
-                }`}
-              >
-                Settings
-              </Link>
+              <div data-tour="nav-settings">
+                <Link
+                  href='/settings'
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    pathname === '/settings'
+                      ? 'text-blue-600 font-semibold'
+                      : 'text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  Settings
+                </Link>
+              </div>
               <button
                 onClick={logout}
                 className='text-sm font-medium text-gray-600 hover:text-red-600 transition-colors duration-200'

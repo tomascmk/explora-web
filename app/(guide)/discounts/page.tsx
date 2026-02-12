@@ -2,13 +2,18 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useQuery, useMutation } from '@apollo/client/react'
+import { DISCOUNT_GROUPS_BY_GUIDE, UPDATE_DISCOUNT_GROUP, DELETE_DISCOUNT_GROUP, CREATE_DISCOUNT_GROUP } from '@/graphql/discount-groups'
+import { GET_TOURS_BY_GUIDE } from '@/graphql/tours'
 
 interface DiscountGroup {
   id: string
   name: string
   description: string
-  discountPercentage: number
+  discountType: 'percentage' | 'fixed_amount'
+  discountPercentage?: number
+  discountAmount?: number
   startDate: string
   endDate: string
   isActive: boolean
@@ -17,87 +22,50 @@ interface DiscountGroup {
 
 export default function DiscountsPage() {
   const { user } = useAuth()
-  const [discounts, setDiscounts] = useState<DiscountGroup[]>([])
-  const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingDiscount, setEditingDiscount] = useState<DiscountGroup | null>(null)
 
-  useEffect(() => {
-    if (user) {
-      fetchDiscounts()
-    }
-  }, [user])
+  const { data, loading, refetch } = useQuery<{ discountGroupsByGuide: DiscountGroup[] }>(
+    DISCOUNT_GROUPS_BY_GUIDE,
+    { skip: !user }
+  )
 
-  const fetchDiscounts = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
-          query: `
-            query DiscountsByGuide($guideId: String!) {
-              discountGroupsByGuide(guideId: $guideId) {
-                id
-                name
-                description
-                discountPercentage
-                startDate
-                endDate
-                isActive
-                tours {
-                  id
-                  title
-                }
-              }
-            }
-          `,
-          variables: { guideId: user?.id }
-        })
-      })
+  const [updateDiscountMutation] = useMutation(UPDATE_DISCOUNT_GROUP, {
+    onCompleted: () => refetch()
+  })
 
-      const { data } = await response.json()
-      if (data?.discountGroupsByGuide) {
-        setDiscounts(data.discountGroupsByGuide)
-      }
-    } catch (error) {
-      console.error('Error fetching discounts:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [deleteDiscountMutation] = useMutation(DELETE_DISCOUNT_GROUP, {
+    onCompleted: () => refetch()
+  })
+
+  const discounts = data?.discountGroupsByGuide || []
 
   const toggleActive = async (id: string, isActive: boolean) => {
     try {
-      const response = await fetch('http://localhost:3001/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
-          query: `
-            mutation UpdateDiscountGroup($id: String!, $input: UpdateDiscountGroupDto!) {
-              updateDiscountGroup(id: $id, input: $input) {
-                id
-                isActive
-              }
-            }
-          `,
-          variables: {
-            id,
-            input: { id, isActive: !isActive }
-          }
-        })
+      await updateDiscountMutation({
+        variables: {
+          input: { id, isActive: !isActive }
+        }
       })
-
-      const { data } = await response.json()
-      if (data?.updateDiscountGroup) {
-        fetchDiscounts()
-      }
     } catch (error) {
       console.error('Error toggling discount:', error)
+      alert('Failed to update discount')
+    }
+  }
+
+  const handleEdit = (discount: DiscountGroup) => {
+    setEditingDiscount(discount)
+    setShowCreateModal(true)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this discount group?')) return
+
+    try {
+      await deleteDiscountMutation({ variables: { id } })
+    } catch (error) {
+      console.error('Error deleting discount:', error)
+      alert('Failed to delete discount')
     }
   }
 
@@ -141,6 +109,8 @@ export default function DiscountsPage() {
               key={discount.id}
               discount={discount}
               onToggleActive={(id, isActive) => toggleActive(id, isActive)}
+              onEdit={() => handleEdit(discount)}
+              onDelete={() => handleDelete(discount.id)}
             />
           ))}
         </div>
@@ -149,12 +119,17 @@ export default function DiscountsPage() {
       {/* Create Modal - Simple implementation */}
       {showCreateModal && (
         <CreateDiscountModal
-          onClose={() => setShowCreateModal(false)}
-          onSuccess={() => {
-            fetchDiscounts()
+          onClose={() => {
             setShowCreateModal(false)
+            setEditingDiscount(null)
+          }}
+          onSuccess={() => {
+            refetch()
+            setShowCreateModal(false)
+            setEditingDiscount(null)
           }}
           guideId={user?.id || ''}
+          editingDiscount={editingDiscount}
         />
       )}
     </div>
@@ -163,10 +138,14 @@ export default function DiscountsPage() {
 
 function DiscountCard({
   discount,
-  onToggleActive
+  onToggleActive,
+  onEdit,
+  onDelete
 }: {
   discount: DiscountGroup
   onToggleActive: (id: string, isActive: boolean) => void
+  onEdit: () => void
+  onDelete: () => void
 }) {
   const isExpired = new Date(discount.endDate) < new Date()
   const isUpcoming = new Date(discount.startDate) > new Date()
@@ -178,7 +157,9 @@ function DiscountCard({
         <div>
           <h3 className='text-lg font-semibold'>{discount.name}</h3>
           <p className='text-2xl font-bold text-blue-600 mt-1'>
-            {discount.discountPercentage}% OFF
+            {discount.discountType === 'percentage'
+              ? `${discount.discountPercentage}% OFF`
+              : `$${discount.discountAmount} OFF`}
           </p>
         </div>
         <button
@@ -234,10 +215,16 @@ function DiscountCard({
       </div>
 
       <div className='mt-4 flex gap-2'>
-        <button className='flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition text-sm'>
+        <button 
+          onClick={onEdit}
+          className='flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition text-sm'
+        >
           Edit
         </button>
-        <button className='px-4 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50 transition text-sm'>
+        <button 
+          onClick={onDelete}
+          className='px-4 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50 transition text-sm'
+        >
           Delete
         </button>
       </div>
@@ -248,64 +235,88 @@ function DiscountCard({
 function CreateDiscountModal({
   onClose,
   onSuccess,
-  guideId
+  guideId,
+  editingDiscount
 }: {
   onClose: () => void
   onSuccess: () => void
   guideId: string
+  editingDiscount?: DiscountGroup | null
 }) {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    discountPercentage: '',
-    startDate: '',
-    endDate: ''
+    name: editingDiscount?.name || '',
+    description: editingDiscount?.description || '',
+    discountType: editingDiscount?.discountType || 'percentage',
+    discountPercentage: editingDiscount?.discountPercentage?.toString() || '',
+    discountAmount: editingDiscount?.discountAmount?.toString() || '',
+    startDate: editingDiscount?.startDate?.split('T')[0] || '',
+    endDate: editingDiscount?.endDate?.split('T')[0] || ''
+  })
+
+  const { data: toursData } = useQuery<{ toursByGuide: any[] }>(GET_TOURS_BY_GUIDE, {
+    variables: { guideId },
+    skip: !guideId
+  })
+
+  const [selectedTours, setSelectedTours] = useState<string[]>(
+    editingDiscount?.tours.map(t => t.id) || []
+  )
+
+  const [createDiscountMutation, { loading: creating }] = useMutation(CREATE_DISCOUNT_GROUP, {
+    onCompleted: () => onSuccess(),
+    onError: (error) => {
+      console.error('Error creating discount:', error)
+      alert('Failed to create discount')
+    }
+  })
+
+  const [updateDiscountMutation, { loading: updating }] = useMutation(UPDATE_DISCOUNT_GROUP, {
+    onCompleted: () => onSuccess(),
+    onError: (error) => {
+      console.error('Error updating discount:', error)
+      alert('Failed to update discount')
+    }
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    try {
-      const response = await fetch('http://localhost:3001/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
-          query: `
-            mutation CreateDiscountGroup($input: CreateDiscountGroupDto!) {
-              createDiscountGroup(input: $input) {
-                id
-                name
-              }
-            }
-          `,
-          variables: {
-            input: {
-              ...formData,
-              discountPercentage: parseFloat(formData.discountPercentage),
-              guideId,
-              isActive: true
-            }
-          }
-        })
-      })
+    const input: any = {
+      name: formData.name,
+      description: formData.description,
+      discountType: formData.discountType,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      tourIds: selectedTours,
+      isActive: true
+    }
 
-      const { data } = await response.json()
-      if (data?.createDiscountGroup) {
-        onSuccess()
-      }
-    } catch (error) {
-      console.error('Error creating discount:', error)
-      alert('Failed to create discount')
+    // Agregar el campo correcto según el tipo de descuento
+    if (formData.discountType === 'percentage') {
+      input.discountPercentage = parseFloat(formData.discountPercentage)
+    } else {
+      input.discountAmount = parseFloat(formData.discountAmount)
+    }
+
+    if (editingDiscount) {
+      await updateDiscountMutation({
+        variables: { input: { id: editingDiscount.id, ...input } }
+      })
+    } else {
+      await createDiscountMutation({
+        variables: { input: { ...input, guideId } }
+      })
     }
   }
 
+  const tours = toursData?.toursByGuide || []
+
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-      <div className='bg-white rounded-lg p-8 max-w-md w-full'>
-        <h2 className='text-2xl font-bold mb-6'>Create Discount Group</h2>
+      <div className='bg-white rounded-lg p-8 max-w-md w-full max-h-[90vh] overflow-y-auto'>
+        <h2 className='text-2xl font-bold mb-6'>
+          {editingDiscount ? 'Edit' : 'Create'} Discount Group
+        </h2>
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div>
             <label className='block text-sm font-medium mb-2'>Name *</label>
@@ -321,19 +332,83 @@ function CreateDiscountModal({
           </div>
           <div>
             <label className='block text-sm font-medium mb-2'>
-              Discount Percentage *
+              Discount Type *
             </label>
-            <input
-              type='number'
-              min='0'
-              max='100'
-              value={formData.discountPercentage}
+            <select
+              value={formData.discountType}
               onChange={(e) =>
-                setFormData({ ...formData, discountPercentage: e.target.value })
+                setFormData({ ...formData, discountType: e.target.value as 'percentage' | 'fixed_amount' })
               }
               className='w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500'
               required
-            />
+            >
+              <option value='percentage'>Percentage</option>
+              <option value='fixed_amount'>Fixed Amount</option>
+            </select>
+          </div>
+
+          {formData.discountType === 'percentage' ? (
+            <div>
+              <label className='block text-sm font-medium mb-2'>
+                Discount Percentage *
+              </label>
+              <input
+                type='number'
+                min='0'
+                max='100'
+                value={formData.discountPercentage}
+                onChange={(e) =>
+                  setFormData({ ...formData, discountPercentage: e.target.value })
+                }
+                className='w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500'
+                required
+              />
+            </div>
+          ) : (
+            <div>
+              <label className='block text-sm font-medium mb-2'>
+                Discount Amount ($) *
+              </label>
+              <input
+                type='number'
+                min='0'
+                step='0.01'
+                value={formData.discountAmount}
+                onChange={(e) =>
+                  setFormData({ ...formData, discountAmount: e.target.value })
+                }
+                className='w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500'
+                required
+              />
+            </div>
+          )}
+          <div>
+            <label className='block text-sm font-medium mb-2'>
+              Select Tours *
+            </label>
+            <div className='border rounded p-3 max-h-40 overflow-y-auto space-y-2'>
+              {tours.length === 0 ? (
+                <p className='text-sm text-gray-500'>No tours available</p>
+              ) : (
+                tours.map((tour: any) => (
+                  <label key={tour.id} className='flex items-center gap-2 cursor-pointer'>
+                    <input
+                      type='checkbox'
+                      checked={selectedTours.includes(tour.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedTours([...selectedTours, tour.id])
+                        } else {
+                          setSelectedTours(selectedTours.filter(id => id !== tour.id))
+                        }
+                      }}
+                      className='rounded'
+                    />
+                    <span className='text-sm'>{tour.title}</span>
+                  </label>
+                ))
+              )}
+            </div>
           </div>
           <div className='grid grid-cols-2 gap-4'>
             <div>
@@ -375,9 +450,10 @@ function CreateDiscountModal({
             </button>
             <button
               type='submit'
-              className='flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
+              disabled={creating || updating}
+              className='flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400'
             >
-              Create
+              {creating || updating ? 'Saving...' : editingDiscount ? 'Update' : 'Create'}
             </button>
           </div>
         </form>

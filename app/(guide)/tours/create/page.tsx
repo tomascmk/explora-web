@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { ImageUpload } from '@/components/tours/ImageUpload'
 
 // Import map component dynamically to avoid SSR issues with Leaflet
 const TourCreationMap = dynamic(
@@ -37,6 +38,9 @@ export default function CreateTourPage() {
     duration: '',
     maxParticipants: ''
   })
+
+  // Tour images
+  const [images, setImages] = useState<string[]>([])
 
   // Tour waypoints
   const [waypoints, setWaypoints] = useState<Waypoint[]>([])
@@ -242,6 +246,19 @@ export default function CreateTourPage() {
                 />
               </div>
             </div>
+            
+            {/* Images */}
+            <div>
+              <label className='block text-sm font-medium mb-2'>
+                Tour Images
+              </label>
+              <ImageUpload
+                images={images}
+                onImagesChange={setImages}
+                maxImages={10}
+              />
+            </div>
+
             <button
               onClick={() => setStep(2)}
               disabled={!tourInfo.title || !tourInfo.description}

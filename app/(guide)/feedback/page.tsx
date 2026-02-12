@@ -2,7 +2,9 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useQuery } from '@apollo/client/react'
+import { GET_MY_REVIEWS } from '@/graphql/reviews'
 
 interface Review {
   id: string
@@ -12,65 +14,22 @@ interface Review {
   }
   user: {
     username: string
+    fullName?: string
   }
-  tour_rating: number
-  guide_rating: number
+  rating: number
   comment: string
-  created_at: string
+  createdAt: string
 }
 
 export default function FeedbackPage() {
   const { user } = useAuth()
-  const [reviews, setReviews] = useState<Review[]>([])
   const [filter, setFilter] = useState<'all' | 5 | 4 | 3 | 2 | 1>('all')
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (user) {
-      fetchReviews()
-    }
-  }, [user])
+  const { data, loading } = useQuery<{ getMyReviews: Review[] }>(GET_MY_REVIEWS, {
+    skip: !user
+  })
 
-  const fetchReviews = async () => {
-    try {
-      // TODO: Create GraphQL query for guide reviews
-      // Mock data for now
-      setReviews([
-        {
-          id: '1',
-          tour: { id: 'tour-1', title: 'Historic City Tour' },
-          user: { username: 'John Doe' },
-          tour_rating: 5,
-          guide_rating: 5,
-          comment:
-            'Amazing experience! The guide was very knowledgeable and friendly.',
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          tour: { id: 'tour-2', title: 'Food Tour' },
-          user: { username: 'Sarah Smith' },
-          tour_rating: 4,
-          guide_rating: 5,
-          comment: 'Great tour, learned a lot about local cuisine.',
-          created_at: new Date(Date.now() - 86400000).toISOString()
-        },
-        {
-          id: '3',
-          tour: { id: 'tour-1', title: 'Historic City Tour' },
-          user: { username: 'Mike Johnson' },
-          tour_rating: 3,
-          guide_rating: 2,
-          comment: 'It was okay, but I expected more historical details.',
-          created_at: new Date(Date.now() - 172800000).toISOString()
-        }
-      ])
-    } catch (error) {
-      console.error('Error fetching reviews:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const reviews = data?.getMyReviews || []
 
   const handleReportReview = async (reviewId: string) => {
     const reason = prompt('Why do you think this review is unfair?')
@@ -115,11 +74,11 @@ export default function FeedbackPage() {
   const filteredReviews =
     filter === 'all'
       ? reviews
-      : reviews.filter((r) => r.guide_rating === filter)
+      : reviews.filter((r) => r.rating === filter)
 
   const averageRating =
     reviews.length > 0
-      ? reviews.reduce((acc, r) => acc + r.guide_rating, 0) / reviews.length
+      ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
       : 0
 
   return (
@@ -141,13 +100,13 @@ export default function FeedbackPage() {
         <div className='bg-white rounded-lg shadow p-6'>
           <p className='text-sm text-gray-600 mb-1'>5 Star Reviews</p>
           <p className='text-3xl font-bold text-green-600'>
-            {reviews.filter((r) => r.guide_rating === 5).length}
+            {reviews.filter((r) => r.rating === 5).length}
           </p>
         </div>
         <div className='bg-white rounded-lg shadow p-6'>
           <p className='text-sm text-gray-600 mb-1'>Low Ratings</p>
           <p className='text-3xl font-bold text-red-600'>
-            {reviews.filter((r) => r.guide_rating <= 2).length}
+            {reviews.filter((r) => r.rating <= 2).length}
           </p>
         </div>
       </div>
@@ -190,19 +149,19 @@ export default function FeedbackPage() {
                   by {review.user.username}
                 </p>
                 <p className='text-xs text-gray-400 mt-1'>
-                  {format(new Date(review.created_at), 'MMM d, yyyy')}
+                  {format(new Date(review.createdAt), 'MMM d, yyyy')}
                 </p>
               </div>
               <div className='text-right'>
                 <div className='text-yellow-600 mb-1'>
-                  {'★'.repeat(review.guide_rating)}
-                  {'☆'.repeat(5 - review.guide_rating)}
+                  {'★'.repeat(review.rating)}
+                  {'☆'.repeat(5 - review.rating)}
                 </div>
                 <p className='text-xs text-gray-500'>Guide Rating</p>
               </div>
             </div>
             <p className='text-gray-700 mb-4'>{review.comment}</p>
-            {review.guide_rating <= 3 && (
+            {review.rating <= 3 && (
               <button
                 onClick={() => handleReportReview(review.id)}
                 className='text-sm text-red-600 hover:text-red-800'

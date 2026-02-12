@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Evita el warning de múltiples lockfiles y errores en next start
+  outputFileTracingRoot: path.join(__dirname),
 };
 
 export default nextConfig;

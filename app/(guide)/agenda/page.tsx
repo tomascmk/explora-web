@@ -1,232 +1,269 @@
-'use client'
+'use client';
 
-import { useAuth } from '@/contexts/AuthContext'
-import {
-  eachDayOfInterval,
-  endOfMonth,
-  format,
-  isSameDay,
-  isToday,
-  startOfMonth
-} from 'date-fns'
-import { useEffect, useState } from 'react'
-
-interface ScheduledTour {
-  id: string
-  tourId: string
-  tourTitle: string
-  startTime: Date
-  endTime: Date | null
-  isAvailable: boolean
-  reservationsCount: number
-  maxCapacity: number | null
-}
+import { useState } from 'react';
+import { Calendar } from '@/components/agenda/Calendar';
+import { format } from 'date-fns';
+import { Plus, Clock, MapPin, X } from 'lucide-react';
 
 export default function AgendaPage() {
-  const { user } = useAuth()
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [selectedDate, setSelectedDate] = useState(new Date())
-  const [schedules, setSchedules] = useState<ScheduledTour[]>([])
-  const [loading, setLoading] = useState(true)
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      fetchSchedules()
-    }
-  }, [user, currentDate])
+  // TODO: Replace with actual GraphQL queries
+  const events = [
+    {
+      id: '1',
+      date: new Date(2026, 1, 15),
+      title: 'Available',
+      type: 'availability' as const,
+    },
+    {
+      id: '2',
+      date: new Date(2026, 1, 16),
+      title: 'Historic Tour - John Doe',
+      type: 'reservation' as const,
+      status: 'CONFIRMED',
+    },
+    {
+      id: '3',
+      date: new Date(2026, 1, 16),
+      title: 'Available',
+      type: 'availability' as const,
+    },
+  ];
 
-  const fetchSchedules = async () => {
-    try {
-      // TODO: Connect to real GraphQL query
-      // Mock data for now
-      setSchedules([
-        {
-          id: '1',
-          tourId: 'tour-1',
-          tourTitle: 'Historic City Tour',
-          startTime: new Date(2025, 9, 22, 10, 0),
-          endTime: new Date(2025, 9, 22, 13, 0),
-          isAvailable: true,
-          reservationsCount: 8,
-          maxCapacity: 15
-        },
-        {
-          id: '2',
-          tourId: 'tour-2',
-          tourTitle: 'Food Tour',
-          startTime: new Date(2025, 9, 22, 15, 0),
-          endTime: new Date(2025, 9, 22, 18, 0),
-          isAvailable: true,
-          reservationsCount: 12,
-          maxCapacity: 12
-        },
-        {
-          id: '3',
-          tourId: 'tour-1',
-          tourTitle: 'Historic City Tour',
-          startTime: new Date(2025, 9, 23, 10, 0),
-          endTime: new Date(2025, 9, 23, 13, 0),
-          isAvailable: true,
-          reservationsCount: 5,
-          maxCapacity: 15
-        }
-      ])
-    } catch (error) {
-      console.error('Error fetching schedules:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const monthStart = startOfMonth(currentDate)
-  const monthEnd = endOfMonth(currentDate)
-  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
-
-  const schedulesForSelectedDate = schedules.filter((schedule) =>
-    isSameDay(new Date(schedule.startTime), selectedDate)
-  )
+  const selectedDateEvents = events.filter(
+    (event) => format(new Date(event.date), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
+  );
 
   return (
-    <div className='p-8'>
-      <div className='flex justify-between items-center mb-8'>
-        <h1 className='text-3xl font-bold'>My Agenda</h1>
-        <button className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition'>
-          + Add Availability
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Agenda</h1>
+          <p className="text-gray-600">Gestiona tu disponibilidad y visualiza tus reservas</p>
+        </div>
+        <button 
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          <Plus className="w-5 h-5" />
+          Crear Evento
         </button>
       </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Calendar */}
-        <div className='lg:col-span-2 bg-white rounded-lg shadow p-6'>
-          <div className='flex justify-between items-center mb-6'>
-            <h2 className='text-xl font-semibold'>
-              {format(currentDate, 'MMMM yyyy')}
-            </h2>
-            <div className='flex gap-2'>
-              <button
-                onClick={() =>
-                  setCurrentDate(
-                    new Date(currentDate.setMonth(currentDate.getMonth() - 1))
-                  )
-                }
-                className='px-3 py-1 border rounded hover:bg-gray-50'
-              >
-                ←
-              </button>
-              <button
-                onClick={() => setCurrentDate(new Date())}
-                className='px-3 py-1 border rounded hover:bg-gray-50'
-              >
-                Today
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentDate(
-                    new Date(currentDate.setMonth(currentDate.getMonth() + 1))
-                  )
-                }
-                className='px-3 py-1 border rounded hover:bg-gray-50'
-              >
-                →
-              </button>
-            </div>
-          </div>
-
-          {/* Calendar Grid */}
-          <div className='grid grid-cols-7 gap-2'>
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-              <div
-                key={day}
-                className='text-center text-sm font-medium text-gray-600 py-2'
-              >
-                {day}
-              </div>
-            ))}
-            {daysInMonth.map((day) => {
-              const daySchedules = schedules.filter((s) =>
-                isSameDay(new Date(s.startTime), day)
-              )
-              const isSelected = isSameDay(day, selectedDate)
-              const isTodayDate = isToday(day)
-
-              return (
-                <button
-                  key={day.toISOString()}
-                  onClick={() => setSelectedDate(day)}
-                  className={`
-                    p-2 rounded-lg text-sm relative
-                    ${
-                      isSelected
-                        ? 'bg-blue-600 text-white'
-                        : 'hover:bg-gray-100'
-                    }
-                    ${
-                      isTodayDate && !isSelected
-                        ? 'border-2 border-blue-600'
-                        : ''
-                    }
-                  `}
-                >
-                  <div>{format(day, 'd')}</div>
-                  {daySchedules.length > 0 && (
-                    <div className='flex justify-center gap-0.5 mt-1'>
-                      {daySchedules.slice(0, 3).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`w-1 h-1 rounded-full ${
-                            isSelected ? 'bg-white' : 'bg-blue-600'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </button>
-              )
-            })}
-          </div>
+        <div className="lg:col-span-2">
+          <Calendar
+            events={events}
+            onDateClick={setSelectedDate}
+            selectedDate={selectedDate}
+            onCreateEvent={(date) => {
+              setSelectedDate(date);
+              setShowCreateModal(true);
+            }}
+          />
         </div>
 
-        {/* Schedule for Selected Date */}
-        <div className='bg-white rounded-lg shadow p-6'>
-          <h3 className='text-lg font-semibold mb-4'>
-            {format(selectedDate, 'EEEE, MMM d')}
-          </h3>
-          {schedulesForSelectedDate.length === 0 ? (
-            <p className='text-gray-500 text-sm text-center py-8'>
-              No tours scheduled for this day
-            </p>
-          ) : (
-            <div className='space-y-3'>
-              {schedulesForSelectedDate.map((schedule) => (
-                <div key={schedule.id} className='border rounded-lg p-3'>
-                  <p className='font-medium text-sm'>{schedule.tourTitle}</p>
-                  <p className='text-xs text-gray-600 mt-1'>
-                    {format(new Date(schedule.startTime), 'h:mm a')} -{' '}
-                    {schedule.endTime
-                      ? format(new Date(schedule.endTime), 'h:mm a')
-                      : 'Open'}
-                  </p>
-                  <div className='flex justify-between items-center mt-2 pt-2 border-t'>
-                    <span className='text-xs text-gray-600'>
-                      {schedule.reservationsCount}/{schedule.maxCapacity || '∞'}{' '}
-                      booked
-                    </span>
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded ${
-                        schedule.isAvailable
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {schedule.isAvailable ? 'Available' : 'Full'}
-                    </span>
+        {/* Events for selected date */}
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="font-semibold mb-4">
+              {format(selectedDate, 'EEEE, d MMMM yyyy')}
+            </h3>
+
+            {selectedDateEvents.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>No hay eventos para este día</p>
+                <button 
+                  onClick={() => setShowCreateModal(true)}
+                  className="mt-4 text-blue-600 hover:underline"
+                >
+                  Crear evento
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {selectedDateEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className={`p-4 rounded-lg border ${
+                      event.type === 'availability'
+                        ? 'border-green-200 bg-green-50'
+                        : 'border-blue-200 bg-blue-50'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-medium">{event.title}</h4>
+                      {event.status && (
+                        <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                          {event.status}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Clock className="w-4 h-4" />
+                      <span>09:00 - 17:00</span>
+                    </div>
+                    {event.type === 'reservation' && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                        <MapPin className="w-4 h-4" />
+                        <span>Central Park</span>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Quick Stats */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="font-semibold mb-4">Estadísticas del Mes</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Días disponibles</span>
+                <span className="font-semibold">15</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Reservas confirmadas</span>
+                <span className="font-semibold">8</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Reservas pendientes</span>
+                <span className="font-semibold">3</span>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
+
+      {/* Create Event Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Crear Evento</h2>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  console.log('Crear evento:', Object.fromEntries(formData));
+                  // TODO: Implementar GraphQL mutation
+                  setShowCreateModal(false);
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Título del Evento *
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    placeholder="ej. Tour disponible"
+                    className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Tipo de Evento *
+                  </label>
+                  <select
+                    name="type"
+                    className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="availability">Disponibilidad</option>
+                    <option value="reservation">Reserva</option>
+                    <option value="other">Otro</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Fecha *
+                  </label>
+                  <input
+                    type="date"
+                    name="date"
+                    defaultValue={format(selectedDate, 'yyyy-MM-dd')}
+                    className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Hora Inicio *
+                    </label>
+                    <input
+                      type="time"
+                      name="startTime"
+                      defaultValue="09:00"
+                      className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Hora Fin *
+                    </label>
+                    <input
+                      type="time"
+                      name="endTime"
+                      defaultValue="17:00"
+                      className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Descripción
+                  </label>
+                  <textarea
+                    name="description"
+                    placeholder="Información adicional del evento"
+                    rows={3}
+                    className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Crear Evento
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }

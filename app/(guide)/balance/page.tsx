@@ -1,63 +1,73 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { useEffect, useState } from 'react'
+import { useQuery, useMutation } from '@apollo/client/react'
+import { MY_BALANCE, REQUEST_PAYOUT, MY_PAYOUT_REQUESTS } from '@/graphql/balance'
+import { useState } from 'react'
 
 interface Balance {
+  id: string
   availableBalance: number
   pendingBalance: number
   totalEarnings: number
   totalPayouts: number
+  lastPayoutDate?: string
+  stripeAccountId?: string
+  stripeAccountStatus?: string
+}
+
+interface PayoutRequest {
+  id: string
+  amount: number
+  status: string
+  requestedAt: string
+  processedAt?: string
+  notes?: string
 }
 
 export default function BalancePage() {
   const { user } = useAuth()
-  const [balance, setBalance] = useState<Balance | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [payoutAmount, setPayoutAmount] = useState<number>(0)
 
-  useEffect(() => {
-    if (user) {
-      fetchBalance()
+  const { data, loading, refetch } = useQuery<{ myBalance: Balance }>(MY_BALANCE, {
+    skip: !user
+  })
+
+  const { data: payoutRequestsData, loading: loadingPayouts } = useQuery<{ myPayoutRequests: PayoutRequest[] }>(
+    MY_PAYOUT_REQUESTS,
+    { skip: !user }
+  )
+
+  const [requestPayoutMutation, { loading: requestingPayout }] = useMutation(REQUEST_PAYOUT, {
+    onCompleted: () => {
+      alert('Payout request submitted successfully!')
+      refetch()
+      setPayoutAmount(0)
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`)
     }
-  }, [user])
+  })
 
-  const fetchBalance = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
-          query: `
-            query GetBalance($guideId: String!) {
-              myBalance(guideId: $guideId) {
-                availableBalance
-                pendingBalance
-                totalEarnings
-                totalPayouts
-              }
-            }
-          `,
-          variables: { guideId: user?.id }
-        })
-      })
-
-      const { data } = await response.json()
-      if (data?.myBalance) {
-        setBalance(data.myBalance)
-      }
-    } catch (error) {
-      console.error('Error fetching balance:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const balance = data?.myBalance
+  const payoutRequests = payoutRequestsData?.myPayoutRequests || []
 
   const requestPayout = async () => {
-    // TODO: Implement payout request
-    alert('Payout request functionality coming soon')
+    if (!balance || balance.availableBalance <= 0) {
+      alert('No available balance to withdraw')
+      return
+    }
+
+    const amount = payoutAmount || balance.availableBalance
+
+    if (amount > balance.availableBalance) {
+      alert('Amount exceeds available balance')
+      return
+    }
+
+    if (confirm(`Request payout of $${amount.toFixed(2)}?`)) {
+      await requestPayoutMutation({ variables: { amount } })
+    }
   }
 
   if (loading) {
@@ -79,13 +89,24 @@ export default function BalancePage() {
     <div className='p-8'>
       <div className='flex justify-between items-center mb-8'>
         <h1 className='text-3xl font-bold'>Balance & Earnings</h1>
-        <button
-          onClick={requestPayout}
-          className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition'
-          disabled={!balance || balance.availableBalance <= 0}
-        >
-          Request Payout
-        </button>
+        <div className='flex gap-3 items-center'>
+          <input
+            type='number'
+            value={payoutAmount || ''}
+            onChange={(e) => setPayoutAmount(Number(e.target.value))}
+            placeholder='Amount (leave empty for full balance)'
+            className='border border-gray-300 rounded-lg px-4 py-2 w-64'
+            min='0'
+            max={balance?.availableBalance || 0}
+          />
+          <button
+            onClick={requestPayout}
+            className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed'
+            disabled={!balance || balance.availableBalance <= 0 || requestingPayout}
+          >
+            {requestingPayout ? 'Processing...' : 'Request Payout'}
+          </button>
+        </div>
       </div>
 
       {/* Balance Cards */}
@@ -116,60 +137,60 @@ export default function BalancePage() {
         />
       </div>
 
-      {/* Earnings History */}
+      {/* Payout Requests History */}
       <div className='bg-white rounded-lg shadow p-6'>
-        <h2 className='text-xl font-semibold mb-4'>Earnings History</h2>
-        <div className='overflow-x-auto'>
-          <table className='w-full'>
-            <thead>
-              <tr className='border-b'>
-                <th className='text-left py-3 px-4 text-sm font-medium text-gray-600'>
-                  Date
-                </th>
-                <th className='text-left py-3 px-4 text-sm font-medium text-gray-600'>
-                  Tour
-                </th>
-                <th className='text-left py-3 px-4 text-sm font-medium text-gray-600'>
-                  Type
-                </th>
-                <th className='text-right py-3 px-4 text-sm font-medium text-gray-600'>
-                  Amount
-                </th>
-                <th className='text-center py-3 px-4 text-sm font-medium text-gray-600'>
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className='border-b'>
-                <td className='py-3 px-4 text-sm'>Oct 20, 2025</td>
-                <td className='py-3 px-4 text-sm'>Historic City Tour</td>
-                <td className='py-3 px-4 text-sm'>In-Person</td>
-                <td className='py-3 px-4 text-sm text-right font-medium'>
-                  $125.00
-                </td>
-                <td className='py-3 px-4 text-center'>
-                  <span className='px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs'>
-                    Cleared
-                  </span>
-                </td>
-              </tr>
-              <tr className='border-b'>
-                <td className='py-3 px-4 text-sm'>Oct 19, 2025</td>
-                <td className='py-3 px-4 text-sm'>Food Tour</td>
-                <td className='py-3 px-4 text-sm'>In-Person</td>
-                <td className='py-3 px-4 text-sm text-right font-medium'>
-                  $95.00
-                </td>
-                <td className='py-3 px-4 text-center'>
-                  <span className='px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs'>
-                    Pending
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <h2 className='text-xl font-semibold mb-4'>Payout Requests</h2>
+        {loadingPayouts ? (
+          <div className='text-center py-8 text-gray-500'>Loading...</div>
+        ) : payoutRequests.length === 0 ? (
+          <div className='text-center py-8 text-gray-500'>No payout requests yet</div>
+        ) : (
+          <div className='overflow-x-auto'>
+            <table className='w-full'>
+              <thead>
+                <tr className='border-b'>
+                  <th className='text-left py-3 px-4 text-sm font-medium text-gray-600'>
+                    Date
+                  </th>
+                  <th className='text-right py-3 px-4 text-sm font-medium text-gray-600'>
+                    Amount
+                  </th>
+                  <th className='text-center py-3 px-4 text-sm font-medium text-gray-600'>
+                    Status
+                  </th>
+                  <th className='text-left py-3 px-4 text-sm font-medium text-gray-600'>
+                    Notes
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {payoutRequests.map((request) => (
+                  <tr key={request.id} className='border-b'>
+                    <td className='py-3 px-4 text-sm'>
+                      {new Date(request.requestedAt).toLocaleDateString()}
+                    </td>
+                    <td className='py-3 px-4 text-sm text-right font-medium'>
+                      ${request.amount.toFixed(2)}
+                    </td>
+                    <td className='py-3 px-4 text-center'>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        request.status === 'paid' ? 'bg-green-100 text-green-800' :
+                        request.status === 'approved' ? 'bg-blue-100 text-blue-800' :
+                        request.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {request.status}
+                      </span>
+                    </td>
+                    <td className='py-3 px-4 text-sm text-gray-600'>
+                      {request.notes || '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )
