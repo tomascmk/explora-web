@@ -111,13 +111,22 @@ const authLink = setContext((_, { headers }) => {
   }
 })
 
-// Apollo Client instance
-export const apolloClient = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
-  cache: new InMemoryCache(),
-  defaultOptions: {
-    watchQuery: {
-      fetchPolicy: 'cache-and-network'
-    }
+// Apollo Client: creado solo en el cliente para evitar 500 en SSR (next start)
+let _apolloClient: InstanceType<typeof ApolloClient> | null = null
+export function getApolloClient(): InstanceType<typeof ApolloClient> | null {
+  if (typeof window === 'undefined') return null
+  if (!_apolloClient) {
+    _apolloClient = new ApolloClient({
+      link: from([errorLink, authLink, httpLink]),
+      cache: new InMemoryCache(),
+      defaultOptions: {
+        watchQuery: {
+          fetchPolicy: 'cache-and-network'
+        }
+      }
+    })
   }
-})
+  return _apolloClient
+}
+// Para compatibilidad: en cliente devuelve el client; en servidor null (no usar en servidor)
+export const apolloClient = typeof window !== 'undefined' ? getApolloClient()! : (null as any)
