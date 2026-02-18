@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ImageUpload } from '@/components/tours/ImageUpload'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
+
 // Import map component dynamically to avoid SSR issues with Leaflet
 const TourCreationMap = dynamic(
   () =>
@@ -78,7 +80,7 @@ export default function CreateTourPage() {
 
     try {
       // Create tour mutation
-      const tourResponse = await fetch('http://localhost:3001/graphql', {
+      const tourResponse = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -115,7 +117,7 @@ export default function CreateTourPage() {
 
         // Create tour steps
         const stepPromises = waypoints.map(waypoint => 
-          fetch('http://localhost:3001/graphql', {
+          fetch(API_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

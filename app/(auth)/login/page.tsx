@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
+
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -17,7 +20,7 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:3001/graphql', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -140,19 +143,19 @@ export default function LoginPage() {
 
           <div className='mt-6 grid grid-cols-3 gap-3'>
             <button
-              onClick={() => window.location.href = 'http://localhost:3001/auth/google'}
+              onClick={() => window.location.href = `${API_BASE_URL}/auth/google`}
               className='w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'
             >
               Google
             </button>
             <button
-              onClick={() => window.location.href = 'http://localhost:3001/auth/facebook'}
+              onClick={() => window.location.href = `${API_BASE_URL}/auth/facebook`}
               className='w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'
             >
               Facebook
             </button>
             <button
-              onClick={() => window.location.href = 'http://localhost:3001/auth/apple'}
+              onClick={() => window.location.href = `${API_BASE_URL}/auth/apple`}
               className='w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'
             >
               Apple

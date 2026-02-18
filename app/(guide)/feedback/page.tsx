@@ -6,6 +6,8 @@ import { useState } from 'react'
 import { useQuery } from '@apollo/client/react'
 import { GET_MY_REVIEWS } from '@/graphql/reviews'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
+
 interface Review {
   id: string
   tour: {
@@ -36,7 +38,7 @@ export default function FeedbackPage() {
     if (!reason) return
 
     try {
-      const response = await fetch('http://localhost:3001/graphql', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

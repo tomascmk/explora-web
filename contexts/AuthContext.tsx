@@ -9,6 +9,8 @@ import {
   useState
 } from 'react'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
+
 interface User {
   id: string
   username: string
@@ -54,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string) => {
-    const response = await fetch('http://localhost:3001/graphql', {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

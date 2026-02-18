@@ -3,6 +3,8 @@ import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql';
+
 function OAuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -11,7 +13,7 @@ function OAuthCallbackContent() {
   const fetchUserAndLogin = async (token: string) => {
     try {
       // Fetch user data from backend
-      const response = await fetch('http://localhost:3001/graphql', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
