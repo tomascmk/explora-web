@@ -1,40 +1,145 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useQuery, useMutation } from '@apollo/client/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Calendar } from '@/components/agenda/Calendar';
 import { format } from 'date-fns';
 import { Plus, Clock, MapPin, X } from 'lucide-react';
+import { GET_USER_SCHEDULES_BY_USER, CREATE_MY_USER_SCHEDULE } from '@/graphql/agenda';
+
+interface UserScheduleRow {
+  id: string;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime?: string | null;
+  type?: string | null;
+  location?: string | null;
+  isConfirmed?: boolean;
+  user: { id: string };
+}
+
+function mapToCalendarEvents(schedules: UserScheduleRow[] | undefined) {
+  if (!schedules) return [];
+  return schedules.map((s) => ({
+    id: s.id,
+    date: new Date(s.startTime),
+    title: s.title,
+    type: (s.type === 'reservation' ? 'reservation' : 'availability') as 'availability' | 'reservation',
+    status: s.isConfirmed ? 'CONFIRMED' : undefined,
+  }));
+}
 
 export default function AgendaPage() {
+  const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  // TODO: Replace with actual GraphQL queries
-  const events = [
+  const { data, loading, error, refetch } = useQuery<{ userSchedulesByUser: UserScheduleRow[] }>(
+    GET_USER_SCHEDULES_BY_USER,
     {
-      id: '1',
-      date: new Date(2026, 1, 15),
-      title: 'Available',
-      type: 'availability' as const,
-    },
-    {
-      id: '2',
-      date: new Date(2026, 1, 16),
-      title: 'Historic Tour - John Doe',
-      type: 'reservation' as const,
-      status: 'CONFIRMED',
-    },
-    {
-      id: '3',
-      date: new Date(2026, 1, 16),
-      title: 'Available',
-      type: 'availability' as const,
-    },
-  ];
+      variables: { userId: user?.id ?? '' },
+      skip: !user?.id,
+    }
+  );
 
+  const [createMyUserSchedule, { loading: creating }] = useMutation(CREATE_MY_USER_SCHEDULE, {
+    onCompleted: () => {
+      setShowCreateModal(false);
+      setCreateError(null);
+      refetch();
+    },
+    onError: (err) => {
+      setCreateError(err.message ?? 'Error al crear el evento');
+    },
+  });
+
+  const events = mapToCalendarEvents(data?.userSchedulesByUser);
   const selectedDateEvents = events.filter(
     (event) => format(new Date(event.date), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
   );
+
+  const handleCreateSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setCreateError(null);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const title = (formData.get('title') as string)?.trim() ?? '';
+    const description = (formData.get('description') as string) ?? '';
+    const type = (formData.get('type') as string) ?? 'availability';
+    const dateStr = (formData.get('date') as string) ?? format(selectedDate, 'yyyy-MM-dd');
+    const startTimeStr = (formData.get('startTime') as string) ?? '09:00';
+    const endTimeStr = (formData.get('endTime') as string) ?? '17:00';
+    if (!title) {
+      setCreateError('El título es obligatorio.');
+      return;
+    }
+    if (!dateStr) {
+      setCreateError('La fecha es obligatoria.');
+      return;
+    }
+    if (!startTimeStr || !endTimeStr) {
+      setCreateError('Las horas de inicio y fin son obligatorias.');
+      return;
+    }
+    const startTime = new Date(`${dateStr}T${startTimeStr}:00`);
+    const endTime = new Date(`${dateStr}T${endTimeStr}:00`);
+    if (Number.isNaN(startTime.getTime()) || Number.isNaN(endTime.getTime())) {
+      setCreateError('Fecha u hora no válidas.');
+      return;
+    }
+    if (endTime <= startTime) {
+      setCreateError('La hora fin debe ser posterior a la hora inicio.');
+      return;
+    }
+    createMyUserSchedule({
+      variables: {
+        input: {
+          title,
+          description,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          type,
+        },
+      },
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="bg-gray-50 border border-gray-200 px-4 py-3 rounded">
+          <p className="font-medium text-gray-700">No se pudieron cargar los eventos</p>
+          <p className="text-sm text-gray-600">{error.message}</p>
+          <button
+            onClick={() => refetch()}
+            className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Intentar de nuevo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user?.id) {
+    return (
+      <div className="p-8">
+        <p className="text-gray-600">Inicia sesión para ver tu agenda.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -154,16 +259,7 @@ export default function AgendaPage() {
                 </button>
               </div>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  console.log('Crear evento:', Object.fromEntries(formData));
-                  // TODO: Implementar GraphQL mutation
-                  setShowCreateModal(false);
-                }}
-                className="space-y-4"
-              >
+              <form ref={formRef} onSubmit={handleCreateSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Título del Evento *
@@ -244,19 +340,34 @@ export default function AgendaPage() {
                   />
                 </div>
 
+                {createError && (
+                  <p className="text-sm text-red-600">{createError}</p>
+                )}
                 <div className="flex gap-3 mt-6">
                   <button
                     type="button"
-                    onClick={() => setShowCreateModal(false)}
+                    onClick={() => { setShowCreateModal(false); setCreateError(null); }}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                    disabled={creating}
                   >
                     Cancelar
                   </button>
                   <button
-                    type="submit"
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    type="button"
+                    onClick={() => {
+                      const form = formRef.current;
+                      if (form) {
+                        const syntheticEvent = {
+                          preventDefault: () => {},
+                          currentTarget: form,
+                        } as React.FormEvent<HTMLFormElement>;
+                        handleCreateSubmit(syntheticEvent);
+                      }
+                    }}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                    disabled={creating}
                   >
-                    Crear Evento
+                    {creating ? 'Creando…' : 'Crear Evento'}
                   </button>
                 </div>
               </form>
