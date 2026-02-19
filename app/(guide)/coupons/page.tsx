@@ -2,24 +2,69 @@
 
 import { useQuery, useMutation } from '@apollo/client/react';
 import { GET_MY_COUPONS, DEACTIVATE_COUPON } from '@/graphql/coupons';
-import { Plus, Edit, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { Plus, ToggleLeft, ToggleRight } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+import { useState } from 'react';
+
+interface Coupon {
+  id: string;
+  code: string;
+  type: string;
+  value: number;
+  minPurchase: number;
+  maxDiscount: number;
+  usageLimit: number;
+  usageCount: number;
+  startDate: string;
+  endDate: string;
+  active: boolean;
+  createdAt: string;
+}
+
+interface MyCouponsData {
+  myCoupons: Coupon[];
+}
 
 export default function CouponsPage() {
-  const { data, loading, error, refetch } = useQuery(GET_MY_COUPONS);
+  const { data, loading, error, refetch } = useQuery<MyCouponsData>(GET_MY_COUPONS);
   const [deactivateCoupon] = useMutation(DEACTIVATE_COUPON, {
     onCompleted: () => refetch(),
   });
 
-  const handleDeactivate = async (id: string) => {
-    if (confirm('Are you sure you want to deactivate this coupon?')) {
-      try {
-        await deactivateCoupon({ variables: { id } });
-      } catch (err) {
-        console.error('Error deactivating coupon:', err);
-        alert('Failed to deactivate coupon');
-      }
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    couponId: string;
+    couponCode: string;
+  }>({
+    isOpen: false,
+    couponId: '',
+    couponCode: '',
+  });
+
+  const [deactivating, setDeactivating] = useState(false);
+
+  const handleDeactivateClick = (id: string, code: string) => {
+    setModalConfig({
+      isOpen: true,
+      couponId: id,
+      couponCode: code,
+    });
+  };
+
+  const handleConfirmDeactivate = async () => {
+    setDeactivating(true);
+    try {
+      await deactivateCoupon({ variables: { id: modalConfig.couponId } });
+      toast.success('Coupon deactivated successfully');
+    } catch (err) {
+      console.error('Error deactivating coupon:', err);
+      toast.error('Failed to deactivate coupon');
+    } finally {
+      setDeactivating(false);
+      setModalConfig((prev) => ({ ...prev, isOpen: false }));
     }
   };
 
@@ -43,7 +88,7 @@ export default function CouponsPage() {
     );
   }
 
-  const coupons = (data as any)?.myCoupons || [];
+  const coupons = data?.myCoupons || [];
 
   return (
     <div className="p-8">
@@ -98,7 +143,7 @@ export default function CouponsPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {coupons.map((coupon: any) => (
+              {coupons.map((coupon: Coupon) => (
                 <tr key={coupon.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{coupon.code}</div>
@@ -135,7 +180,7 @@ export default function CouponsPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">
                       <button
-                        onClick={() => handleDeactivate(coupon.id)}
+                        onClick={() => handleDeactivateClick(coupon.id, coupon.code)}
                         className="text-red-600 hover:text-red-900"
                         title="Deactivate"
                       >
@@ -153,6 +198,18 @@ export default function CouponsPage() {
           </table>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={handleConfirmDeactivate}
+        title={`Deactivate ${modalConfig.couponCode}?`}
+        description="This coupon will no longer be usable by customers. You can create a new coupon if needed."
+        confirmText="Deactivate"
+        cancelText="Cancel"
+        variant="danger"
+        loading={deactivating}
+      />
     </div>
   );
 }

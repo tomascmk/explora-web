@@ -2,7 +2,7 @@
 
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   MapContainer,
   Marker,
@@ -11,6 +11,7 @@ import {
   TileLayer,
   useMapEvents
 } from 'react-leaflet'
+import { getWalkingRoute } from '@/lib/osrmRoute'
 
 // Fix for default marker icons in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -46,10 +47,47 @@ export function TourCreationMap({
   center = [-34.6037, -58.3816] // Buenos Aires default
 }: TourCreationMapProps) {
   const [isMounted, setIsMounted] = useState(false)
+  const [routePath, setRoutePath] = useState<[number, number][]>([])
+  const [isLoadingRoute, setIsLoadingRoute] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  // Fetch OSRM walking route when waypoints change (debounced)
+  const fetchRoute = useCallback(async (wps: Waypoint[]) => {
+    if (wps.length < 2) {
+      setRoutePath([])
+      return
+    }
+
+    setIsLoadingRoute(true)
+    try {
+      const sorted = [...wps].sort((a, b) => a.order - b.order)
+      const route = await getWalkingRoute(
+        sorted.map((wp) => ({ latitude: wp.latitude, longitude: wp.longitude }))
+      )
+      setRoutePath(route)
+    } catch (error) {
+      console.error('Failed to fetch OSRM route:', error)
+      // Fallback to straight lines
+      const sorted = [...wps].sort((a, b) => a.order - b.order)
+      setRoutePath(sorted.map((wp) => [wp.latitude, wp.longitude] as [number, number]))
+    } finally {
+      setIsLoadingRoute(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      fetchRoute(waypoints)
+    }, 500) // Debounce 500ms to avoid spamming OSRM during rapid edits
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [waypoints, fetchRoute])
 
   if (!isMounted) {
     return (
@@ -59,10 +97,12 @@ export function TourCreationMap({
     )
   }
 
-  // Convert waypoints to path for polyline
-  const path: [number, number][] = waypoints
+  // Fallback straight-line path (used while OSRM loads)
+  const straightPath: [number, number][] = waypoints
     .sort((a, b) => a.order - b.order)
     .map((wp) => [wp.latitude, wp.longitude])
+
+  const displayPath = routePath.length > 0 ? routePath : straightPath
 
   return (
     <div className='relative'>
@@ -104,9 +144,15 @@ export function TourCreationMap({
           </Marker>
         ))}
 
-        {/* Draw path between waypoints */}
-        {path.length > 1 && (
-          <Polyline positions={path} color='#0066CC' weight={3} opacity={0.7} />
+        {/* Draw walking route between waypoints (OSRM) */}
+        {displayPath.length > 1 && (
+          <Polyline
+            positions={displayPath}
+            color='#0066CC'
+            weight={4}
+            opacity={0.8}
+            dashArray={isLoadingRoute ? '10, 10' : undefined}
+          />
         )}
       </MapContainer>
 

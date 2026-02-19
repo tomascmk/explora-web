@@ -7,6 +7,7 @@ export const GET_TOURS_BY_GUIDE = gql`
       title
       description
       status
+      tourType
       createdAt
       guide {
         id
@@ -19,6 +20,21 @@ export const GET_TOURS_BY_GUIDE = gql`
         latitude
         longitude
         order
+      }
+      tourPricings {
+        id
+        price
+        currency
+        minParticipants
+        maxParticipants
+      }
+      tourSchedules {
+        id
+        startTime
+        endTime
+        isAvailable
+        maxCapacity
+        specialInfo
       }
       media {
         id
@@ -40,7 +56,13 @@ export const GET_TOUR_BY_ID = gql`
       title
       description
       status
+      tourType
       createdAt
+      guide {
+        id
+        fullName
+        username
+      }
       tourSteps {
         id
         title
@@ -48,6 +70,23 @@ export const GET_TOUR_BY_ID = gql`
         latitude
         longitude
         order
+      }
+      tourPricings {
+        id
+        price
+        currency
+        startDate
+        endDate
+        minParticipants
+        maxParticipants
+      }
+      tourSchedules {
+        id
+        startTime
+        endTime
+        isAvailable
+        maxCapacity
+        specialInfo
       }
       media {
         id
@@ -77,6 +116,7 @@ export const CREATE_TOUR = gql`
       id
       title
       description
+      tourType
     }
   }
 `;
@@ -87,6 +127,7 @@ export const UPDATE_TOUR = gql`
       id
       title
       description
+      tourType
     }
   }
 `;
@@ -119,6 +160,47 @@ export const CREATE_TOUR_STEP = gql`
       id
       title
       order
+    }
+  }
+`;
+
+export const CREATE_TOUR_PRICING = gql`
+  mutation CreateTourPricing($input: CreateTourPricingInput!) {
+    createTourPricing(input: $input) {
+      id
+      price
+      currency
+      startDate
+      endDate
+      minParticipants
+      maxParticipants
+    }
+  }
+`;
+
+export const UPDATE_TOUR_PRICING = gql`
+  mutation UpdateTourPricing($input: UpdateTourPricingInput!) {
+    updateTourPricing(input: $input) {
+      id
+      price
+      currency
+      startDate
+      endDate
+      minParticipants
+      maxParticipants
+    }
+  }
+`;
+
+export const CREATE_TOUR_SCHEDULE = gql`
+  mutation CreateTourSchedule($input: CreateTourScheduleInput!) {
+    createTourSchedule(input: $input) {
+      id
+      startTime
+      endTime
+      isAvailable
+      maxCapacity
+      specialInfo
     }
   }
 `;

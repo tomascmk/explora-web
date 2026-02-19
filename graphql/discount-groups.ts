@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const DISCOUNT_GROUPS_BY_GUIDE = gql`
-  query DiscountGroupsByGuide {
-    discountGroupsByGuide {
+  query DiscountGroupsByGuide($guideId: String!) {
+    discountGroupsByGuide(guideId: $guideId) {
       id
       name
       description
@@ -43,8 +43,8 @@ export const CREATE_DISCOUNT_GROUP = gql`
 `;
 
 export const UPDATE_DISCOUNT_GROUP = gql`
-  mutation UpdateDiscountGroup($input: UpdateDiscountGroupDto!) {
-    updateDiscountGroup(input: $input) {
+  mutation UpdateDiscountGroup($id: String!, $input: UpdateDiscountGroupDto!) {
+    updateDiscountGroup(id: $id, input: $input) {
       id
       name
       description

@@ -1,3 +1,6 @@
+// NOTE: These queries/mutations reference an availability backend module that does not exist yet.
+// They are currently unused — the agenda page uses @/graphql/agenda instead.
+// Keep for future implementation of the availability module.
 import { gql } from '@apollo/client';
 
 export const GET_MY_AVAILABILITY = gql`

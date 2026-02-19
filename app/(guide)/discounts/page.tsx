@@ -6,6 +6,8 @@ import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
 import { DISCOUNT_GROUPS_BY_GUIDE, UPDATE_DISCOUNT_GROUP, DELETE_DISCOUNT_GROUP, CREATE_DISCOUNT_GROUP } from '@/graphql/discount-groups'
 import { GET_TOURS_BY_GUIDE } from '@/graphql/tours'
+import { ConfirmModal } from '@/components/ui/ConfirmModal'
+import { toast } from 'sonner'
 
 interface DiscountGroup {
   id: string
@@ -18,38 +20,58 @@ interface DiscountGroup {
   endDate: string
   isActive: boolean
   tours: { id: string; title: string }[]
+  createdAt: string
+  updatedAt: string
 }
 
 export default function DiscountsPage() {
   const { user } = useAuth()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingDiscount, setEditingDiscount] = useState<DiscountGroup | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<DiscountGroup | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
 
   const { data, loading, refetch } = useQuery<{ discountGroupsByGuide: DiscountGroup[] }>(
     DISCOUNT_GROUPS_BY_GUIDE,
-    { skip: !user }
+    {
+      variables: { guideId: user?.id },
+      skip: !user
+    }
   )
 
   const [updateDiscountMutation] = useMutation(UPDATE_DISCOUNT_GROUP, {
     onCompleted: () => refetch()
   })
 
-  const [deleteDiscountMutation] = useMutation(DELETE_DISCOUNT_GROUP, {
-    onCompleted: () => refetch()
+  const [deleteDiscountMutation, { loading: deleting }] = useMutation(DELETE_DISCOUNT_GROUP, {
+    onCompleted: () => {
+      refetch()
+      setDeleteTarget(null)
+      toast.success('Discount group deleted successfully')
+    },
+    onError: (error) => {
+      toast.error('Failed to delete discount group')
+      console.error('Error deleting discount:', error)
+    }
   })
 
   const discounts = data?.discountGroupsByGuide || []
 
   const toggleActive = async (id: string, isActive: boolean) => {
+    setTogglingId(id)
     try {
       await updateDiscountMutation({
         variables: {
-          input: { id, isActive: !isActive }
+          id,
+          input: { isActive: !isActive }
         }
       })
+      toast.success(`Discount ${!isActive ? 'activated' : 'deactivated'}`)
     } catch (error) {
       console.error('Error toggling discount:', error)
-      alert('Failed to update discount')
+      toast.error('Failed to update discount status')
+    } finally {
+      setTogglingId(null)
     }
   }
 
@@ -58,14 +80,12 @@ export default function DiscountsPage() {
     setShowCreateModal(true)
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this discount group?')) return
-
+  const handleDelete = async () => {
+    if (!deleteTarget) return
     try {
-      await deleteDiscountMutation({ variables: { id } })
+      await deleteDiscountMutation({ variables: { id: deleteTarget.id } })
     } catch (error) {
       console.error('Error deleting discount:', error)
-      alert('Failed to delete discount')
     }
   }
 
@@ -74,7 +94,11 @@ export default function DiscountsPage() {
       <div className='p-8'>
         <div className='animate-pulse space-y-4'>
           <div className='h-8 bg-gray-200 rounded w-1/4'></div>
-          <div className='h-32 bg-gray-200 rounded'></div>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {[1, 2, 3].map((i) => (
+              <div key={i} className='h-64 bg-gray-200 rounded-lg'></div>
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -83,9 +107,17 @@ export default function DiscountsPage() {
   return (
     <div className='p-8'>
       <div className='flex justify-between items-center mb-8'>
-        <h1 className='text-3xl font-bold'>Discount Groups</h1>
+        <div>
+          <h1 className='text-3xl font-bold'>Discount Groups</h1>
+          <p className='text-gray-500 mt-1'>
+            {discounts.length} discount group{discounts.length !== 1 ? 's' : ''} total
+          </p>
+        </div>
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => {
+            setEditingDiscount(null)
+            setShowCreateModal(true)
+          }}
           className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition'
         >
           + Create Discount Group
@@ -94,6 +126,7 @@ export default function DiscountsPage() {
 
       {discounts.length === 0 ? (
         <div className='bg-white rounded-lg shadow p-12 text-center'>
+          <div className='text-6xl mb-4'>🏷️</div>
           <p className='text-gray-500 mb-4'>No discount groups created yet</p>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -108,15 +141,15 @@ export default function DiscountsPage() {
             <DiscountCard
               key={discount.id}
               discount={discount}
+              toggling={togglingId === discount.id}
               onToggleActive={(id, isActive) => toggleActive(id, isActive)}
               onEdit={() => handleEdit(discount)}
-              onDelete={() => handleDelete(discount.id)}
+              onDelete={() => setDeleteTarget(discount)}
             />
           ))}
         </div>
       )}
 
-      {/* Create Modal - Simple implementation */}
       {showCreateModal && (
         <CreateDiscountModal
           onClose={() => {
@@ -132,24 +165,52 @@ export default function DiscountsPage() {
           editingDiscount={editingDiscount}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title='Delete Discount Group'
+        description={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+        confirmText='Delete'
+        variant='danger'
+        loading={deleting}
+      />
     </div>
   )
 }
 
 function DiscountCard({
   discount,
+  toggling,
   onToggleActive,
   onEdit,
   onDelete
 }: {
   discount: DiscountGroup
+  toggling: boolean
   onToggleActive: (id: string, isActive: boolean) => void
   onEdit: () => void
   onDelete: () => void
 }) {
   const isExpired = new Date(discount.endDate) < new Date()
   const isUpcoming = new Date(discount.startDate) > new Date()
-  const isActive = discount.isActive && !isExpired && !isUpcoming
+
+  const statusLabel = isExpired
+    ? 'Expired'
+    : isUpcoming
+    ? 'Upcoming'
+    : discount.isActive
+    ? 'Active'
+    : 'Inactive'
+
+  const statusColor = isExpired
+    ? 'bg-gray-100 text-gray-600'
+    : isUpcoming
+    ? 'bg-blue-100 text-blue-800'
+    : discount.isActive
+    ? 'bg-green-100 text-green-800'
+    : 'bg-gray-100 text-gray-800'
 
   return (
     <div className='bg-white rounded-lg shadow p-6'>
@@ -164,13 +225,12 @@ function DiscountCard({
         </div>
         <button
           onClick={() => onToggleActive(discount.id, discount.isActive)}
-          className={`px-3 py-1 rounded text-xs font-medium ${
-            discount.isActive
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-800'
+          disabled={toggling || isExpired}
+          className={`px-3 py-1 rounded text-xs font-medium transition ${statusColor} ${
+            toggling ? 'opacity-50 cursor-wait' : isExpired ? 'cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
           }`}
         >
-          {discount.isActive ? 'Active' : 'Inactive'}
+          {toggling ? 'Updating...' : statusLabel}
         </button>
       </div>
 
@@ -187,7 +247,7 @@ function DiscountCard({
         </div>
         <div className='flex justify-between text-sm'>
           <span className='text-gray-600'>End:</span>
-          <span className='font-medium'>
+          <span className={`font-medium ${isExpired ? 'text-red-500' : ''}`}>
             {format(new Date(discount.endDate), 'MMM d, yyyy')}
           </span>
         </div>
@@ -215,13 +275,13 @@ function DiscountCard({
       </div>
 
       <div className='mt-4 flex gap-2'>
-        <button 
+        <button
           onClick={onEdit}
           className='flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition text-sm'
         >
           Edit
         </button>
-        <button 
+        <button
           onClick={onDelete}
           className='px-4 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50 transition text-sm'
         >
@@ -263,23 +323,40 @@ function CreateDiscountModal({
   )
 
   const [createDiscountMutation, { loading: creating }] = useMutation(CREATE_DISCOUNT_GROUP, {
-    onCompleted: () => onSuccess(),
+    onCompleted: () => {
+      toast.success('Discount group created successfully')
+      onSuccess()
+    },
     onError: (error) => {
       console.error('Error creating discount:', error)
-      alert('Failed to create discount')
+      toast.error('Failed to create discount group')
     }
   })
 
   const [updateDiscountMutation, { loading: updating }] = useMutation(UPDATE_DISCOUNT_GROUP, {
-    onCompleted: () => onSuccess(),
+    onCompleted: () => {
+      toast.success('Discount group updated successfully')
+      onSuccess()
+    },
     onError: (error) => {
       console.error('Error updating discount:', error)
-      alert('Failed to update discount')
+      toast.error('Failed to update discount group')
     }
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validaciones
+    if (selectedTours.length === 0) {
+      toast.error('Please select at least one tour')
+      return
+    }
+
+    if (formData.startDate && formData.endDate && new Date(formData.endDate) <= new Date(formData.startDate)) {
+      toast.error('End date must be after start date')
+      return
+    }
 
     const input: any = {
       name: formData.name,
@@ -288,24 +365,27 @@ function CreateDiscountModal({
       startDate: formData.startDate,
       endDate: formData.endDate,
       tourIds: selectedTours,
-      isActive: true
+      isActive: editingDiscount?.isActive ?? true
     }
 
-    // Agregar el campo correcto según el tipo de descuento
     if (formData.discountType === 'percentage') {
       input.discountPercentage = parseFloat(formData.discountPercentage)
     } else {
       input.discountAmount = parseFloat(formData.discountAmount)
     }
 
-    if (editingDiscount) {
-      await updateDiscountMutation({
-        variables: { input: { id: editingDiscount.id, ...input } }
-      })
-    } else {
-      await createDiscountMutation({
-        variables: { input: { ...input, guideId } }
-      })
+    try {
+      if (editingDiscount) {
+        await updateDiscountMutation({
+          variables: { id: editingDiscount.id, input }
+        })
+      } else {
+        await createDiscountMutation({
+          variables: { input: { ...input, guideId } }
+        })
+      }
+    } catch (error) {
+      // Errors handled by onError callbacks
     }
   }
 
@@ -330,6 +410,20 @@ function CreateDiscountModal({
               required
             />
           </div>
+
+          <div>
+            <label className='block text-sm font-medium mb-2'>Description</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className='w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500'
+              rows={2}
+              placeholder='Optional description for this discount group...'
+            />
+          </div>
+
           <div>
             <label className='block text-sm font-medium mb-2'>
               Discount Type *
@@ -382,13 +476,14 @@ function CreateDiscountModal({
               />
             </div>
           )}
+
           <div>
             <label className='block text-sm font-medium mb-2'>
               Select Tours *
             </label>
             <div className='border rounded p-3 max-h-40 overflow-y-auto space-y-2'>
               {tours.length === 0 ? (
-                <p className='text-sm text-gray-500'>No tours available</p>
+                <p className='text-sm text-gray-500'>No tours available. Create a tour first.</p>
               ) : (
                 tours.map((tour: any) => (
                   <label key={tour.id} className='flex items-center gap-2 cursor-pointer'>
@@ -409,7 +504,11 @@ function CreateDiscountModal({
                 ))
               )}
             </div>
+            {selectedTours.length > 0 && (
+              <p className='text-xs text-gray-500 mt-1'>{selectedTours.length} tour(s) selected</p>
+            )}
           </div>
+
           <div className='grid grid-cols-2 gap-4'>
             <div>
               <label className='block text-sm font-medium mb-2'>
@@ -432,6 +531,7 @@ function CreateDiscountModal({
               <input
                 type='date'
                 value={formData.endDate}
+                min={formData.startDate || undefined}
                 onChange={(e) =>
                   setFormData({ ...formData, endDate: e.target.value })
                 }
@@ -440,6 +540,7 @@ function CreateDiscountModal({
               />
             </div>
           </div>
+
           <div className='flex gap-2 pt-4'>
             <button
               type='button'

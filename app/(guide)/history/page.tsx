@@ -3,10 +3,26 @@
 import { useQuery } from '@apollo/client/react';
 import { GET_MY_AUDIT_LOG } from '@/graphql/audit-log';
 import { formatDistanceToNow } from 'date-fns';
-import { FileText, Edit, Trash2, Plus, Eye } from 'lucide-react';
+import { FileText, Edit, Trash2, Plus, Eye, LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 
-const actionIcons: Record<string, any> = {
+interface AuditLog {
+  id: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  changes: unknown;
+  metadata: unknown;
+  ipAddress: string;
+  userAgent: string;
+  createdAt: string;
+}
+
+interface MyAuditLogData {
+  myAuditLog: AuditLog[];
+}
+
+const actionIcons: Record<string, LucideIcon> = {
   CREATE: Plus,
   UPDATE: Edit,
   DELETE: Trash2,
@@ -17,7 +33,7 @@ export default function HistoryPage() {
   const [limit] = useState(50);
   const [offset] = useState(0);
   
-  const { data, loading, error } = useQuery(GET_MY_AUDIT_LOG, {
+  const { data, loading, error } = useQuery<MyAuditLogData>(GET_MY_AUDIT_LOG, {
     variables: { limit, offset },
   });
 
@@ -41,7 +57,7 @@ export default function HistoryPage() {
     );
   }
 
-  const logs = (data as any)?.myAuditLog || [];
+  const logs: AuditLog[] = data?.myAuditLog || [];
 
   return (
     <div className="p-8">
@@ -73,7 +89,7 @@ export default function HistoryPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {logs.map((log: any) => {
+                {logs.map((log: AuditLog) => {
                   const ActionIcon = actionIcons[log.action] || FileText;
                   
                   return (

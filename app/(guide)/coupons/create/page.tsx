@@ -4,6 +4,7 @@ import { useMutation } from '@apollo/client/react';
 import { CREATE_COUPON } from '@/graphql/coupons';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function CreateCouponPage() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function CreateCouponPage() {
       router.push('/coupons');
     } catch (err: any) {
       console.error('Error creating coupon:', err);
-      alert(err.message || 'Failed to create coupon');
+      toast.error(err.message || 'Failed to create coupon');
     }
   };
 

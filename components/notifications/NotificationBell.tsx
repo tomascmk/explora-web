@@ -6,12 +6,16 @@ import { Bell } from 'lucide-react';
 import { useEffect } from 'react';
 import { getSocket } from '@/lib/websocket';
 
+interface UnreadCountData {
+  unreadNotificationsCount: number;
+}
+
 interface NotificationBellProps {
   onClick: () => void;
 }
 
 export function NotificationBell({ onClick }: NotificationBellProps) {
-  const { data, refetch } = useQuery(GET_UNREAD_COUNT, {
+  const { data, refetch } = useQuery<UnreadCountData>(GET_UNREAD_COUNT, {
     pollInterval: 30000, // Poll every 30 seconds as fallback
   });
 
@@ -29,7 +33,7 @@ export function NotificationBell({ onClick }: NotificationBellProps) {
     }
   }, [refetch]);
 
-  const unreadCount = (data as any)?.unreadNotificationsCount || 0;
+  const unreadCount = data?.unreadNotificationsCount || 0;
 
   return (
     <button

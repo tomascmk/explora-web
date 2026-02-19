@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ImageUploadProps {
   images: string[];
@@ -16,7 +17,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       if (images.length + acceptedFiles.length > maxImages) {
-        alert(`Máximo ${maxImages} imágenes permitidas`);
+        toast.error(`Maximum ${maxImages} images allowed`);
         return;
       }
 
@@ -37,7 +38,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
         onImagesChange([...images, ...newImages]);
       } catch (error) {
         console.error('Error uploading images:', error);
-        alert('Error al subir las imágenes');
+        toast.error('Failed to upload images');
       } finally {
         setUploading(false);
       }
@@ -81,14 +82,14 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
           <input {...getInputProps()} />
           <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
           {isDragActive ? (
-            <p className="text-blue-600 font-medium">Suelta las imágenes aquí...</p>
+            <p className="text-blue-600 font-medium">Drop images here...</p>
           ) : (
             <>
               <p className="text-gray-700 font-medium mb-2">
-                Arrastra imágenes aquí o haz clic para seleccionar
+                Drag images here or click to select
               </p>
               <p className="text-sm text-gray-500">
-                Máximo {maxImages} imágenes, hasta 5MB cada una
+                Maximum {maxImages} images, up to 5MB each
               </p>
             </>
           )}
@@ -114,7 +115,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
                 <button
                   onClick={() => removeImage(index)}
                   className="opacity-0 group-hover:opacity-100 p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
-                  title="Eliminar"
+                  title="Remove"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -122,7 +123,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
                   <button
                     onClick={() => moveImage(index, index - 1)}
                     className="opacity-0 group-hover:opacity-100 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-                    title="Mover a la izquierda"
+                    title="Move left"
                   >
                     ←
                   </button>
@@ -131,7 +132,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
                   <button
                     onClick={() => moveImage(index, index + 1)}
                     className="opacity-0 group-hover:opacity-100 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-                    title="Mover a la derecha"
+                    title="Move right"
                   >
                     →
                   </button>
@@ -141,7 +142,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
               {/* Primary badge */}
               {index === 0 && (
                 <div className="absolute top-2 left-2 px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded">
-                  Principal
+                  Primary
                 </div>
               )}
             </div>
@@ -152,7 +153,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
       {/* Info */}
       {images.length > 0 && (
         <p className="text-sm text-gray-600">
-          {images.length} de {maxImages} imágenes. La primera imagen será la principal.
+          {images.length} of {maxImages} images. The first image will be the primary one.
         </p>
       )}
     </div>

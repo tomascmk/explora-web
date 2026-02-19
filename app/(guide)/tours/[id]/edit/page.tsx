@@ -5,16 +5,19 @@ import dynamic from 'next/dynamic'
 import { useRouter, useParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
-import { 
-  GET_TOUR_BY_ID, 
-  UPDATE_TOUR, 
-  CREATE_TOUR_STEP, 
-  UPDATE_TOUR_STEP, 
-  DELETE_TOUR_STEP 
+import {
+  GET_TOUR_BY_ID,
+  UPDATE_TOUR,
+  CREATE_TOUR_STEP,
+  UPDATE_TOUR_STEP,
+  DELETE_TOUR_STEP,
+  CREATE_TOUR_PRICING,
+  UPDATE_TOUR_PRICING,
+  CREATE_TOUR_SCHEDULE,
 } from '@/graphql/tours'
 import { toast } from 'sonner'
+import { format } from 'date-fns'
 
-// Import map component dynamically to avoid SSR issues with Leaflet
 const TourCreationMap = dynamic(
   () =>
     import('@/components/maps/TourCreationMap').then(
@@ -32,76 +35,21 @@ interface Waypoint {
   order: number
 }
 
-interface Tour {
+interface TourPricing {
   id: string
-  title: string
-  description: string
-  status: string
-  createdAt: string
-  tourSteps: Waypoint[]
+  price: number
+  currency: string
+  minParticipants: number
+  maxParticipants: number
 }
 
-interface GetTourData {
-  tour: Tour
-}
-
-interface GetTourVars {
+interface TourScheduleItem {
   id: string
-}
-
-interface UpdateTourData {
-  updateTour: {
-    id: string
-    title: string
-    description: string
-  }
-}
-
-interface UpdateTourVars {
-  input: {
-    id: string
-    title: string
-    description: string
-    guideId: string | undefined
-  }
-}
-
-interface CreateStepData {
-  createTourStep: { id: string }
-}
-
-interface CreateStepVars {
-  input: {
-    tourId: string
-    title: string
-    description: string
-    latitude: number
-    longitude: number
-    order: number
-  }
-}
-
-interface UpdateStepData {
-  updateTourStep: { id: string }
-}
-
-interface UpdateStepVars {
-  input: {
-    id: string
-    title: string
-    description: string
-    latitude: number
-    longitude: number
-    order: number
-  }
-}
-
-interface DeleteStepData {
-  removeTourStep: { success: boolean; message: string }
-}
-
-interface DeleteStepVars {
-  id: string
+  startTime: string
+  endTime?: string
+  isAvailable: boolean
+  maxCapacity?: number
+  specialInfo?: string
 }
 
 export default function EditTourPage() {
@@ -110,68 +58,91 @@ export default function EditTourPage() {
   const id = params.id as string
   const { user } = useAuth()
   const [step, setStep] = useState(1)
-  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   // Tour basic info
   const [tourInfo, setTourInfo] = useState({
     title: '',
     description: '',
-    price: '', // Note: Backend doesn't support price yet, keeping for UI consistency
-    duration: '',
-    maxParticipants: ''
+    tourType: 'SELF_GUIDED' as 'GUIDED' | 'SELF_GUIDED',
+    price: '',
+    currency: 'USD',
+    maxParticipants: '',
   })
 
   // Tour waypoints
   const [waypoints, setWaypoints] = useState<Waypoint[]>([])
   const [editingWaypoint, setEditingWaypoint] = useState<string | null>(null)
-  
-  // Track deleted steps
+
+  // Track deleted steps and existing pricing
   const [deletedStepIds, setDeletedStepIds] = useState<string[]>([])
+  const [existingPricing, setExistingPricing] = useState<TourPricing | null>(null)
+
+  // Existing schedules (for display)
+  const [existingSchedules, setExistingSchedules] = useState<TourScheduleItem[]>([])
+
+  const isGuided = tourInfo.tourType === 'GUIDED'
 
   // Fetch tour data
-  const { data: fetchData, loading: fetchLoading } = useQuery<GetTourData, GetTourVars>(GET_TOUR_BY_ID, {
+  const { data: fetchData, loading: fetchLoading } = useQuery<any>(GET_TOUR_BY_ID, {
     variables: { id },
-    skip: !id
+    skip: !id,
   })
 
   useEffect(() => {
     if (fetchData?.tour) {
       const tour = fetchData.tour
+      const pricing = tour.tourPricings?.[0]
+      const tourTypeValue = tour.tourType === 'guided' ? 'GUIDED' : 'SELF_GUIDED'
+
       setTourInfo({
         title: tour.title || '',
         description: tour.description || '',
-        price: '', 
-        duration: '',
-        maxParticipants: ''
+        tourType: tourTypeValue,
+        price: pricing?.price?.toString() || '',
+        currency: pricing?.currency || 'USD',
+        maxParticipants: pricing?.maxParticipants?.toString() || '',
       })
-      
-      const tourSteps = (tour.tourSteps || []).map((s: any) => ({
-        id: s.id,
-        latitude: s.latitude,
-        longitude: s.longitude,
-        title: s.title || '',
-        description: s.description || '',
-        order: s.order
-      })).sort((a: Waypoint, b: Waypoint) => a.order - b.order)
-      
+
+      if (pricing) {
+        setExistingPricing(pricing)
+      }
+
+      if (tour.tourSchedules) {
+        setExistingSchedules(tour.tourSchedules)
+      }
+
+      const tourSteps = (tour.tourSteps || [])
+        .map((s: any) => ({
+          id: s.id,
+          latitude: s.latitude,
+          longitude: s.longitude,
+          title: s.title || '',
+          description: s.description || '',
+          order: s.order,
+        }))
+        .sort((a: Waypoint, b: Waypoint) => a.order - b.order)
+
       setWaypoints(tourSteps)
     }
   }, [fetchData])
 
   // Mutations
-  const [updateTour] = useMutation<UpdateTourData, UpdateTourVars>(UPDATE_TOUR)
-  const [createTourStep] = useMutation<CreateStepData, CreateStepVars>(CREATE_TOUR_STEP)
-  const [updateTourStep] = useMutation<UpdateStepData, UpdateStepVars>(UPDATE_TOUR_STEP)
-  const [deleteTourStep] = useMutation<DeleteStepData, DeleteStepVars>(DELETE_TOUR_STEP)
+  const [updateTour] = useMutation(UPDATE_TOUR)
+  const [createTourStep] = useMutation(CREATE_TOUR_STEP)
+  const [updateTourStep] = useMutation(UPDATE_TOUR_STEP)
+  const [deleteTourStep] = useMutation(DELETE_TOUR_STEP)
+  const [createTourPricing] = useMutation(CREATE_TOUR_PRICING)
+  const [updateTourPricing] = useMutation(UPDATE_TOUR_PRICING)
 
   const handleAddWaypoint = (lat: number, lng: number) => {
     const newWaypoint: Waypoint = {
-      id: `new-${Date.now()}`, // Temporary prefix for new steps
+      id: `new-${Date.now()}`,
       latitude: lat,
       longitude: lng,
       title: `Stop ${waypoints.length + 1}`,
       description: '',
-      order: waypoints.length + 1
+      order: waypoints.length + 1,
     }
     setWaypoints([...waypoints, newWaypoint])
     setEditingWaypoint(newWaypoint.id)
@@ -185,84 +156,106 @@ export default function EditTourPage() {
   }
 
   const handleUpdateWaypoint = (
-    id: string,
+    wpId: string,
     title: string,
     description: string
   ) => {
     setWaypoints(
-      waypoints.map((wp) => (wp.id === id ? { ...wp, title, description } : wp))
+      waypoints.map((wp) =>
+        wp.id === wpId ? { ...wp, title, description } : wp
+      )
     )
   }
 
   const handleSubmit = async () => {
-    setLoading(true)
+    setSubmitting(true)
 
     try {
-      // 1. Update basic tour info
+      // 1. Update basic tour info + tourType
       await updateTour({
         variables: {
           input: {
             id,
             title: tourInfo.title,
             description: tourInfo.description,
-            guideId: user?.id
-          }
-        }
+            tourType: tourInfo.tourType === 'GUIDED' ? 'guided' : 'self_guided',
+          },
+        },
       })
 
-      // 2. Handle tour steps
-      // Delete removed steps
+      // 2. Delete removed steps
       for (const stepId of deletedStepIds) {
         await deleteTourStep({ variables: { id: stepId } })
       }
 
-      // Update existing or create new steps
+      // 3. Create/Update steps
       const stepPromises = waypoints.map((waypoint, index) => {
         const stepInput = {
           title: waypoint.title,
           description: waypoint.description,
           latitude: waypoint.latitude,
           longitude: waypoint.longitude,
-          order: index + 1 // Recalculate order based on current list
+          order: index + 1,
         }
 
         if (waypoint.id.startsWith('new-')) {
           return createTourStep({
-            variables: {
-              input: {
-                ...stepInput,
-                tourId: id
-              }
-            }
+            variables: { input: { ...stepInput, tourId: id } },
           })
         } else {
           return updateTourStep({
-            variables: {
-              input: {
-                ...stepInput,
-                id: waypoint.id
-              }
-            }
+            variables: { input: { ...stepInput, id: waypoint.id } },
           })
         }
       })
-
       await Promise.all(stepPromises)
 
-      toast.success('Tour updated successfully!')
+      // 4. Manage pricing
+      const hasPrice = tourInfo.price && parseFloat(tourInfo.price) > 0
+      if (hasPrice) {
+        const pricingInput = {
+          price: parseFloat(tourInfo.price),
+          currency: tourInfo.currency,
+          minParticipants: 1,
+          maxParticipants: tourInfo.maxParticipants
+            ? parseInt(tourInfo.maxParticipants)
+            : 10,
+        }
+
+        if (existingPricing) {
+          await updateTourPricing({
+            variables: {
+              input: { id: existingPricing.id, ...pricingInput },
+            },
+          })
+        } else {
+          await createTourPricing({
+            variables: {
+              input: {
+                tourId: id,
+                startDate: new Date().toISOString(),
+                ...pricingInput,
+              },
+            },
+          })
+        }
+      }
+
+      toast.success('Tour updated successfully')
       router.push('/tours')
       router.refresh()
     } catch (error: any) {
+      console.error('Error updating tour:', error)
       toast.error(error.message || 'Failed to update tour')
     } finally {
-      setLoading(false)
+      setSubmitting(false)
     }
   }
 
   if (fetchLoading) {
     return (
       <div className='p-8 flex justify-center items-center h-64'>
-        <div className='text-gray-600'>Loading tour data...</div>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600' />
       </div>
     )
   }
@@ -270,7 +263,7 @@ export default function EditTourPage() {
   return (
     <div className='p-8'>
       <div className='flex items-center gap-4 mb-8'>
-        <button 
+        <button
           onClick={() => router.back()}
           className='text-gray-500 hover:text-gray-700'
         >
@@ -281,11 +274,11 @@ export default function EditTourPage() {
 
       {/* Progress Steps */}
       <div className='flex items-center justify-center mb-8'>
-        <StepIndicator number={1} label='Basic Info' active={step === 1} />
-        <div className='w-20 h-0.5 bg-gray-300 mx-2'></div>
-        <StepIndicator number={2} label='Route & Stops' active={step === 2} />
-        <div className='w-20 h-0.5 bg-gray-300 mx-2'></div>
-        <StepIndicator number={3} label='Review' active={step === 3} />
+        <StepIndicator number={1} label='Information' active={step >= 1} completed={step > 1} />
+        <div className={`w-20 h-0.5 mx-2 ${step > 1 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+        <StepIndicator number={2} label='Route & Stops' active={step >= 2} completed={step > 2} />
+        <div className={`w-20 h-0.5 mx-2 ${step > 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+        <StepIndicator number={3} label='Review' active={step >= 3} completed={false} />
       </div>
 
       {/* Step 1: Basic Info */}
@@ -293,6 +286,41 @@ export default function EditTourPage() {
         <div className='max-w-2xl mx-auto bg-white rounded-lg shadow p-8'>
           <h2 className='text-2xl font-semibold mb-6'>Tour Information</h2>
           <div className='space-y-4'>
+            {/* Tour Type Selector */}
+            <div>
+              <label className='block text-sm font-medium mb-3'>Tour Type *</label>
+              <div className='grid grid-cols-2 gap-3'>
+                <button
+                  type='button'
+                  onClick={() => setTourInfo({ ...tourInfo, tourType: 'SELF_GUIDED' })}
+                  className={`p-4 rounded-lg border-2 text-left transition ${
+                    !isGuided
+                      ? 'border-blue-600 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <p className='font-semibold'>Self-Guided</p>
+                  <p className='text-sm text-gray-600 mt-1'>
+                    Tourists follow the route independently
+                  </p>
+                </button>
+                <button
+                  type='button'
+                  onClick={() => setTourInfo({ ...tourInfo, tourType: 'GUIDED' })}
+                  className={`p-4 rounded-lg border-2 text-left transition ${
+                    isGuided
+                      ? 'border-blue-600 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <p className='font-semibold'>Guided</p>
+                  <p className='text-sm text-gray-600 mt-1'>
+                    You lead the group in person
+                  </p>
+                </button>
+              </div>
+            </div>
+
             <div>
               <label className='block text-sm font-medium mb-2'>
                 Tour Title *
@@ -304,7 +332,7 @@ export default function EditTourPage() {
                   setTourInfo({ ...tourInfo, title: e.target.value })
                 }
                 className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
-                placeholder='Historic City Walking Tour'
+                placeholder='Historic Downtown Walking Tour'
                 required
               />
             </div>
@@ -323,34 +351,99 @@ export default function EditTourPage() {
                 required
               />
             </div>
-            <div className='grid grid-cols-2 gap-4'>
+
+            {/* Price & Currency + Max Participants (guided only) */}
+            <div className={`grid ${isGuided ? 'grid-cols-3' : 'grid-cols-2'} gap-4`}>
               <div>
                 <label className='block text-sm font-medium mb-2'>
-                  Price per Person (Coming soon)
+                  Price per Person
                 </label>
                 <input
                   type='number'
+                  min='0'
+                  step='0.01'
                   value={tourInfo.price}
-                  disabled
-                  className='w-full px-4 py-3 border rounded-lg bg-gray-50 text-gray-400'
+                  onChange={(e) =>
+                    setTourInfo({ ...tourInfo, price: e.target.value })
+                  }
+                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
                   placeholder='75'
                 />
               </div>
               <div>
                 <label className='block text-sm font-medium mb-2'>
-                  Duration (hours)
+                  Currency
                 </label>
-                <input
-                  type='number'
-                  value={tourInfo.duration}
+                <select
+                  value={tourInfo.currency}
                   onChange={(e) =>
-                    setTourInfo({ ...tourInfo, duration: e.target.value })
+                    setTourInfo({ ...tourInfo, currency: e.target.value })
                   }
                   className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
-                  placeholder='3'
-                />
+                >
+                  <option value='USD'>USD</option>
+                  <option value='ARS'>ARS</option>
+                  <option value='EUR'>EUR</option>
+                  <option value='BRL'>BRL</option>
+                </select>
               </div>
+              {isGuided && (
+                <div>
+                  <label className='block text-sm font-medium mb-2'>
+                    Max Participants
+                  </label>
+                  <input
+                    type='number'
+                    min='1'
+                    value={tourInfo.maxParticipants}
+                    onChange={(e) =>
+                      setTourInfo({ ...tourInfo, maxParticipants: e.target.value })
+                    }
+                    className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                    placeholder='10'
+                  />
+                </div>
+              )}
             </div>
+
+            {/* Existing Schedules (guided only) */}
+            {isGuided && existingSchedules.length > 0 && (
+              <div className='border-t pt-4 mt-4'>
+                <h3 className='text-lg font-medium mb-3'>Scheduled Sessions</h3>
+                <div className='space-y-2'>
+                  {existingSchedules.map((schedule) => (
+                    <div key={schedule.id} className='flex items-center justify-between bg-blue-50 rounded-lg p-3 text-sm'>
+                      <div>
+                        <span className='font-medium'>
+                          {format(new Date(schedule.startTime), 'MMM dd, yyyy HH:mm')}
+                        </span>
+                        {schedule.endTime && (
+                          <span className='text-gray-600'>
+                            {' '}- {format(new Date(schedule.endTime), 'HH:mm')}
+                          </span>
+                        )}
+                        {schedule.specialInfo && (
+                          <span className='text-gray-500 ml-2'>
+                            ({schedule.specialInfo})
+                          </span>
+                        )}
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        schedule.isAvailable
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {schedule.isAvailable ? 'Available' : 'Unavailable'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className='text-xs text-gray-500 mt-2'>
+                  You can add more sessions from the Tours list page.
+                </p>
+              </div>
+            )}
+
             <button
               onClick={() => setStep(2)}
               disabled={!tourInfo.title || !tourInfo.description}
@@ -366,9 +459,9 @@ export default function EditTourPage() {
       {step === 2 && (
         <div className='space-y-6'>
           <div className='bg-white rounded-lg shadow p-6'>
-            <h2 className='text-2xl font-semibold mb-4'>Update Your Route</h2>
+            <h2 className='text-2xl font-semibold mb-4'>Edit Route</h2>
             <p className='text-gray-600 mb-6'>
-              Modify your tour route. Click on the map to add new stops.
+              Modify your route. Click on the map to add new stops.
             </p>
 
             <TourCreationMap
@@ -378,7 +471,6 @@ export default function EditTourPage() {
             />
           </div>
 
-          {/* Waypoints List */}
           {waypoints.length > 0 && (
             <div className='bg-white rounded-lg shadow p-6'>
               <h3 className='text-xl font-semibold mb-4'>
@@ -424,9 +516,15 @@ export default function EditTourPage() {
       {/* Step 3: Review */}
       {step === 3 && (
         <div className='max-w-2xl mx-auto bg-white rounded-lg shadow p-8'>
-          <h2 className='text-2xl font-semibold mb-6'>Review & Save Changes</h2>
+          <h2 className='text-2xl font-semibold mb-6'>Review & Save</h2>
 
           <div className='space-y-4 mb-8'>
+            <div>
+              <p className='text-sm text-gray-600'>Tour Type</p>
+              <p className='font-medium'>
+                {isGuided ? 'Guided — You lead the group' : 'Self-Guided — Independent exploration'}
+              </p>
+            </div>
             <div>
               <p className='text-sm text-gray-600'>Title</p>
               <p className='font-medium'>{tourInfo.title}</p>
@@ -435,16 +533,65 @@ export default function EditTourPage() {
               <p className='text-sm text-gray-600'>Description</p>
               <p className='text-sm'>{tourInfo.description}</p>
             </div>
-            <div className='grid grid-cols-2 gap-4'>
+            <div className={`grid ${isGuided ? 'grid-cols-3' : 'grid-cols-2'} gap-4`}>
               <div>
                 <p className='text-sm text-gray-600'>Price</p>
-                <p className='font-medium'>{tourInfo.price ? `$${tourInfo.price}` : 'Not set'}</p>
+                <p className='font-medium'>
+                  {tourInfo.price
+                    ? `${tourInfo.currency} $${tourInfo.price} per person`
+                    : 'Free'}
+                </p>
               </div>
+              {isGuided && (
+                <div>
+                  <p className='text-sm text-gray-600'>Max Participants</p>
+                  <p className='font-medium'>
+                    {tourInfo.maxParticipants || 'No limit'}
+                  </p>
+                </div>
+              )}
               <div>
                 <p className='text-sm text-gray-600'>Stops</p>
                 <p className='font-medium'>{waypoints.length} locations</p>
               </div>
             </div>
+
+            {/* Existing schedules summary */}
+            {isGuided && existingSchedules.length > 0 && (
+              <div className='bg-blue-50 rounded-lg p-4'>
+                <p className='text-sm font-medium text-blue-800 mb-1'>
+                  {existingSchedules.length} scheduled session{existingSchedules.length > 1 ? 's' : ''}
+                </p>
+                <p className='text-xs text-blue-600'>
+                  Manage sessions from the Tours list page.
+                </p>
+              </div>
+            )}
+
+            <div>
+              <p className='text-sm text-gray-600 mb-2'>Route</p>
+              <div className='space-y-2'>
+                {waypoints.map((wp, i) => (
+                  <div key={wp.id} className='flex items-center gap-2 text-sm'>
+                    <span className='bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0'>
+                      {i + 1}
+                    </span>
+                    <span className='font-medium'>{wp.title}</span>
+                    {wp.description && (
+                      <span className='text-gray-500'>— {wp.description}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {deletedStepIds.length > 0 && (
+              <div className='bg-yellow-50 border border-yellow-200 rounded p-3'>
+                <p className='text-sm text-yellow-800'>
+                  {deletedStepIds.length} stop(s) will be removed when you save.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className='flex gap-4'>
@@ -456,10 +603,10 @@ export default function EditTourPage() {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={submitting}
               className='flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50'
             >
-              {loading ? 'Saving Changes...' : 'Save Changes'}
+              {submitting ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>
@@ -471,20 +618,26 @@ export default function EditTourPage() {
 function StepIndicator({
   number,
   label,
-  active
+  active,
+  completed,
 }: {
   number: number
   label: string
   active: boolean
+  completed: boolean
 }) {
   return (
     <div className='flex flex-col items-center'>
       <div
         className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-          active ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+          completed
+            ? 'bg-green-600 text-white'
+            : active
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-200 text-gray-600'
         }`}
       >
-        {number}
+        {completed ? '✓' : number}
       </div>
       <p
         className={`text-xs mt-2 ${
@@ -503,7 +656,7 @@ function WaypointItem({
   isEditing,
   onEdit,
   onSave,
-  onRemove
+  onRemove,
 }: {
   waypoint: Waypoint
   index: number
@@ -532,7 +685,7 @@ function WaypointItem({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className='flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500'
-            placeholder='Stop title'
+            placeholder='Stop name'
           />
         </div>
         <textarea

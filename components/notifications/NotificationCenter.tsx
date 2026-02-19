@@ -6,6 +6,21 @@ import { formatDistanceToNow } from 'date-fns';
 import { X, Check, CheckCheck, Bell } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  data: unknown;
+  read: boolean;
+  channels: unknown;
+  createdAt: string;
+}
+
+interface MyNotificationsData {
+  myNotifications: Notification[];
+}
+
 interface NotificationCenterProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,7 +28,7 @@ interface NotificationCenterProps {
 
 export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const { data, loading, refetch } = useQuery(GET_MY_NOTIFICATIONS, {
+  const { data, loading, refetch } = useQuery<MyNotificationsData>(GET_MY_NOTIFICATIONS, {
     variables: { limit: 20, offset: 0 },
     skip: !isOpen,
   });
@@ -41,7 +56,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
 
   if (!isOpen) return null;
 
-  const notifications = (data as any)?.myNotifications || [];
+  const notifications: Notification[] = data?.myNotifications || [];
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -56,7 +71,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
           <div className="flex items-center justify-between p-4 border-b">
             <h2 className="text-lg font-semibold">Notifications</h2>
             <div className="flex items-center gap-2">
-              {notifications.some((n: any) => !n.read) && (
+              {notifications.some((n: Notification) => !n.read) && (
                 <button
                   onClick={() => markAllAsRead()}
                   className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
@@ -87,7 +102,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               </div>
             ) : (
               <div className="divide-y">
-                {notifications.map((notification: any) => (
+                {notifications.map((notification: Notification) => (
                   <div
                     key={notification.id}
                     className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${

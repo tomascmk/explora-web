@@ -8,9 +8,7 @@ export const MY_BALANCE = gql`
       pendingBalance
       totalEarnings
       totalPayouts
-      lastPayoutDate
       stripeAccountId
-      stripeAccountStatus
       createdAt
       updatedAt
     }

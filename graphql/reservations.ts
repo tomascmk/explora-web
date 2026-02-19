@@ -4,13 +4,16 @@ export const GET_GUIDE_RESERVATIONS = gql`
   query GetGuideReservations($guideId: String!) {
     tourReservationsByGuide(guideId: $guideId) {
       id
-      reservationStatus
-      paymentStatus
-      totalAmount
-      createdAt
+      reservation_status
+      payment_status
+      total_amount
+      created_at
+      cancellation_reason
       schedule {
         id
         startTime
+        endTime
+        maxCapacity
       }
       tour {
         id
@@ -31,9 +34,20 @@ export const GET_RESERVATION_DETAIL = gql`
     tourReservation(id: $id) {
       id
       reservation_status
+      payment_status
       total_amount
       created_at
-      updated_at
+      cancellation_reason
+      paid_at
+      is_invoice_generated
+      invoice_number
+      schedule {
+        id
+        startTime
+        endTime
+        maxCapacity
+        specialInfo
+      }
       tour {
         id
         title
@@ -45,6 +59,17 @@ export const GET_RESERVATION_DETAIL = gql`
         email
         username
       }
+    }
+  }
+`;
+
+export const UPDATE_RESERVATION_STATUS = gql`
+  mutation UpdateReservationStatus($id: ID!, $input: UpdateTourReservationInput!) {
+    updateTourReservation(id: $id, input: $input) {
+      id
+      reservation_status
+      payment_status
+      cancellation_reason
     }
   }
 `;

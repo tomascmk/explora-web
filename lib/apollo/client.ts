@@ -1,6 +1,7 @@
 'use client'
 
-import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client/core'
+import { ApolloClient, InMemoryCache, createHttpLink, from, Observable } from '@apollo/client/core'
+import { CombinedGraphQLErrors } from '@apollo/client/errors'
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
 
@@ -12,6 +13,26 @@ const httpLink = createHttpLink({
   uri: API_URL,
   credentials: 'include'
 })
+
+// Prevent multiple concurrent refresh attempts
+let isRefreshing = false
+let pendingRequests: Array<(token: string) => void> = []
+
+const resolvePendingRequests = (token: string) => {
+  pendingRequests.forEach((resolve) => resolve(token))
+  pendingRequests = []
+}
+
+const rejectPendingRequests = () => {
+  pendingRequests = []
+}
+
+const forceLogout = () => {
+  localStorage.removeItem('authToken')
+  localStorage.removeItem('refreshToken')
+  localStorage.removeItem('user')
+  window.location.href = '/login'
+}
 
 // Refresh token function
 const refreshAccessToken = async (): Promise<string | null> => {
@@ -45,11 +66,6 @@ const refreshAccessToken = async (): Promise<string | null> => {
     const { data, errors } = await response.json();
 
     if (errors || !data?.refreshToken) {
-      // Refresh failed, clear tokens
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
       return null;
     }
 
@@ -65,37 +81,94 @@ const refreshAccessToken = async (): Promise<string | null> => {
   }
 };
 
-// Error link for handling 401 and refreshing tokens
-const errorLink = onError((errorResponse: any) => {
-  const { graphQLErrors, networkError, operation, forward } = errorResponse;
-  
-  if (graphQLErrors) {
-    for (const err of graphQLErrors) {
-      // Check if error is authentication related
-      if (err.extensions?.code === 'UNAUTHENTICATED' || err.message === 'Unauthorized') {
-        // Try to refresh the token and retry
-        refreshAccessToken().then((newToken) => {
+// Helper: check if an error contains UNAUTHENTICATED GraphQL errors
+function hasUnauthenticatedError(error: any): boolean {
+  if (CombinedGraphQLErrors.is(error)) {
+    return error.errors.some(
+      (err) =>
+        err.extensions?.code === 'UNAUTHENTICATED' ||
+        err.message === 'Unauthorized' ||
+        (err.extensions?.originalError as any)?.statusCode === 401
+    )
+  }
+  if (error && typeof error === 'object' && 'statusCode' in error) {
+    return (error as any).statusCode === 401
+  }
+  if (error?.message) {
+    const msg = String(error.message).toLowerCase()
+    return msg.includes('unauthorized') || msg.includes('unauthenticated')
+  }
+  return false
+}
+
+// Error link for handling auth errors with automatic token refresh and retry (Apollo Client v4 API)
+const errorLink = onError(({ error, operation, forward }) => {
+  const isUnauthenticated = hasUnauthenticatedError(error)
+
+  if (isUnauthenticated) {
+    // Don't try to refresh if the failing operation IS the refresh mutation
+    if (operation.operationName === 'RefreshToken') {
+      forceLogout()
+      return
+    }
+
+    // If already refreshing, queue this request
+    if (isRefreshing) {
+      return new Observable((observer) => {
+        pendingRequests.push((newToken: string) => {
+          const oldHeaders = operation.getContext().headers
+          operation.setContext({
+            headers: {
+              ...oldHeaders,
+              authorization: `Bearer ${newToken}`
+            }
+          })
+          forward(operation).subscribe(observer)
+        })
+      })
+    }
+
+    isRefreshing = true
+
+    return new Observable((observer) => {
+      refreshAccessToken()
+        .then((newToken) => {
           if (newToken) {
-            // Retry the failed request with new token
-            const oldHeaders = operation.getContext().headers;
+            const oldHeaders = operation.getContext().headers
             operation.setContext({
               headers: {
                 ...oldHeaders,
-                authorization: `Bearer ${newToken}`,
-              },
-            });
+                authorization: `Bearer ${newToken}`
+              }
+            })
+            resolvePendingRequests(newToken)
+            forward(operation).subscribe(observer)
+          } else {
+            rejectPendingRequests()
+            forceLogout()
+            observer.error(error)
           }
-        });
-        // Don't return anything, let the error propagate
-        return;
-      }
-    }
+        })
+        .catch((refreshError) => {
+          rejectPendingRequests()
+          forceLogout()
+          observer.error(refreshError)
+        })
+        .finally(() => {
+          isRefreshing = false
+        })
+    })
   }
 
-  if (networkError) {
-    console.error(`[Network error]: ${networkError}`);
+  // Log non-auth errors
+  if (CombinedGraphQLErrors.is(error)) {
+    error.errors.forEach(({ message, locations, path }) => {
+      console.error(`[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(locations)}, Path: ${path}`)
+    })
+  } else {
+    console.error(`[Network/other error]:`, error?.message || error)
   }
-});
+})
 
 // Auth link
 const authLink = setContext((_, { headers }) => {
