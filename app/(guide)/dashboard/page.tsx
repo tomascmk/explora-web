@@ -7,6 +7,7 @@ import { RevenueChart } from '@/components/dashboard/RevenueChart'
 import { BookingsChart } from '@/components/dashboard/BookingsChart'
 import { TopToursTable } from '@/components/dashboard/TopToursTable'
 import { DashboardTour } from '@/components/tutorial/DashboardTour'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { useAuth } from '@/contexts/AuthContext'
 import { useState } from 'react'
 import { subMonths } from 'date-fns'
@@ -67,10 +68,11 @@ export default function GuideDashboardPage() {
 
   if (loading) {
     return (
-      <div className='p-8'>
-        <div className='flex items-center justify-center h-64'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
-        </div>
+      <div className='flex items-center justify-center h-64'>
+        <div
+          className='animate-spin rounded-full h-12 w-12 border-b-2'
+          style={{ borderColor: 'var(--color-primary)' }}
+        ></div>
       </div>
     )
   }
@@ -78,33 +80,46 @@ export default function GuideDashboardPage() {
   if (error) {
     if (error.message.includes('Unauthorized') || error.message.includes('UNAUTHENTICATED')) {
       return (
-        <div className='p-8'>
-          <div className='bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded'>
-            <p className='font-medium'>Session expired</p>
-            <p className='text-sm'>Please log in again to view your analytics</p>
-            <button
-              onClick={() => (window.location.href = '/login')}
-              className='mt-2 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700'
-            >
-              Go to Login
-            </button>
-          </div>
+        <div
+          className='border px-4 py-3 rounded'
+          style={{
+            backgroundColor: 'var(--color-warning-light)',
+            borderColor: 'var(--color-warning)',
+            color: 'var(--color-text-body)',
+          }}
+        >
+          <p className='font-medium'>Session expired</p>
+          <p className='text-sm'>Please log in again to view your analytics</p>
+          <button
+            onClick={() => (window.location.href = '/login')}
+            className='mt-2 px-4 py-2 text-white rounded transition-colors'
+            style={{ backgroundColor: 'var(--color-warning)' }}
+          >
+            Go to Login
+          </button>
         </div>
       )
     }
 
     return (
-      <div className='p-8'>
-        <div className='bg-gray-50 border border-gray-200 px-4 py-3 rounded'>
-          <p className='font-medium text-gray-700'>No data available</p>
-          <p className='text-sm text-gray-600'>{error.message}</p>
-          <button
-            onClick={() => refetch()}
-            className='mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
-          >
-            Try again
-          </button>
-        </div>
+      <div
+        className='border px-4 py-3 rounded'
+        style={{
+          backgroundColor: 'var(--color-section-bg)',
+          borderColor: 'var(--color-card-border)',
+        }}
+      >
+        <p className='font-medium' style={{ color: 'var(--color-text-body)' }}>No data available</p>
+        <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>{error.message}</p>
+        <button
+          onClick={() => refetch()}
+          className='mt-2 px-4 py-2 text-white rounded transition-colors'
+          style={{ backgroundColor: 'var(--color-primary)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
+        >
+          Try again
+        </button>
       </div>
     )
   }
@@ -113,26 +128,29 @@ export default function GuideDashboardPage() {
 
   if (!analytics) {
     return (
-      <div className='p-8'>
-        <div className='text-center py-12'>
-          <p className='text-gray-500 text-lg mb-2'>No analytics available yet</p>
-          <p className='text-sm text-gray-400'>
-            Complete some tours to see your statistics here
-          </p>
-        </div>
+      <div className='text-center py-12'>
+        <p className='text-lg mb-2' style={{ color: 'var(--color-text-muted)' }}>No analytics available yet</p>
+        <p className='text-sm' style={{ color: 'var(--color-text-muted)' }}>
+          Complete some tours to see your statistics here
+        </p>
       </div>
     )
   }
 
   return (
-    <div className='p-8'>
+    <>
       <DashboardTour />
 
-      <div className='flex justify-between items-center mb-6'>
-        <h1 className='text-3xl font-bold'>Dashboard</h1>
-        <div className='flex gap-2'>
+      <PageHeader
+        title='Dashboard'
+        actions={
           <select
-            className='px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
+            className='px-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2'
+            style={{
+              border: '1px solid var(--color-card-border)',
+              backgroundColor: 'var(--color-card-bg)',
+              color: 'var(--color-text-body)',
+            }}
             defaultValue='6'
             onChange={(e) => {
               const months = parseInt(e.target.value)
@@ -147,8 +165,8 @@ export default function GuideDashboardPage() {
             <option value='6'>Last 6 Months</option>
             <option value='12'>Last Year</option>
           </select>
-        </div>
-      </div>
+        }
+      />
 
       {/* Metrics Cards */}
       <div className='mb-8' data-tour='metrics'>
@@ -176,6 +194,6 @@ export default function GuideDashboardPage() {
       <div data-tour='top-tours'>
         <TopToursTable tours={analytics.topTours} />
       </div>
-    </div>
+    </>
   )
 }

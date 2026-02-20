@@ -17,6 +17,7 @@ import {
 } from '@/graphql/tours'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 const TourCreationMap = dynamic(
   () =>
@@ -254,67 +255,73 @@ export default function EditTourPage() {
 
   if (fetchLoading) {
     return (
-      <div className='p-8 flex justify-center items-center h-64'>
-        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600' />
+      <div className='flex justify-center items-center h-64'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2' style={{ borderColor: 'var(--color-primary)' }} />
       </div>
     )
   }
 
   return (
-    <div className='p-8'>
+    <div>
       <div className='flex items-center gap-4 mb-8'>
         <button
           onClick={() => router.back()}
-          className='text-gray-500 hover:text-gray-700'
+          className='hover:opacity-80'
+          style={{ color: 'var(--color-text-muted)' }}
         >
-          ← Back
+          &larr; Back
         </button>
-        <h1 className='text-3xl font-bold'>Edit Tour</h1>
+        <h1 className='text-3xl font-bold' style={{ color: 'var(--color-text-heading)' }}>Edit Tour</h1>
       </div>
 
       {/* Progress Steps */}
       <div className='flex items-center justify-center mb-8'>
         <StepIndicator number={1} label='Information' active={step >= 1} completed={step > 1} />
-        <div className={`w-20 h-0.5 mx-2 ${step > 1 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+        <div className='w-20 h-0.5 mx-2' style={{ backgroundColor: step > 1 ? 'var(--color-primary)' : 'var(--color-card-border)' }}></div>
         <StepIndicator number={2} label='Route & Stops' active={step >= 2} completed={step > 2} />
-        <div className={`w-20 h-0.5 mx-2 ${step > 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+        <div className='w-20 h-0.5 mx-2' style={{ backgroundColor: step > 2 ? 'var(--color-primary)' : 'var(--color-card-border)' }}></div>
         <StepIndicator number={3} label='Review' active={step >= 3} completed={false} />
       </div>
 
       {/* Step 1: Basic Info */}
       {step === 1 && (
-        <div className='max-w-2xl mx-auto bg-white rounded-lg shadow p-8'>
-          <h2 className='text-2xl font-semibold mb-6'>Tour Information</h2>
+        <div
+          className='max-w-2xl mx-auto rounded-xl border p-8'
+          style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+        >
+          <h2 className='text-2xl font-semibold mb-6' style={{ color: 'var(--color-text-heading)' }}>Tour Information</h2>
           <div className='space-y-4'>
             {/* Tour Type Selector */}
             <div>
-              <label className='block text-sm font-medium mb-3'>Tour Type *</label>
+              <label className='block text-sm font-medium mb-3' style={{ color: 'var(--color-text-body)' }}>Tour Type *</label>
               <div className='grid grid-cols-2 gap-3'>
                 <button
                   type='button'
                   onClick={() => setTourInfo({ ...tourInfo, tourType: 'SELF_GUIDED' })}
-                  className={`p-4 rounded-lg border-2 text-left transition ${
+                  className='p-4 rounded-lg border-2 text-left transition'
+                  style={
                     !isGuided
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                      ? { borderColor: 'var(--color-primary)', backgroundColor: 'var(--color-primary-light)' }
+                      : { borderColor: 'var(--color-card-border)' }
+                  }
                 >
-                  <p className='font-semibold'>Self-Guided</p>
-                  <p className='text-sm text-gray-600 mt-1'>
+                  <p className='font-semibold' style={{ color: 'var(--color-text-heading)' }}>Self-Guided</p>
+                  <p className='text-sm mt-1' style={{ color: 'var(--color-text-body)' }}>
                     Tourists follow the route independently
                   </p>
                 </button>
                 <button
                   type='button'
                   onClick={() => setTourInfo({ ...tourInfo, tourType: 'GUIDED' })}
-                  className={`p-4 rounded-lg border-2 text-left transition ${
+                  className='p-4 rounded-lg border-2 text-left transition'
+                  style={
                     isGuided
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                      ? { borderColor: 'var(--color-primary)', backgroundColor: 'var(--color-primary-light)' }
+                      : { borderColor: 'var(--color-card-border)' }
+                  }
                 >
-                  <p className='font-semibold'>Guided</p>
-                  <p className='text-sm text-gray-600 mt-1'>
+                  <p className='font-semibold' style={{ color: 'var(--color-text-heading)' }}>Guided</p>
+                  <p className='text-sm mt-1' style={{ color: 'var(--color-text-body)' }}>
                     You lead the group in person
                   </p>
                 </button>
@@ -322,7 +329,7 @@ export default function EditTourPage() {
             </div>
 
             <div>
-              <label className='block text-sm font-medium mb-2'>
+              <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                 Tour Title *
               </label>
               <input
@@ -331,13 +338,14 @@ export default function EditTourPage() {
                 onChange={(e) =>
                   setTourInfo({ ...tourInfo, title: e.target.value })
                 }
-                className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                style={{ borderColor: 'var(--color-card-border)' }}
                 placeholder='Historic Downtown Walking Tour'
                 required
               />
             </div>
             <div>
-              <label className='block text-sm font-medium mb-2'>
+              <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                 Description *
               </label>
               <textarea
@@ -345,7 +353,8 @@ export default function EditTourPage() {
                 onChange={(e) =>
                   setTourInfo({ ...tourInfo, description: e.target.value })
                 }
-                className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                style={{ borderColor: 'var(--color-card-border)' }}
                 rows={4}
                 placeholder='Describe your tour...'
                 required
@@ -353,9 +362,9 @@ export default function EditTourPage() {
             </div>
 
             {/* Price & Currency + Max Participants (guided only) */}
-            <div className={`grid ${isGuided ? 'grid-cols-3' : 'grid-cols-2'} gap-4`}>
+            <div className={`grid ${isGuided ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'} gap-4`}>
               <div>
-                <label className='block text-sm font-medium mb-2'>
+                <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                   Price per Person
                 </label>
                 <input
@@ -366,12 +375,13 @@ export default function EditTourPage() {
                   onChange={(e) =>
                     setTourInfo({ ...tourInfo, price: e.target.value })
                   }
-                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                  style={{ borderColor: 'var(--color-card-border)' }}
                   placeholder='75'
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium mb-2'>
+                <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                   Currency
                 </label>
                 <select
@@ -379,7 +389,8 @@ export default function EditTourPage() {
                   onChange={(e) =>
                     setTourInfo({ ...tourInfo, currency: e.target.value })
                   }
-                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                  style={{ borderColor: 'var(--color-card-border)' }}
                 >
                   <option value='USD'>USD</option>
                   <option value='ARS'>ARS</option>
@@ -389,7 +400,7 @@ export default function EditTourPage() {
               </div>
               {isGuided && (
                 <div>
-                  <label className='block text-sm font-medium mb-2'>
+                  <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                     Max Participants
                   </label>
                   <input
@@ -399,7 +410,8 @@ export default function EditTourPage() {
                     onChange={(e) =>
                       setTourInfo({ ...tourInfo, maxParticipants: e.target.value })
                     }
-                    className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                    className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                    style={{ borderColor: 'var(--color-card-border)' }}
                     placeholder='10'
                   />
                 </div>
@@ -408,37 +420,44 @@ export default function EditTourPage() {
 
             {/* Existing Schedules (guided only) */}
             {isGuided && existingSchedules.length > 0 && (
-              <div className='border-t pt-4 mt-4'>
-                <h3 className='text-lg font-medium mb-3'>Scheduled Sessions</h3>
+              <div className='border-t pt-4 mt-4' style={{ borderColor: 'var(--color-card-border)' }}>
+                <h3 className='text-lg font-medium mb-3' style={{ color: 'var(--color-text-heading)' }}>Scheduled Sessions</h3>
                 <div className='space-y-2'>
                   {existingSchedules.map((schedule) => (
-                    <div key={schedule.id} className='flex items-center justify-between bg-blue-50 rounded-lg p-3 text-sm'>
+                    <div
+                      key={schedule.id}
+                      className='flex items-center justify-between rounded-lg p-3 text-sm'
+                      style={{ backgroundColor: 'var(--color-primary-light)' }}
+                    >
                       <div>
-                        <span className='font-medium'>
+                        <span className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
                           {format(new Date(schedule.startTime), 'MMM dd, yyyy HH:mm')}
                         </span>
                         {schedule.endTime && (
-                          <span className='text-gray-600'>
+                          <span style={{ color: 'var(--color-text-body)' }}>
                             {' '}- {format(new Date(schedule.endTime), 'HH:mm')}
                           </span>
                         )}
                         {schedule.specialInfo && (
-                          <span className='text-gray-500 ml-2'>
+                          <span className='ml-2' style={{ color: 'var(--color-text-muted)' }}>
                             ({schedule.specialInfo})
                           </span>
                         )}
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        schedule.isAvailable
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
+                      <span
+                        className='text-xs px-2 py-1 rounded-full'
+                        style={
+                          schedule.isAvailable
+                            ? { backgroundColor: 'var(--color-success-light)', color: 'var(--color-success)' }
+                            : { backgroundColor: 'var(--color-section-bg)', color: 'var(--color-text-secondary)' }
+                        }
+                      >
                         {schedule.isAvailable ? 'Available' : 'Unavailable'}
                       </span>
                     </div>
                   ))}
                 </div>
-                <p className='text-xs text-gray-500 mt-2'>
+                <p className='text-xs mt-2' style={{ color: 'var(--color-text-muted)' }}>
                   You can add more sessions from the Tours list page.
                 </p>
               </div>
@@ -447,7 +466,8 @@ export default function EditTourPage() {
             <button
               onClick={() => setStep(2)}
               disabled={!tourInfo.title || !tourInfo.description}
-              className='w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full text-white py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed'
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
               Continue to Route Planning
             </button>
@@ -458,9 +478,12 @@ export default function EditTourPage() {
       {/* Step 2: Route & Stops */}
       {step === 2 && (
         <div className='space-y-6'>
-          <div className='bg-white rounded-lg shadow p-6'>
-            <h2 className='text-2xl font-semibold mb-4'>Edit Route</h2>
-            <p className='text-gray-600 mb-6'>
+          <div
+            className='rounded-xl border p-6'
+            style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+          >
+            <h2 className='text-2xl font-semibold mb-4' style={{ color: 'var(--color-text-heading)' }}>Edit Route</h2>
+            <p className='mb-6' style={{ color: 'var(--color-text-body)' }}>
               Modify your route. Click on the map to add new stops.
             </p>
 
@@ -472,8 +495,11 @@ export default function EditTourPage() {
           </div>
 
           {waypoints.length > 0 && (
-            <div className='bg-white rounded-lg shadow p-6'>
-              <h3 className='text-xl font-semibold mb-4'>
+            <div
+              className='rounded-xl border p-6'
+              style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+            >
+              <h3 className='text-xl font-semibold mb-4' style={{ color: 'var(--color-text-heading)' }}>
                 Tour Stops ({waypoints.length})
               </h3>
               <div className='space-y-4'>
@@ -498,14 +524,16 @@ export default function EditTourPage() {
           <div className='flex gap-4'>
             <button
               onClick={() => setStep(1)}
-              className='flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300'
+              className='flex-1 py-3 rounded-lg font-semibold hover:opacity-80 border'
+              style={{ borderColor: 'var(--color-card-border)', color: 'var(--color-text-body)' }}
             >
               Back
             </button>
             <button
               onClick={() => setStep(3)}
               disabled={waypoints.length < 2}
-              className='flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50'
+              className='flex-1 text-white py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50'
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
               Continue to Review
             </button>
@@ -515,28 +543,31 @@ export default function EditTourPage() {
 
       {/* Step 3: Review */}
       {step === 3 && (
-        <div className='max-w-2xl mx-auto bg-white rounded-lg shadow p-8'>
-          <h2 className='text-2xl font-semibold mb-6'>Review & Save</h2>
+        <div
+          className='max-w-2xl mx-auto rounded-xl border p-8'
+          style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+        >
+          <h2 className='text-2xl font-semibold mb-6' style={{ color: 'var(--color-text-heading)' }}>Review & Save</h2>
 
           <div className='space-y-4 mb-8'>
             <div>
-              <p className='text-sm text-gray-600'>Tour Type</p>
-              <p className='font-medium'>
-                {isGuided ? 'Guided — You lead the group' : 'Self-Guided — Independent exploration'}
+              <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Tour Type</p>
+              <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
+                {isGuided ? 'Guided \u2014 You lead the group' : 'Self-Guided \u2014 Independent exploration'}
               </p>
             </div>
             <div>
-              <p className='text-sm text-gray-600'>Title</p>
-              <p className='font-medium'>{tourInfo.title}</p>
+              <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Title</p>
+              <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>{tourInfo.title}</p>
             </div>
             <div>
-              <p className='text-sm text-gray-600'>Description</p>
-              <p className='text-sm'>{tourInfo.description}</p>
+              <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Description</p>
+              <p className='text-sm' style={{ color: 'var(--color-text-body)' }}>{tourInfo.description}</p>
             </div>
-            <div className={`grid ${isGuided ? 'grid-cols-3' : 'grid-cols-2'} gap-4`}>
+            <div className={`grid ${isGuided ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'} gap-4`}>
               <div>
-                <p className='text-sm text-gray-600'>Price</p>
-                <p className='font-medium'>
+                <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Price</p>
+                <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
                   {tourInfo.price
                     ? `${tourInfo.currency} $${tourInfo.price} per person`
                     : 'Free'}
@@ -544,41 +575,44 @@ export default function EditTourPage() {
               </div>
               {isGuided && (
                 <div>
-                  <p className='text-sm text-gray-600'>Max Participants</p>
-                  <p className='font-medium'>
+                  <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Max Participants</p>
+                  <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
                     {tourInfo.maxParticipants || 'No limit'}
                   </p>
                 </div>
               )}
               <div>
-                <p className='text-sm text-gray-600'>Stops</p>
-                <p className='font-medium'>{waypoints.length} locations</p>
+                <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Stops</p>
+                <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>{waypoints.length} locations</p>
               </div>
             </div>
 
             {/* Existing schedules summary */}
             {isGuided && existingSchedules.length > 0 && (
-              <div className='bg-blue-50 rounded-lg p-4'>
-                <p className='text-sm font-medium text-blue-800 mb-1'>
+              <div className='rounded-lg p-4' style={{ backgroundColor: 'var(--color-primary-light)' }}>
+                <p className='text-sm font-medium mb-1' style={{ color: 'var(--color-primary)' }}>
                   {existingSchedules.length} scheduled session{existingSchedules.length > 1 ? 's' : ''}
                 </p>
-                <p className='text-xs text-blue-600'>
+                <p className='text-xs' style={{ color: 'var(--color-primary)' }}>
                   Manage sessions from the Tours list page.
                 </p>
               </div>
             )}
 
             <div>
-              <p className='text-sm text-gray-600 mb-2'>Route</p>
+              <p className='text-sm mb-2' style={{ color: 'var(--color-text-secondary)' }}>Route</p>
               <div className='space-y-2'>
                 {waypoints.map((wp, i) => (
                   <div key={wp.id} className='flex items-center gap-2 text-sm'>
-                    <span className='bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0'>
+                    <span
+                      className='text-white w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0'
+                      style={{ backgroundColor: 'var(--color-primary)' }}
+                    >
                       {i + 1}
                     </span>
-                    <span className='font-medium'>{wp.title}</span>
+                    <span className='font-medium' style={{ color: 'var(--color-text-heading)' }}>{wp.title}</span>
                     {wp.description && (
-                      <span className='text-gray-500'>— {wp.description}</span>
+                      <span style={{ color: 'var(--color-text-muted)' }}>&mdash; {wp.description}</span>
                     )}
                   </div>
                 ))}
@@ -586,8 +620,11 @@ export default function EditTourPage() {
             </div>
 
             {deletedStepIds.length > 0 && (
-              <div className='bg-yellow-50 border border-yellow-200 rounded p-3'>
-                <p className='text-sm text-yellow-800'>
+              <div
+                className='border rounded-lg p-3'
+                style={{ backgroundColor: 'var(--color-warning-light)', borderColor: 'var(--color-warning)' }}
+              >
+                <p className='text-sm' style={{ color: 'var(--color-warning)' }}>
                   {deletedStepIds.length} stop(s) will be removed when you save.
                 </p>
               </div>
@@ -597,14 +634,16 @@ export default function EditTourPage() {
           <div className='flex gap-4'>
             <button
               onClick={() => setStep(2)}
-              className='flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300'
+              className='flex-1 py-3 rounded-lg font-semibold hover:opacity-80 border'
+              style={{ borderColor: 'var(--color-card-border)', color: 'var(--color-text-body)' }}
             >
               Back
             </button>
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className='flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50'
+              className='flex-1 text-white py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50'
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
               {submitting ? 'Saving...' : 'Save Changes'}
             </button>
@@ -629,20 +668,23 @@ function StepIndicator({
   return (
     <div className='flex flex-col items-center'>
       <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+        className='w-10 h-10 rounded-full flex items-center justify-center font-semibold'
+        style={
           completed
-            ? 'bg-green-600 text-white'
+            ? { backgroundColor: 'var(--color-success)', color: '#FFFFFF' }
             : active
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-200 text-gray-600'
-        }`}
+            ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
+            : { backgroundColor: 'var(--color-section-bg)', color: 'var(--color-text-secondary)' }
+        }
       >
-        {completed ? '✓' : number}
+        {completed ? '\u2713' : number}
       </div>
       <p
-        className={`text-xs mt-2 ${
-          active ? 'text-blue-600 font-medium' : 'text-gray-500'
-        }`}
+        className='text-xs mt-2'
+        style={{
+          color: active ? 'var(--color-primary)' : 'var(--color-text-muted)',
+          fontWeight: active ? 500 : 400,
+        }}
       >
         {label}
       </p>
@@ -675,36 +717,46 @@ function WaypointItem({
 
   if (isEditing) {
     return (
-      <div className='border rounded-lg p-4 bg-blue-50/30'>
+      <div
+        className='border rounded-lg p-4'
+        style={{ borderColor: 'var(--color-card-border)', backgroundColor: 'var(--color-primary-light)' }}
+      >
         <div className='flex items-center gap-2 mb-3'>
-          <span className='bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm'>
+          <span
+            className='text-white w-6 h-6 rounded-full flex items-center justify-center text-sm'
+            style={{ backgroundColor: 'var(--color-primary)' }}
+          >
             {index + 1}
           </span>
           <input
             type='text'
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className='flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500'
+            className='flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none'
+            style={{ borderColor: 'var(--color-card-border)' }}
             placeholder='Stop name'
           />
         </div>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className='w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 mb-3'
+          className='w-full px-3 py-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none mb-3'
+          style={{ borderColor: 'var(--color-card-border)' }}
           rows={2}
           placeholder='Description of this stop...'
         />
         <div className='flex gap-2'>
           <button
             onClick={() => onSave(title, description)}
-            className='flex-1 bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700'
+            className='flex-1 text-white py-2 rounded text-sm hover:opacity-90'
+            style={{ backgroundColor: 'var(--color-primary)' }}
           >
             Save
           </button>
           <button
             onClick={onRemove}
-            className='px-4 bg-red-100 text-red-600 py-2 rounded text-sm hover:bg-red-200'
+            className='px-4 py-2 rounded text-sm hover:opacity-80'
+            style={{ backgroundColor: 'var(--color-danger-light)', color: 'var(--color-danger)' }}
           >
             Remove
           </button>
@@ -715,22 +767,26 @@ function WaypointItem({
 
   return (
     <div
-      className='border rounded-lg p-4 hover:border-blue-300 transition cursor-pointer bg-white'
+      className='border rounded-lg p-4 hover:opacity-90 transition cursor-pointer'
+      style={{ borderColor: 'var(--color-card-border)', backgroundColor: 'var(--color-card-bg)' }}
       onClick={onEdit}
     >
       <div className='flex items-start justify-between'>
         <div className='flex items-start gap-3'>
-          <span className='bg-gray-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0'>
+          <span
+            className='text-white w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0'
+            style={{ backgroundColor: 'var(--color-text-secondary)' }}
+          >
             {index + 1}
           </span>
           <div>
-            <p className='font-medium'>{waypoint.title}</p>
+            <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>{waypoint.title}</p>
             {waypoint.description && (
-              <p className='text-sm text-gray-600 mt-1'>
+              <p className='text-sm mt-1' style={{ color: 'var(--color-text-body)' }}>
                 {waypoint.description}
               </p>
             )}
-            <p className='text-xs text-gray-400 mt-1'>
+            <p className='text-xs mt-1' style={{ color: 'var(--color-text-muted)' }}>
               {waypoint.latitude.toFixed(6)}, {waypoint.longitude.toFixed(6)}
             </p>
           </div>
@@ -740,9 +796,10 @@ function WaypointItem({
             e.stopPropagation()
             onRemove()
           }}
-          className='text-gray-400 hover:text-red-600'
+          className='hover:opacity-80'
+          style={{ color: 'var(--color-text-muted)' }}
         >
-          ✕
+          &#10005;
         </button>
       </div>
     </div>

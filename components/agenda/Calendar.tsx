@@ -61,7 +61,7 @@ export function Calendar({ events, onDateClick, selectedDate, onCreateEvent }: C
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="rounded-lg shadow p-6" style={{ backgroundColor: 'var(--color-card-bg)' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">
@@ -70,13 +70,17 @@ export function Calendar({ events, onDateClick, selectedDate, onCreateEvent }: C
         <div className="flex gap-2">
           <button
             onClick={previousMonth}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors"
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-section-bg)')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={nextMonth}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors"
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-section-bg)')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -86,7 +90,7 @@ export function Calendar({ events, onDateClick, selectedDate, onCreateEvent }: C
       {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-2 mb-2">
         {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day) => (
-          <div key={day} className="text-center text-sm font-medium text-gray-600 py-2">
+          <div key={day} className="text-center text-sm font-medium py-2" style={{ color: 'var(--color-text-body)' }}>
             {day}
           </div>
         ))}
@@ -111,10 +115,13 @@ export function Calendar({ events, onDateClick, selectedDate, onCreateEvent }: C
               onClick={() => handleDateClick(day)}
               className={`
                 aspect-square p-2 rounded-lg border transition-all
-                ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-blue-400'}
                 ${isCurrentDay ? 'font-bold' : ''}
                 ${!isSameMonth(day, currentMonth) ? 'opacity-50' : ''}
               `}
+              style={{
+                borderColor: isSelected ? 'var(--color-primary)' : 'var(--color-card-border)',
+                backgroundColor: isSelected ? 'var(--color-primary-light)' : undefined,
+              }}
               title={onCreateEvent ? "Doble click para crear evento" : undefined}
             >
               <div className="flex flex-col h-full">
@@ -123,13 +130,14 @@ export function Calendar({ events, onDateClick, selectedDate, onCreateEvent }: C
                   {dayEvents.slice(0, 2).map((event) => (
                     <div
                       key={event.id}
-                      className={`w-full h-1 rounded ${
-                        event.type === 'availability' ? 'bg-green-500' : 'bg-blue-500'
-                      }`}
+                      className="w-full h-1 rounded"
+                      style={{
+                        backgroundColor: event.type === 'availability' ? 'var(--color-success)' : 'var(--color-primary)',
+                      }}
                     />
                   ))}
                   {dayEvents.length > 2 && (
-                    <span className="text-xs text-gray-500">+{dayEvents.length - 2}</span>
+                    <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>+{dayEvents.length - 2}</span>
                   )}
                 </div>
               </div>
@@ -141,12 +149,12 @@ export function Calendar({ events, onDateClick, selectedDate, onCreateEvent }: C
       {/* Legend */}
       <div className="mt-6 flex gap-4 text-sm">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-green-500 rounded"></div>
-          <span className="text-gray-600">Disponibilidad</span>
+          <div className="w-3 h-3 rounded" style={{ backgroundColor: 'var(--color-success)' }}></div>
+          <span style={{ color: 'var(--color-text-body)' }}>Disponibilidad</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-blue-500 rounded"></div>
-          <span className="text-gray-600">Reservas</span>
+          <div className="w-3 h-3 rounded" style={{ backgroundColor: 'var(--color-primary)' }}></div>
+          <span style={{ color: 'var(--color-text-body)' }}>Reservas</span>
         </div>
       </div>
     </div>

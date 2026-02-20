@@ -64,7 +64,8 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
       
       <div
         ref={panelRef}
-        className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl"
+        className="absolute right-0 top-0 h-full w-full max-w-md shadow-xl"
+        style={{ backgroundColor: 'var(--color-card-bg)' }}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -74,7 +75,8 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               {notifications.some((n: Notification) => !n.read) && (
                 <button
                   onClick={() => markAllAsRead()}
-                  className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                  className="text-sm flex items-center gap-1"
+                  style={{ color: 'var(--color-primary)' }}
                 >
                   <CheckCheck className="w-4 h-4" />
                   Mark all as read
@@ -82,7 +84,9 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               )}
               <button
                 onClick={onClose}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 rounded-lg transition-colors"
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-section-bg)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -93,10 +97,10 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center h-32">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: 'var(--color-primary)' }}></div>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-gray-500">
+              <div className="flex flex-col items-center justify-center h-32" style={{ color: 'var(--color-text-secondary)' }}>
                 <Bell className="w-12 h-12 mb-2 opacity-50" />
                 <p>No notifications</p>
               </div>
@@ -105,9 +109,12 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
                 {notifications.map((notification: Notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                      !notification.read ? 'bg-blue-50' : ''
-                    }`}
+                    className="p-4 cursor-pointer transition-colors"
+                    style={{
+                      backgroundColor: !notification.read ? 'var(--color-primary-light)' : undefined,
+                    }}
+                    onMouseEnter={(e) => { if (notification.read) e.currentTarget.style.backgroundColor = 'var(--color-section-bg)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = !notification.read ? 'var(--color-primary-light)' : ''; }}
                     onClick={() => {
                       if (!notification.read) {
                         markAsRead({ variables: { id: notification.id } });
@@ -116,15 +123,15 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">{notification.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{notification.body}</p>
-                        <p className="text-xs text-gray-400 mt-2">
+                        <h3 className="font-medium" style={{ color: 'var(--color-text-heading)' }}>{notification.title}</h3>
+                        <p className="text-sm mt-1" style={{ color: 'var(--color-text-body)' }}>{notification.body}</p>
+                        <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>
                           {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                         </p>
                       </div>
                       {!notification.read && (
                         <div className="ml-2">
-                          <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--color-primary)' }}></div>
                         </div>
                       )}
                     </div>

@@ -8,6 +8,8 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { GET_TOURS_BY_GUIDE, DELETE_TOUR, CREATE_TOUR_SCHEDULE } from '@/graphql/tours'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { FilterButton } from '@/components/ui/FilterButton'
 import { Plus, X, Calendar, Clock, MapPin } from 'lucide-react'
 
 interface TourSchedule {
@@ -170,29 +172,37 @@ export default function ToursPage() {
 
   if (loading) {
     return (
-      <div className='p-8'>
+      <div>
         <div className='flex justify-center items-center h-64'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600' />
+          <div
+            className='animate-spin rounded-full h-12 w-12 border-b-2'
+            style={{ borderColor: 'var(--color-primary)' }}
+          />
         </div>
       </div>
     )
   }
 
   return (
-    <div className='p-8'>
-      <div className='flex justify-between items-center mb-8'>
-        <h1 className='text-3xl font-bold'>My Tours</h1>
-        <Link
-          href='/tours/create'
-          className='flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition'
-        >
-          <Plus className='w-5 h-5' />
-          Create New Tour
-        </Link>
-      </div>
+    <div>
+      <PageHeader
+        title='My Tours'
+        actions={
+          <Link
+            href='/tours/create'
+            className='flex items-center gap-2 text-white px-6 py-2 rounded-lg transition'
+            style={{ backgroundColor: 'var(--color-primary)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
+          >
+            <Plus className='w-5 h-5' />
+            Create New Tour
+          </Link>
+        }
+      />
 
       {/* Filters */}
-      <div className='flex gap-4 mb-6'>
+      <div className='flex flex-wrap gap-3 mb-6'>
         <FilterButton active={filter === 'all'} onClick={() => setFilter('all')}>
           All Tours ({counts.all})
         </FilterButton>
@@ -210,16 +220,19 @@ export default function ToursPage() {
       {/* Tours Grid */}
       {filteredTours.length === 0 ? (
         <div className='text-center py-16'>
-          <p className='text-gray-500 text-lg mb-4'>No tours yet</p>
+          <p className='text-lg mb-4' style={{ color: 'var(--color-text-muted)' }}>No tours yet</p>
           <Link
             href='/tours/create'
-            className='inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition'
+            className='inline-block text-white px-6 py-3 rounded-lg transition'
+            style={{ backgroundColor: 'var(--color-primary)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
           >
             Create your first tour
           </Link>
         </div>
       ) : (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+        <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
           {filteredTours.map((tour) => (
             <TourCard
               key={tour.id}
@@ -249,25 +262,38 @@ export default function ToursPage() {
       {/* Add Session Modal */}
       {sessionModal.isOpen && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
-          <div className='bg-white rounded-lg max-w-md w-full'>
+          <div
+            className='rounded-xl max-w-md w-full shadow-xl'
+            style={{ backgroundColor: 'var(--color-card-bg)' }}
+          >
             <div className='p-6'>
               <div className='flex justify-between items-center mb-6'>
-                <h2 className='text-xl font-bold'>Add Session</h2>
+                <h2
+                  className='text-xl font-bold'
+                  style={{ color: 'var(--color-text-heading)' }}
+                >
+                  Add Session
+                </h2>
                 <button
                   onClick={() => setSessionModal((prev) => ({ ...prev, isOpen: false }))}
-                  className='text-gray-400 hover:text-gray-600'
+                  style={{ color: 'var(--color-text-muted)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-body)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-muted)' }}
                 >
                   <X className='w-5 h-5' />
                 </button>
               </div>
-              <p className='text-sm text-gray-600 mb-4'>
+              <p className='text-sm mb-4' style={{ color: 'var(--color-text-secondary)' }}>
                 Add a new session for <span className='font-medium'>{sessionModal.tourTitle}</span>
               </p>
 
               <div className='space-y-4'>
                 <div className='grid grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium mb-1'>
+                    <label
+                      className='block text-sm font-medium mb-1'
+                      style={{ color: 'var(--color-text-body)' }}
+                    >
                       <Calendar className='w-4 h-4 inline mr-1' />
                       Date *
                     </label>
@@ -275,11 +301,17 @@ export default function ToursPage() {
                       type='date'
                       value={sessionForm.date}
                       onChange={(e) => setSessionForm({ ...sessionForm, date: e.target.value })}
-                      className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border rounded-lg outline-none transition'
+                      style={{ borderColor: 'var(--color-card-border)' }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--color-primary-light)' }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-card-border)'; e.currentTarget.style.boxShadow = 'none' }}
                     />
                   </div>
                   <div>
-                    <label className='block text-sm font-medium mb-1'>
+                    <label
+                      className='block text-sm font-medium mb-1'
+                      style={{ color: 'var(--color-text-body)' }}
+                    >
                       <MapPin className='w-4 h-4 inline mr-1' />
                       Meeting Point
                     </label>
@@ -287,14 +319,20 @@ export default function ToursPage() {
                       type='text'
                       value={sessionForm.meetingPoint}
                       onChange={(e) => setSessionForm({ ...sessionForm, meetingPoint: e.target.value })}
-                      className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border rounded-lg outline-none transition'
+                      style={{ borderColor: 'var(--color-card-border)' }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--color-primary-light)' }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-card-border)'; e.currentTarget.style.boxShadow = 'none' }}
                       placeholder='Main Plaza'
                     />
                   </div>
                 </div>
                 <div className='grid grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium mb-1'>
+                    <label
+                      className='block text-sm font-medium mb-1'
+                      style={{ color: 'var(--color-text-body)' }}
+                    >
                       <Clock className='w-4 h-4 inline mr-1' />
                       Start Time *
                     </label>
@@ -302,27 +340,46 @@ export default function ToursPage() {
                       type='time'
                       value={sessionForm.startTime}
                       onChange={(e) => setSessionForm({ ...sessionForm, startTime: e.target.value })}
-                      className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border rounded-lg outline-none transition'
+                      style={{ borderColor: 'var(--color-card-border)' }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--color-primary-light)' }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-card-border)'; e.currentTarget.style.boxShadow = 'none' }}
                     />
                   </div>
                   <div>
-                    <label className='block text-sm font-medium mb-1'>End Time</label>
+                    <label
+                      className='block text-sm font-medium mb-1'
+                      style={{ color: 'var(--color-text-body)' }}
+                    >
+                      End Time
+                    </label>
                     <input
                       type='time'
                       value={sessionForm.endTime}
                       onChange={(e) => setSessionForm({ ...sessionForm, endTime: e.target.value })}
-                      className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border rounded-lg outline-none transition'
+                      style={{ borderColor: 'var(--color-card-border)' }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--color-primary-light)' }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-card-border)'; e.currentTarget.style.boxShadow = 'none' }}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className='block text-sm font-medium mb-1'>Max Capacity</label>
+                  <label
+                    className='block text-sm font-medium mb-1'
+                    style={{ color: 'var(--color-text-body)' }}
+                  >
+                    Max Capacity
+                  </label>
                   <input
                     type='number'
                     min='1'
                     value={sessionForm.maxCapacity}
                     onChange={(e) => setSessionForm({ ...sessionForm, maxCapacity: e.target.value })}
-                    className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                    className='w-full px-3 py-2 border rounded-lg outline-none transition'
+                    style={{ borderColor: 'var(--color-card-border)' }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--color-primary-light)' }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-card-border)'; e.currentTarget.style.boxShadow = 'none' }}
                     placeholder='Leave empty for unlimited'
                   />
                 </div>
@@ -331,7 +388,10 @@ export default function ToursPage() {
               <div className='flex gap-3 mt-6'>
                 <button
                   onClick={() => setSessionModal((prev) => ({ ...prev, isOpen: false }))}
-                  className='flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50'
+                  className='flex-1 px-4 py-2 border rounded-lg transition'
+                  style={{ borderColor: 'var(--color-card-border)', color: 'var(--color-text-body)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-section-bg)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                   disabled={addingSession}
                 >
                   Cancel
@@ -339,7 +399,10 @@ export default function ToursPage() {
                 <button
                   onClick={handleSubmitSession}
                   disabled={addingSession || !sessionForm.date || !sessionForm.startTime}
-                  className='flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50'
+                  className='flex-1 px-4 py-2 text-white rounded-lg transition disabled:opacity-50'
+                  style={{ backgroundColor: 'var(--color-primary)' }}
+                  onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
                 >
                   {addingSession ? 'Adding...' : 'Add Session'}
                 </button>
@@ -349,29 +412,6 @@ export default function ToursPage() {
         </div>
       )}
     </div>
-  )
-}
-
-function FilterButton({
-  children,
-  active,
-  onClick
-}: {
-  children: React.ReactNode
-  active: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
-        active
-          ? 'bg-blue-600 text-white'
-          : 'bg-white text-gray-600 hover:bg-gray-50'
-      }`}
-    >
-      {children}
-    </button>
   )
 }
 
@@ -398,30 +438,45 @@ function TourCard({
   })
 
   return (
-    <div className='bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition'>
+    <div
+      className='rounded-xl border overflow-hidden transition-shadow hover:shadow-lg'
+      style={{
+        backgroundColor: 'var(--color-card-bg)',
+        borderColor: 'var(--color-card-border)',
+      }}
+    >
       {tour.media?.[0]?.url ? (
         <div
           className='h-48 bg-cover bg-center relative'
           style={{ backgroundImage: `url(${tour.media[0].url})` }}
         >
           <div className='absolute top-2 left-2'>
-            <span className={`px-2 py-1 rounded text-xs font-semibold ${
-              isGuided
-                ? 'bg-purple-100 text-purple-800'
-                : 'bg-teal-100 text-teal-800'
-            }`}>
+            <span
+              className='px-2 py-1 rounded text-xs font-semibold'
+              style={
+                isGuided
+                  ? { backgroundColor: 'var(--color-info-light)', color: 'var(--color-info)' }
+                  : { backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary-dark)' }
+              }
+            >
               {isGuided ? 'Guided' : 'Self-Guided'}
             </span>
           </div>
         </div>
       ) : (
-        <div className='h-48 bg-gradient-to-r from-blue-400 to-indigo-500 relative'>
+        <div
+          className='h-48 relative'
+          style={{ background: 'linear-gradient(to right, var(--color-primary), var(--color-primary-dark))' }}
+        >
           <div className='absolute top-2 left-2'>
-            <span className={`px-2 py-1 rounded text-xs font-semibold ${
-              isGuided
-                ? 'bg-purple-100 text-purple-800'
-                : 'bg-teal-100 text-teal-800'
-            }`}>
+            <span
+              className='px-2 py-1 rounded text-xs font-semibold'
+              style={
+                isGuided
+                  ? { backgroundColor: 'var(--color-info-light)', color: 'var(--color-info)' }
+                  : { backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary-dark)' }
+              }
+            >
               {isGuided ? 'Guided' : 'Self-Guided'}
             </span>
           </div>
@@ -429,44 +484,66 @@ function TourCard({
       )}
       <div className='p-6'>
         <div className='flex justify-between items-start mb-2'>
-          <h3 className='text-lg font-semibold'>{tour.title}</h3>
+          <h3
+            className='text-lg font-semibold'
+            style={{ color: 'var(--color-text-heading)' }}
+          >
+            {tour.title}
+          </h3>
           {tour.categories && tour.categories.length > 0 && (
-            <span className='px-2 py-1 rounded text-xs bg-blue-100 text-blue-800'>
+            <span
+              className='px-2 py-1 rounded text-xs'
+              style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary-dark)' }}
+            >
               {tour.categories[0].name}
             </span>
           )}
         </div>
-        <p className='text-sm text-gray-600 mb-4 line-clamp-2'>{tour.description}</p>
+        <p
+          className='text-sm mb-4 line-clamp-2'
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          {tour.description}
+        </p>
         <div className='flex justify-between items-center text-sm mb-2'>
-          <div className='text-gray-600'>
+          <div style={{ color: 'var(--color-text-secondary)' }}>
             <span className='font-semibold'>{tour.tourSteps?.length || 0}</span> stops
           </div>
           {pricing && (
-            <div className='text-blue-600 font-semibold'>
+            <div className='font-semibold' style={{ color: 'var(--color-primary)' }}>
               {pricing.currency} ${pricing.price}
             </div>
           )}
-          <div className='text-gray-500 text-xs'>{formattedDate}</div>
+          <div className='text-xs' style={{ color: 'var(--color-text-muted)' }}>{formattedDate}</div>
         </div>
 
         {/* Schedule info for guided tours */}
         {isGuided && scheduleCount > 0 && (
-          <div className='text-xs text-purple-600 mb-2'>
+          <div className='text-xs mb-2' style={{ color: 'var(--color-info)' }}>
             {scheduleCount} session{scheduleCount > 1 ? 's' : ''} scheduled
           </div>
         )}
 
-        <div className='pt-4 border-t flex gap-2'>
+        <div
+          className='pt-4 border-t flex gap-2'
+          style={{ borderColor: 'var(--color-card-border)' }}
+        >
           <button
             onClick={() => onEdit(tour.id)}
-            className='flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 transition text-sm font-medium'
+            className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium'
+            style={{ backgroundColor: 'var(--color-section-bg)', color: 'var(--color-text-body)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-card-border)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-section-bg)' }}
           >
             Edit
           </button>
           {isGuided && (
             <button
               onClick={() => onAddSession(tour.id, tour.title)}
-              className='flex-1 px-4 py-2 bg-purple-50 text-purple-600 rounded hover:bg-purple-100 transition text-sm font-medium'
+              className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium'
+              style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary-dark)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
             >
               + Session
             </button>
@@ -474,7 +551,10 @@ function TourCard({
           <button
             onClick={() => onDelete(tour.id, tour.title)}
             disabled={deleting}
-            className='flex-1 px-4 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 transition text-sm font-medium disabled:opacity-50'
+            className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium disabled:opacity-50'
+            style={{ backgroundColor: 'var(--color-danger-light)', color: 'var(--color-danger)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
           >
             {deleting ? 'Deleting...' : 'Delete'}
           </button>

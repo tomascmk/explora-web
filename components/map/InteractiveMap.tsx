@@ -157,6 +157,7 @@ export function InteractiveMap({
   return (
     <div
       ref={mapContainerRef}
+      className="relative z-0"
       style={{ width: '100%', height: '600px', borderRadius: '8px' }}
     />
   );

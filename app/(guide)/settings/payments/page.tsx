@@ -8,6 +8,7 @@ import { UPDATE_STRIPE_ACCOUNT } from '@/graphql/settings'
 import { CreditCard, DollarSign } from 'lucide-react'
 import { toast } from 'sonner'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 interface Balance {
   id: string
@@ -77,46 +78,47 @@ export default function PaymentSettingsPage() {
 
   if (loading) {
     return (
-      <div className='p-8'>
-        <div className='animate-pulse'>
-          <div className='h-8 bg-gray-200 rounded w-1/4 mb-6'></div>
-          <div className='space-y-6'>
-            <div className='h-48 bg-gray-200 rounded-lg'></div>
-            <div className='h-48 bg-gray-200 rounded-lg'></div>
-          </div>
+      <div className='animate-pulse'>
+        <div className='h-8 rounded w-1/4 mb-6' style={{ backgroundColor: 'var(--color-section-bg)' }}></div>
+        <div className='space-y-6'>
+          <div className='h-48 rounded-lg' style={{ backgroundColor: 'var(--color-section-bg)' }}></div>
+          <div className='h-48 rounded-lg' style={{ backgroundColor: 'var(--color-section-bg)' }}></div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className='p-8'>
-      <h1 className='text-3xl font-bold mb-6'>Payment Settings</h1>
+    <div>
+      <PageHeader title='Payment Settings' />
 
       <div className='max-w-4xl space-y-6'>
         {/* Stripe Connect */}
-        <div className='bg-white rounded-lg shadow p-6'>
+        <div
+          className='rounded-xl border p-6'
+          style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+        >
           <div className='flex items-start justify-between'>
             <div className='flex items-start gap-4'>
-              <div className='p-3 bg-purple-50 rounded-lg'>
-                <CreditCard className='w-8 h-8 text-purple-600' />
+              <div className='p-3 rounded-lg' style={{ backgroundColor: 'var(--color-info-light)' }}>
+                <CreditCard className='w-8 h-8' style={{ color: 'var(--color-info)' }} />
               </div>
               <div>
-                <h2 className='text-xl font-semibold mb-2'>Stripe Connect</h2>
-                <p className='text-gray-600 mb-4'>
+                <h2 className='text-xl font-semibold mb-2' style={{ color: 'var(--color-text-heading)' }}>Stripe Connect</h2>
+                <p className='mb-4' style={{ color: 'var(--color-text-body)' }}>
                   Connect your Stripe account to receive payments from customers worldwide.
                 </p>
                 {stripeConnected ? (
-                  <div className='flex items-center gap-2 text-green-600'>
-                    <div className='w-2 h-2 bg-green-600 rounded-full'></div>
+                  <div className='flex items-center gap-2' style={{ color: 'var(--color-success)' }}>
+                    <div className='w-2 h-2 rounded-full' style={{ backgroundColor: 'var(--color-success)' }}></div>
                     <span className='font-medium'>Connected</span>
-                    <span className='text-sm text-gray-500 ml-2'>
+                    <span className='text-sm ml-2' style={{ color: 'var(--color-text-muted)' }}>
                       ({balance?.stripeAccountId?.slice(0, 16)}...)
                     </span>
                   </div>
                 ) : (
-                  <div className='flex items-center gap-2 text-gray-500'>
-                    <div className='w-2 h-2 bg-gray-400 rounded-full'></div>
+                  <div className='flex items-center gap-2' style={{ color: 'var(--color-text-muted)' }}>
+                    <div className='w-2 h-2 rounded-full' style={{ backgroundColor: 'var(--color-text-muted)' }}></div>
                     <span>Not connected</span>
                   </div>
                 )}
@@ -126,7 +128,8 @@ export default function PaymentSettingsPage() {
             {stripeConnected && (
               <button
                 onClick={() => setShowDisconnectModal(true)}
-                className='px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 text-sm'
+                className='px-4 py-2 border rounded-lg hover:opacity-80 text-sm'
+                style={{ borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}
               >
                 Disconnect
               </button>
@@ -134,20 +137,22 @@ export default function PaymentSettingsPage() {
           </div>
 
           {!stripeConnected && (
-            <div className='mt-6 pt-4 border-t'>
-              <label className='block text-sm font-medium mb-2'>Stripe Account ID</label>
+            <div className='mt-6 pt-4 border-t' style={{ borderColor: 'var(--color-card-border)' }}>
+              <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>Stripe Account ID</label>
               <div className='flex gap-2'>
                 <input
                   type='text'
                   value={newStripeId}
                   onChange={(e) => setNewStripeId(e.target.value)}
                   placeholder='acct_...'
-                  className='flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none'
+                  className='flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                  style={{ borderColor: 'var(--color-card-border)' }}
                 />
                 <button
                   onClick={handleConnectStripe}
                   disabled={updatingStripe || !newStripeId.trim()}
-                  className='px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 flex items-center gap-2'
+                  className='px-6 py-2 text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2'
+                  style={{ backgroundColor: 'var(--color-primary)' }}
                 >
                   {updatingStripe && (
                     <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />
@@ -159,23 +164,23 @@ export default function PaymentSettingsPage() {
           )}
 
           {stripeConnected && balance && (
-            <div className='mt-6 pt-6 border-t'>
-              <div className='grid grid-cols-3 gap-4'>
+            <div className='mt-6 pt-6 border-t' style={{ borderColor: 'var(--color-card-border)' }}>
+              <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
                 <div>
-                  <p className='text-sm text-gray-600'>Available Balance</p>
-                  <p className='text-2xl font-bold text-green-600'>
+                  <p className='text-sm' style={{ color: 'var(--color-text-body)' }}>Available Balance</p>
+                  <p className='text-2xl font-bold' style={{ color: 'var(--color-success)' }}>
                     ${balance.availableBalance.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className='text-sm text-gray-600'>Pending</p>
-                  <p className='text-2xl font-bold text-yellow-600'>
+                  <p className='text-sm' style={{ color: 'var(--color-text-body)' }}>Pending</p>
+                  <p className='text-2xl font-bold' style={{ color: 'var(--color-warning)' }}>
                     ${balance.pendingBalance.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className='text-sm text-gray-600'>Total Earned</p>
-                  <p className='text-2xl font-bold text-blue-600'>
+                  <p className='text-sm' style={{ color: 'var(--color-text-body)' }}>Total Earned</p>
+                  <p className='text-2xl font-bold' style={{ color: 'var(--color-primary)' }}>
                     ${balance.totalEarnings.toFixed(2)}
                   </p>
                 </div>
@@ -185,18 +190,24 @@ export default function PaymentSettingsPage() {
         </div>
 
         {/* MercadoPago */}
-        <div className='bg-white rounded-lg shadow p-6'>
+        <div
+          className='rounded-xl border p-6'
+          style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+        >
           <div className='flex items-start gap-4'>
-            <div className='p-3 bg-blue-50 rounded-lg'>
-              <DollarSign className='w-8 h-8 text-blue-600' />
+            <div className='p-3 rounded-lg' style={{ backgroundColor: 'var(--color-primary-light)' }}>
+              <DollarSign className='w-8 h-8' style={{ color: 'var(--color-primary)' }} />
             </div>
             <div>
-              <h2 className='text-xl font-semibold mb-2'>MercadoPago</h2>
-              <p className='text-gray-600 mb-4'>
+              <h2 className='text-xl font-semibold mb-2' style={{ color: 'var(--color-text-heading)' }}>MercadoPago</h2>
+              <p className='mb-4' style={{ color: 'var(--color-text-body)' }}>
                 Accept payments from customers in Latin America through MercadoPago.
               </p>
-              <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
-                <p className='text-sm text-blue-800'>
+              <div
+                className='rounded-lg border p-4'
+                style={{ backgroundColor: 'var(--color-info-light)', borderColor: 'var(--color-info)' }}
+              >
+                <p className='text-sm' style={{ color: 'var(--color-info)' }}>
                   MercadoPago is configured at the platform level. Contact the admin team to
                   set up or modify your MercadoPago integration.
                 </p>
@@ -207,37 +218,40 @@ export default function PaymentSettingsPage() {
 
         {/* Balance Summary */}
         {balance && (
-          <div className='bg-white rounded-lg shadow p-6'>
-            <h2 className='text-xl font-semibold mb-4'>Balance Summary</h2>
+          <div
+            className='rounded-xl border p-6'
+            style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+          >
+            <h2 className='text-xl font-semibold mb-4' style={{ color: 'var(--color-text-heading)' }}>Balance Summary</h2>
             <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-              <div className='p-4 bg-green-50 rounded-lg'>
-                <p className='text-xs text-green-600 font-medium'>Available</p>
-                <p className='text-xl font-bold text-green-700'>
+              <div className='p-4 rounded-lg' style={{ backgroundColor: 'var(--color-success-light)' }}>
+                <p className='text-xs font-medium' style={{ color: 'var(--color-success)' }}>Available</p>
+                <p className='text-xl font-bold' style={{ color: 'var(--color-success)' }}>
                   ${balance.availableBalance.toFixed(2)}
                 </p>
               </div>
-              <div className='p-4 bg-yellow-50 rounded-lg'>
-                <p className='text-xs text-yellow-600 font-medium'>Pending</p>
-                <p className='text-xl font-bold text-yellow-700'>
+              <div className='p-4 rounded-lg' style={{ backgroundColor: 'var(--color-warning-light)' }}>
+                <p className='text-xs font-medium' style={{ color: 'var(--color-warning)' }}>Pending</p>
+                <p className='text-xl font-bold' style={{ color: 'var(--color-warning)' }}>
                   ${balance.pendingBalance.toFixed(2)}
                 </p>
               </div>
-              <div className='p-4 bg-blue-50 rounded-lg'>
-                <p className='text-xs text-blue-600 font-medium'>Total Earned</p>
-                <p className='text-xl font-bold text-blue-700'>
+              <div className='p-4 rounded-lg' style={{ backgroundColor: 'var(--color-primary-light)' }}>
+                <p className='text-xs font-medium' style={{ color: 'var(--color-primary)' }}>Total Earned</p>
+                <p className='text-xl font-bold' style={{ color: 'var(--color-primary)' }}>
                   ${balance.totalEarnings.toFixed(2)}
                 </p>
               </div>
-              <div className='p-4 bg-gray-50 rounded-lg'>
-                <p className='text-xs text-gray-600 font-medium'>Total Payouts</p>
-                <p className='text-xl font-bold text-gray-700'>
+              <div className='p-4 rounded-lg' style={{ backgroundColor: 'var(--color-section-bg)' }}>
+                <p className='text-xs font-medium' style={{ color: 'var(--color-text-secondary)' }}>Total Payouts</p>
+                <p className='text-xl font-bold' style={{ color: 'var(--color-text-heading)' }}>
                   ${balance.totalPayouts.toFixed(2)}
                 </p>
               </div>
             </div>
-            <p className='text-xs text-gray-400 mt-3'>
+            <p className='text-xs mt-3' style={{ color: 'var(--color-text-muted)' }}>
               For payout requests, go to{' '}
-              <a href='/balance' className='text-blue-600 hover:underline'>
+              <a href='/balance' className='hover:underline' style={{ color: 'var(--color-primary)' }}>
                 Balance & Earnings
               </a>
             </p>

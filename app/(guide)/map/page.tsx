@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@apollo/client/react';
 import { GET_TOURS_BY_GUIDE } from '@/graphql/tours';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 // Import map dynamically to avoid SSR issues
 const InteractiveMap = dynamic(
@@ -48,33 +49,32 @@ export default function MapPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="h-96 bg-gray-200 rounded"></div>
-        </div>
+      <div className="animate-pulse">
+        <div className="h-8 rounded w-1/4 mb-4" style={{ backgroundColor: 'var(--color-section-bg)' }}></div>
+        <div className="h-96 rounded" style={{ backgroundColor: 'var(--color-section-bg)' }}></div>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Mapa de Tours</h1>
-        <p className="text-gray-600">
-          Visualiza la ubicación de todos tus tours en el mapa ({tours.length} tours)
-        </p>
-      </div>
+    <div>
+      <PageHeader
+        title="Mapa de Tours"
+        subtitle={`Visualiza la ubicacion de todos tus tours en el mapa (${tours.length} tours)`}
+      />
 
-      <div className="bg-white rounded-lg shadow p-4">
+      <div
+        className="rounded-xl border p-4"
+        style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+      >
         <div className="mb-4 flex gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
-            <span className="text-sm text-gray-600">Tours Activos</span>
+            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: 'var(--color-primary)' }}></div>
+            <span className="text-sm" style={{ color: 'var(--color-text-body)' }}>Tours Activos</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gray-400 rounded-full"></div>
-            <span className="text-sm text-gray-600">Tours Inactivos</span>
+            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: 'var(--color-text-muted)' }}></div>
+            <span className="text-sm" style={{ color: 'var(--color-text-body)' }}>Tours Inactivos</span>
           </div>
         </div>
 
@@ -86,10 +86,13 @@ export default function MapPage() {
         />
       </div>
 
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-900 mb-2">💡 Tip</h3>
-        <p className="text-sm text-blue-800">
-          Haz clic en los marcadores para ver detalles de cada tour. Los marcadores cercanos se agrupan automáticamente para mejor visualización.
+      <div
+        className="mt-6 rounded-xl border p-4"
+        style={{ backgroundColor: 'var(--color-info-light)', borderColor: 'var(--color-info)' }}
+      >
+        <h3 className="font-semibold mb-2" style={{ color: 'var(--color-text-heading)' }}>Tip</h3>
+        <p className="text-sm" style={{ color: 'var(--color-info)' }}>
+          Haz clic en los marcadores para ver detalles de cada tour. Los marcadores cercanos se agrupan automaticamente para mejor visualizacion.
         </p>
       </div>
     </div>

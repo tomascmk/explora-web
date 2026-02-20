@@ -2,38 +2,43 @@ import Link from 'next/link'
 
 export default function MainLanding() {
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'>
+    <div className='min-h-screen' style={{ backgroundColor: 'var(--color-page-bg)' }}>
       {/* Navigation */}
-      <nav className='backdrop-blur-md bg-white/70 border-b border-white/20 sticky top-0 z-50'>
+      <nav className='absolute top-0 left-0 right-0 z-10'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex justify-between items-center h-20'>
-            <div className='flex items-center group'>
-              <h1 className='text-3xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105'>
-                Explora
-              </h1>
-            </div>
+            <Link href='/' className='text-2xl font-bold text-white flex items-center gap-2'>
+              <span
+                className='w-9 h-9 rounded-lg flex items-center justify-center text-base font-bold'
+                style={{ backgroundColor: 'var(--color-primary)' }}
+              >
+                E
+              </span>
+              Explora
+            </Link>
             <div className='hidden md:flex items-center gap-8'>
               <Link
                 href='/guides'
-                className='text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200'
+                className='text-sm font-medium text-white/80 hover:text-white transition-colors duration-200'
               >
                 For Guides
               </Link>
               <Link
                 href='/tourists'
-                className='text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200'
+                className='text-sm font-medium text-white/80 hover:text-white transition-colors duration-200'
               >
                 For Tourists
               </Link>
               <Link
                 href='/login'
-                className='text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200'
+                className='text-sm font-medium text-white/80 hover:text-white transition-colors duration-200'
               >
                 Login
               </Link>
               <Link
                 href='/register'
-                className='bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold'
+                className='text-sm font-semibold text-white px-6 py-2.5 rounded-xl transition hover:opacity-90'
+                style={{ backgroundColor: 'var(--color-primary)' }}
               >
                 Get Started
               </Link>
@@ -43,53 +48,53 @@ export default function MainLanding() {
       </nav>
 
       {/* Hero Section */}
-      <section className='relative py-32 px-4 overflow-hidden'>
-        {/* Animated Background Gradient */}
-        <div className='absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-pink-600/5'></div>
-        <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-200/20 via-transparent to-transparent'></div>
+      <section className='relative bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 pt-36 pb-28 overflow-hidden'>
+        {/* Background decorations */}
+        <div className='absolute inset-0'>
+          <div className='absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full opacity-10' style={{ backgroundColor: 'var(--color-primary)' }} />
+          <div className='absolute -bottom-20 -left-20 w-80 h-80 rounded-full opacity-10' style={{ backgroundColor: 'var(--color-primary)' }} />
+          <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-5' style={{ backgroundColor: 'var(--color-primary)' }} />
+        </div>
 
-        <div className='max-w-7xl mx-auto relative z-10'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-16 items-center'>
             <div className='space-y-8'>
               <div className='inline-block'>
-                <span className='bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold px-6 py-2 rounded-full shadow-lg'>
-                  ✨ The Future of Travel
+                <span
+                  className='text-sm font-semibold uppercase tracking-wider px-4 py-1.5 rounded-full'
+                  style={{
+                    backgroundColor: 'rgba(20, 184, 166, 0.15)',
+                    color: 'var(--color-primary)',
+                  }}
+                >
+                  ✨ Your Adventure Starts Here
                 </span>
               </div>
 
-              <h1 className='text-6xl lg:text-7xl font-black leading-tight'>
-                <span className='bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent'>
-                  Discover
-                </span>
+              <h1 className='text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight text-white'>
+                Discover
                 <br />
-                <span className='bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent'>
-                  Unforgettable
-                </span>
+                <span style={{ color: 'var(--color-primary)' }}>Unforgettable</span>
                 <br />
-                <span className='text-gray-900'>Experiences</span>
+                Experiences
               </h1>
 
-              <p className='text-2xl text-gray-600 leading-relaxed max-w-xl'>
+              <p className='text-xl text-slate-300 leading-relaxed max-w-xl'>
                 Connect with passionate local guides who transform ordinary
-                trips into
-                <span className='text-blue-600 font-semibold'>
-                  {' '}
-                  extraordinary adventures
-                </span>
-                . Your journey, your way.
+                trips into extraordinary adventures. Your journey, your way.
               </p>
 
               <div className='flex flex-col sm:flex-row gap-4 pt-4'>
                 <Link
                   href='/tourists'
-                  className='group relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 overflow-hidden'
+                  className='px-8 py-4 rounded-xl font-semibold text-white text-lg transition-all hover:shadow-lg hover:shadow-teal-500/25 text-center'
+                  style={{ backgroundColor: 'var(--color-primary)' }}
                 >
-                  <span className='relative z-10'>Explore Tours</span>
-                  <div className='absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+                  Explore Tours
                 </Link>
                 <Link
                   href='/guides'
-                  className='group bg-white/80 backdrop-blur-sm border-2 border-gray-300 text-gray-900 px-10 py-5 rounded-2xl font-bold text-lg hover:border-blue-600 hover:text-blue-600 transition-all duration-300 hover:scale-105 hover:shadow-xl'
+                  className='px-8 py-4 rounded-xl font-semibold text-white text-lg border-2 border-white/20 hover:border-white/40 transition-all backdrop-blur-sm bg-white/5 text-center'
                 >
                   Become a Guide →
                 </Link>
@@ -97,54 +102,51 @@ export default function MainLanding() {
 
               {/* Social Proof */}
               <div className='flex items-center gap-8 pt-8'>
-                <div className='flex -space-x-4'>
+                <div className='flex -space-x-3'>
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div
                       key={i}
-                      className='w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 border-4 border-white shadow-lg'
+                      className='w-11 h-11 rounded-full border-3 border-slate-900 shadow-lg'
+                      style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-hover))' }}
                     ></div>
                   ))}
                 </div>
                 <div>
                   <div className='flex items-center gap-1 mb-1'>
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <span key={i} className='text-yellow-400 text-xl'>
-                        ★
-                      </span>
+                      <span key={i} className='text-lg' style={{ color: 'var(--color-warning)' }}>★</span>
                     ))}
                   </div>
-                  <p className='text-sm text-gray-600 font-medium'>
-                    Loved by{' '}
-                    <span className='font-bold text-gray-900'>50,000+</span>{' '}
-                    travelers
+                  <p className='text-sm text-slate-400'>
+                    Loved by <span className='font-bold text-white'>50,000+</span> travelers
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Hero Visual */}
-            <div className='relative group'>
-              <div className='absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-2xl opacity-30 group-hover:opacity-50 transition duration-1000'></div>
-              <div className='relative h-[500px] bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl overflow-hidden shadow-2xl'>
+            <div className='relative group hidden lg:block'>
+              <div
+                className='absolute -inset-1 rounded-3xl blur-2xl opacity-20 group-hover:opacity-30 transition duration-700'
+                style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-hover))' }}
+              ></div>
+              <div
+                className='relative h-[500px] rounded-3xl overflow-hidden shadow-2xl'
+                style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))' }}
+              >
                 <div className='absolute inset-0 bg-black/20'></div>
                 <div className='absolute inset-0 flex items-center justify-center'>
                   <div className='text-center space-y-4'>
                     <div className='text-8xl'>🌍</div>
-                    <p className='text-white text-2xl font-bold'>
-                      Your Adventure Awaits
-                    </p>
+                    <p className='text-white text-2xl font-bold'>Your Adventure Awaits</p>
                   </div>
                 </div>
                 {/* Floating Cards */}
                 <div className='absolute top-10 right-10 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-xl transform rotate-6 hover:rotate-0 transition-transform duration-300'>
-                  <p className='text-sm font-semibold text-gray-900'>
-                    ⭐ 4.9/5 Rating
-                  </p>
+                  <p className='text-sm font-semibold' style={{ color: 'var(--color-text-heading)' }}>⭐ 4.9/5 Rating</p>
                 </div>
                 <div className='absolute bottom-10 left-10 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-xl transform -rotate-6 hover:rotate-0 transition-transform duration-300'>
-                  <p className='text-sm font-semibold text-gray-900'>
-                    🎯 1000+ Tours
-                  </p>
+                  <p className='text-sm font-semibold' style={{ color: 'var(--color-text-heading)' }}>🎯 1000+ Tours</p>
                 </div>
               </div>
             </div>
@@ -153,212 +155,98 @@ export default function MainLanding() {
       </section>
 
       {/* How It Works */}
-      <section className='py-32 px-4 bg-white relative overflow-hidden'>
-        {/* Decorative Elements */}
-        <div className='absolute top-0 left-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-20'></div>
-        <div className='absolute bottom-0 right-0 w-96 h-96 bg-purple-100 rounded-full blur-3xl opacity-20'></div>
-
-        <div className='max-w-7xl mx-auto relative z-10'>
-          <div className='text-center mb-20'>
-            <span className='text-blue-600 font-semibold text-sm uppercase tracking-wider'>
+      <section className='py-24 px-4' style={{ backgroundColor: 'var(--color-card-bg)' }}>
+        <div className='max-w-7xl mx-auto'>
+          <div className='text-center mb-16'>
+            <p className='text-sm font-semibold uppercase tracking-wider mb-2' style={{ color: 'var(--color-primary)' }}>
               Simple & Seamless
-            </span>
-            <h2 className='text-5xl lg:text-6xl font-black text-gray-900 mt-4 mb-6'>
-              How It{' '}
-              <span className='bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
-                Works
-              </span>
+            </p>
+            <h2 className='text-4xl sm:text-5xl font-bold mb-4' style={{ color: 'var(--color-text-heading)' }}>
+              How It Works
             </h2>
-            <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
+            <p className='text-lg max-w-2xl mx-auto' style={{ color: 'var(--color-text-secondary)' }}>
               Your journey from discovery to adventure in three effortless steps
             </p>
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12'>
-            {/* Step 1 */}
-            <div className='group relative'>
-              <div className='absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-3xl transform group-hover:scale-105 transition-transform duration-300'></div>
-              <div className='relative bg-white/50 backdrop-blur-sm p-8 rounded-3xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300'>
-                <div className='w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300'>
-                  <span className='text-3xl font-black text-white'>1</span>
-                </div>
-                <h3 className='text-2xl font-bold mb-4 text-gray-900'>
-                  Discover
-                </h3>
-                <p className='text-gray-600 leading-relaxed'>
-                  Explore curated tours from{' '}
-                  <span className='font-semibold text-blue-600'>
-                    passionate local experts
-                  </span>{' '}
-                  in destinations worldwide. Find your perfect adventure.
-                </p>
-                <div className='mt-6 flex justify-center'>
-                  <span className='text-4xl'>🔍</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className='group relative'>
-              <div className='absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-3xl transform group-hover:scale-105 transition-transform duration-300'></div>
-              <div className='relative bg-white/50 backdrop-blur-sm p-8 rounded-3xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300'>
-                <div className='w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300'>
-                  <span className='text-3xl font-black text-white'>2</span>
-                </div>
-                <h3 className='text-2xl font-bold mb-4 text-gray-900'>
-                  Choose
-                </h3>
-                <p className='text-gray-600 leading-relaxed'>
-                  Select between{' '}
-                  <span className='font-semibold text-purple-600'>
-                    self-guided audio tours
-                  </span>{' '}
-                  or{' '}
-                  <span className='font-semibold text-purple-600'>
-                    live in-person experiences
-                  </span>
-                  . Your journey, your way.
-                </p>
-                <div className='mt-6 flex justify-center gap-3'>
-                  <span className='text-3xl'>📱</span>
-                  <span className='text-3xl'>👥</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className='group relative'>
-              <div className='absolute inset-0 bg-gradient-to-br from-pink-500/10 to-orange-500/10 rounded-3xl transform group-hover:scale-105 transition-transform duration-300'></div>
-              <div className='relative bg-white/50 backdrop-blur-sm p-8 rounded-3xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300'>
-                <div className='w-20 h-20 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300'>
-                  <span className='text-3xl font-black text-white'>3</span>
-                </div>
-                <h3 className='text-2xl font-bold mb-4 text-gray-900'>
-                  Explore
-                </h3>
-                <p className='text-gray-600 leading-relaxed'>
-                  Embark on your adventure, discover{' '}
-                  <span className='font-semibold text-pink-600'>
-                    hidden gems
-                  </span>
-                  , and create{' '}
-                  <span className='font-semibold text-pink-600'>
-                    unforgettable memories
-                  </span>{' '}
-                  that last a lifetime.
-                </p>
-                <div className='mt-6 flex justify-center'>
-                  <span className='text-4xl'>✨</span>
-                </div>
-              </div>
-            </div>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+            <StepCard number={1} title='Discover' description='Explore curated tours from passionate local experts in destinations worldwide. Find your perfect adventure.' emoji='🔍' />
+            <StepCard number={2} title='Choose' description='Select between self-guided audio tours or live in-person experiences. Your journey, your way.' emoji='📱' />
+            <StepCard number={3} title='Explore' description='Embark on your adventure, discover hidden gems, and create unforgettable memories that last a lifetime.' emoji='✨' />
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className='py-20 px-4 bg-gray-50'>
+      <section className='py-24 px-4' style={{ backgroundColor: 'var(--color-page-bg)' }}>
         <div className='max-w-7xl mx-auto'>
-          <h2 className='text-4xl font-bold text-center mb-16'>
-            Why Choose Explora?
-          </h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
-            <FeatureCard
-              icon='🌍'
-              title='Global Coverage'
-              description='Tours in hundreds of cities worldwide'
-            />
-            <FeatureCard
-              icon='⭐'
-              title='Expert Guides'
-              description='Vetted local guides with 5-star ratings'
-            />
-            <FeatureCard
-              icon='📱'
-              title='Mobile First'
-              description='Seamless experience on any device'
-            />
-            <FeatureCard
-              icon='💳'
-              title='Secure Payment'
-              description='Safe and encrypted transactions'
-            />
-            <FeatureCard
-              icon='🎧'
-              title='Audio Guides'
-              description='Professional narration in multiple languages'
-            />
-            <FeatureCard
-              icon='🗺️'
-              title='Interactive Maps'
-              description='GPS-enabled routes and points of interest'
-            />
-            <FeatureCard
-              icon='💬'
-              title='Instant Support'
-              description='24/7 customer service'
-            />
-            <FeatureCard
-              icon='🏆'
-              title='Quality Guaranteed'
-              description='Money-back guarantee on all tours'
-            />
+          <div className='text-center mb-16'>
+            <p className='text-sm font-semibold uppercase tracking-wider mb-2' style={{ color: 'var(--color-primary)' }}>
+              Why Explora
+            </p>
+            <h2 className='text-4xl sm:text-5xl font-bold' style={{ color: 'var(--color-text-heading)' }}>
+              Why Choose Explora?
+            </h2>
+          </div>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+            <FeatureCard icon='🌍' title='Global Coverage' description='Tours in hundreds of cities worldwide' />
+            <FeatureCard icon='⭐' title='Expert Guides' description='Vetted local guides with 5-star ratings' />
+            <FeatureCard icon='📱' title='Mobile First' description='Seamless experience on any device' />
+            <FeatureCard icon='💳' title='Secure Payment' description='Safe and encrypted transactions' />
+            <FeatureCard icon='🎧' title='Audio Guides' description='Professional narration in multiple languages' />
+            <FeatureCard icon='🗺️' title='Interactive Maps' description='GPS-enabled routes and points of interest' />
+            <FeatureCard icon='💬' title='Instant Support' description='24/7 customer service' />
+            <FeatureCard icon='🏆' title='Quality Guaranteed' description='Money-back guarantee on all tours' />
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className='py-20 px-4'>
+      <section className='py-24 px-4' style={{ backgroundColor: 'var(--color-card-bg)' }}>
         <div className='max-w-7xl mx-auto'>
-          <h2 className='text-4xl font-bold text-center mb-16'>
-            What Our Users Say
-          </h2>
+          <div className='text-center mb-16'>
+            <p className='text-sm font-semibold uppercase tracking-wider mb-2' style={{ color: 'var(--color-primary)' }}>
+              Reviews
+            </p>
+            <h2 className='text-4xl sm:text-5xl font-bold' style={{ color: 'var(--color-text-heading)' }}>
+              What Our Users Say
+            </h2>
+          </div>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            <TestimonialCard
-              name='Sarah Johnson'
-              role='Tourist'
-              content='The self-guided food tour in Tokyo was incredible! The audio guide was so detailed and the route was perfect.'
-              rating={5}
-            />
-            <TestimonialCard
-              name='Miguel Rodriguez'
-              role='Tour Guide'
-              content='Explora helped me turn my passion for history into a thriving business. The platform is easy to use and the support is amazing.'
-              rating={5}
-            />
-            <TestimonialCard
-              name='Emily Chen'
-              role='Tourist'
-              content='Booked an in-person tour in Paris and our guide was phenomenal. Would definitely use Explora again!'
-              rating={5}
-            />
+            <TestimonialCard name='Sarah Johnson' role='Tourist' content='The self-guided food tour in Tokyo was incredible! The audio guide was so detailed and the route was perfect.' rating={5} />
+            <TestimonialCard name='Miguel Rodriguez' role='Tour Guide' content='Explora helped me turn my passion for history into a thriving business. The platform is easy to use and the support is amazing.' rating={5} />
+            <TestimonialCard name='Emily Chen' role='Tourist' content='Booked an in-person tour in Paris and our guide was phenomenal. Would definitely use Explora again!' rating={5} />
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className='relative py-32 px-4 overflow-hidden'>
-        {/* Animated Gradient Background */}
-        <div className='absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600'></div>
-        <div className='absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,_rgba(255,255,255,0.1)_0%,_transparent_50%)]'></div>
-        <div className='absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,_rgba(255,255,255,0.1)_0%,_transparent_50%)]'></div>
+      <section className='relative py-24 px-4 overflow-hidden bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900'>
+        <div className='absolute inset-0 overflow-hidden'>
+          <div className='absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-10' style={{ backgroundColor: 'var(--color-primary)' }} />
+          <div className='absolute -bottom-20 -left-20 w-64 h-64 rounded-full opacity-10' style={{ backgroundColor: 'var(--color-primary)' }} />
+        </div>
 
         <div className='max-w-5xl mx-auto text-center relative z-10'>
           <div className='inline-block mb-6'>
-            <span className='bg-white/20 backdrop-blur-sm text-white text-sm font-bold px-6 py-2 rounded-full'>
+            <span
+              className='text-sm font-semibold px-4 py-1.5 rounded-full'
+              style={{
+                backgroundColor: 'rgba(20, 184, 166, 0.15)',
+                color: 'var(--color-primary)',
+              }}
+            >
               🚀 Join 50,000+ Travelers
             </span>
           </div>
 
-          <h2 className='text-5xl lg:text-6xl font-black text-white mb-8 leading-tight'>
+          <h2 className='text-4xl sm:text-5xl font-bold text-white mb-8 leading-tight'>
             Your Next Adventure
             <br />
-            <span className='bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent'>
-              Starts Here
-            </span>
+            <span style={{ color: 'var(--color-primary)' }}>Starts Here</span>
           </h2>
 
-          <p className='text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed'>
+          <p className='text-xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed'>
             Stop dreaming. Start exploring. Connect with passionate local guides
             and transform the way you experience the world.
           </p>
@@ -366,14 +254,14 @@ export default function MainLanding() {
           <div className='flex flex-col sm:flex-row justify-center gap-6'>
             <Link
               href='/register'
-              className='group relative bg-white text-gray-900 px-12 py-5 rounded-2xl font-black text-lg shadow-2xl hover:shadow-white/30 transition-all duration-300 hover:scale-105 overflow-hidden'
+              className='px-10 py-4 rounded-xl font-semibold text-white text-lg transition-all hover:shadow-lg hover:shadow-teal-500/25'
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
-              <span className='relative z-10'>Get Started Free</span>
-              <div className='absolute inset-0 bg-gradient-to-r from-yellow-300 to-orange-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+              Get Started Free
             </Link>
             <Link
               href='/tourists'
-              className='group bg-white/10 backdrop-blur-sm border-2 border-white/50 text-white px-12 py-5 rounded-2xl font-black text-lg hover:bg-white/20 transition-all duration-300 hover:scale-105'
+              className='px-10 py-4 rounded-xl font-semibold text-white text-lg border-2 border-white/20 hover:border-white/40 transition-all backdrop-blur-sm bg-white/5'
             >
               Explore Tours →
             </Link>
@@ -382,119 +270,111 @@ export default function MainLanding() {
           {/* Trust Indicators */}
           <div className='mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto'>
             <div className='text-center'>
-              <p className='text-4xl font-black text-white mb-2'>1000+</p>
-              <p className='text-white/80 text-sm'>Tours Worldwide</p>
+              <p className='text-4xl font-bold text-white mb-2'>1000+</p>
+              <p className='text-slate-400 text-sm'>Tours Worldwide</p>
             </div>
             <div className='text-center'>
-              <p className='text-4xl font-black text-white mb-2'>50K+</p>
-              <p className='text-white/80 text-sm'>Happy Travelers</p>
+              <p className='text-4xl font-bold text-white mb-2'>50K+</p>
+              <p className='text-slate-400 text-sm'>Happy Travelers</p>
             </div>
             <div className='text-center'>
-              <p className='text-4xl font-black text-white mb-2'>4.9★</p>
-              <p className='text-white/80 text-sm'>Average Rating</p>
+              <p className='text-4xl font-bold text-white mb-2'>4.9★</p>
+              <p className='text-slate-400 text-sm'>Average Rating</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className='bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white py-16 px-4'>
+      <footer className='bg-slate-900 text-white py-16 px-4'>
         <div className='max-w-7xl mx-auto'>
           <div className='grid grid-cols-1 md:grid-cols-4 gap-12 mb-12'>
             <div>
-              <h3 className='text-3xl font-black bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4'>
+              <Link href='/' className='text-2xl font-bold flex items-center gap-2 mb-4'>
+                <span
+                  className='w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold'
+                  style={{ backgroundColor: 'var(--color-primary)' }}
+                >
+                  E
+                </span>
                 Explora
-              </h3>
-              <p className='text-gray-400 leading-relaxed mb-6'>
-                Transforming the way the world explores, one adventure at a
-                time.
+              </Link>
+              <p className='text-slate-400 leading-relaxed'>
+                Transforming the way the world explores, one adventure at a time.
               </p>
-              <div className='flex gap-4'>
-                <div className='w-10 h-10 bg-white/10 rounded-full hover:bg-white/20 transition-colors duration-200 flex items-center justify-center cursor-pointer'>
-                  <span>𝕏</span>
-                </div>
-                <div className='w-10 h-10 bg-white/10 rounded-full hover:bg-white/20 transition-colors duration-200 flex items-center justify-center cursor-pointer'>
-                  <span>in</span>
-                </div>
-                <div className='w-10 h-10 bg-white/10 rounded-full hover:bg-white/20 transition-colors duration-200 flex items-center justify-center cursor-pointer'>
-                  <span>ig</span>
-                </div>
-              </div>
             </div>
             <div>
               <h4 className='font-bold mb-4 text-white'>For Tourists</h4>
-              <ul className='space-y-3 text-gray-400'>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Browse Tours
-                </li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  How It Works
-                </li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Mobile App
-                </li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Gift Cards
-                </li>
+              <ul className='space-y-3 text-slate-400'>
+                <li className='hover:text-white transition-colors cursor-pointer'>Browse Tours</li>
+                <li className='hover:text-white transition-colors cursor-pointer'>How It Works</li>
+                <li className='hover:text-white transition-colors cursor-pointer'>Mobile App</li>
+                <li className='hover:text-white transition-colors cursor-pointer'>Gift Cards</li>
               </ul>
             </div>
             <div>
               <h4 className='font-bold mb-4 text-white'>For Guides</h4>
-              <ul className='space-y-3 text-gray-400'>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Become a Guide
-                </li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Guide Dashboard
-                </li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Pricing
-                </li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Resources
-                </li>
+              <ul className='space-y-3 text-slate-400'>
+                <li className='hover:text-white transition-colors cursor-pointer'>Become a Guide</li>
+                <li className='hover:text-white transition-colors cursor-pointer'>Guide Dashboard</li>
+                <li className='hover:text-white transition-colors cursor-pointer'>Pricing</li>
+                <li className='hover:text-white transition-colors cursor-pointer'>Resources</li>
               </ul>
             </div>
             <div>
               <h4 className='font-bold mb-4 text-white'>Company</h4>
-              <ul className='space-y-3 text-gray-400'>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  About Us
-                </li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Contact
-                </li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Terms of Service
-                </li>
-                <li className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                  Privacy Policy
-                </li>
+              <ul className='space-y-3 text-slate-400'>
+                <li className='hover:text-white transition-colors cursor-pointer'>About Us</li>
+                <li className='hover:text-white transition-colors cursor-pointer'>Contact</li>
+                <li className='hover:text-white transition-colors cursor-pointer'>Terms of Service</li>
+                <li className='hover:text-white transition-colors cursor-pointer'>Privacy Policy</li>
               </ul>
             </div>
           </div>
-          <div className='border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4'>
-            <p className='text-gray-400 text-sm'>
-              &copy; 2025 Explora. All rights reserved. Built with ❤️ for
-              travelers.
+          <div className='border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4'>
+            <p className='text-slate-400 text-sm'>
+              &copy; 2026 Explora. All rights reserved.
             </p>
-            <div className='flex gap-6 text-gray-400 text-sm'>
-              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                English
-              </span>
-              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                Español
-              </span>
-              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                Français
-              </span>
-              <span className='hover:text-white transition-colors duration-200 cursor-pointer'>
-                Português
-              </span>
+            <div className='flex gap-6 text-slate-400 text-sm'>
+              <span className='hover:text-white transition-colors cursor-pointer'>English</span>
+              <span className='hover:text-white transition-colors cursor-pointer'>Español</span>
+              <span className='hover:text-white transition-colors cursor-pointer'>Français</span>
+              <span className='hover:text-white transition-colors cursor-pointer'>Português</span>
             </div>
           </div>
         </div>
       </footer>
+    </div>
+  )
+}
+
+function StepCard({
+  number,
+  title,
+  description,
+  emoji
+}: {
+  number: number
+  title: string
+  description: string
+  emoji: string
+}) {
+  return (
+    <div
+      className='text-center p-8 rounded-xl border transition-shadow hover:shadow-md'
+      style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+    >
+      <div
+        className='w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white'
+        style={{ backgroundColor: 'var(--color-primary)' }}
+      >
+        {number}
+      </div>
+      <h3 className='text-2xl font-bold mb-4' style={{ color: 'var(--color-text-heading)' }}>
+        {title}
+      </h3>
+      <p style={{ color: 'var(--color-text-secondary)' }}>{description}</p>
+      <div className='mt-6 text-4xl'>{emoji}</div>
     </div>
   )
 }
@@ -509,10 +389,13 @@ function FeatureCard({
   description: string
 }) {
   return (
-    <div className='bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition'>
+    <div
+      className='text-center p-6 rounded-xl border transition-shadow hover:shadow-md'
+      style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+    >
       <div className='text-4xl mb-4'>{icon}</div>
-      <h3 className='text-lg font-semibold mb-2'>{title}</h3>
-      <p className='text-gray-600 text-sm'>{description}</p>
+      <h3 className='text-lg font-semibold mb-2' style={{ color: 'var(--color-text-heading)' }}>{title}</h3>
+      <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>{description}</p>
     </div>
   )
 }
@@ -529,18 +412,19 @@ function TestimonialCard({
   rating: number
 }) {
   return (
-    <div className='bg-white p-6 rounded-lg shadow-sm'>
-      <div className='flex mb-4'>
+    <div
+      className='p-6 rounded-xl border transition-shadow hover:shadow-md'
+      style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+    >
+      <div className='flex mb-3'>
         {[...Array(rating)].map((_, i) => (
-          <span key={i} className='text-yellow-400 text-xl'>
-            ★
-          </span>
+          <span key={i} className='text-xl' style={{ color: 'var(--color-warning)' }}>★</span>
         ))}
       </div>
-      <p className='text-gray-600 mb-4'>&quot;{content}&quot;</p>
-      <div>
-        <p className='font-semibold'>{name}</p>
-        <p className='text-sm text-gray-500'>{role}</p>
+      <p className='mb-4' style={{ color: 'var(--color-text-body)' }}>&quot;{content}&quot;</p>
+      <div className='pt-4' style={{ borderTop: '1px solid var(--color-card-border)' }}>
+        <p className='font-semibold' style={{ color: 'var(--color-text-heading)' }}>{name}</p>
+        <p className='text-sm' style={{ color: 'var(--color-primary)' }}>{role}</p>
       </div>
     </div>
   )

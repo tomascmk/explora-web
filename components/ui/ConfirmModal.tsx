@@ -30,18 +30,21 @@ export function ConfirmModal({
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
         <Dialog.Overlay className='fixed inset-0 bg-black/50 backdrop-blur-sm z-[90] transition-opacity duration-300' />
-        <Dialog.Content className='fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md bg-white rounded-2xl shadow-2xl p-6 z-[100] transition-all duration-200'>
-          <Dialog.Title className='text-xl font-bold text-gray-900 mb-2'>
+        <Dialog.Content className='fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md rounded-2xl shadow-2xl p-6 z-[100] transition-all duration-200' style={{ backgroundColor: 'var(--color-card-bg)' }}>
+          <Dialog.Title className='text-xl font-bold mb-2' style={{ color: 'var(--color-text-heading)' }}>
             {title}
           </Dialog.Title>
-          <Dialog.Description className='text-gray-600 mb-6'>
+          <Dialog.Description className='mb-6' style={{ color: 'var(--color-text-body)' }}>
             {description}
           </Dialog.Description>
 
           <div className='flex justify-end gap-3 pt-2'>
             <button
               onClick={onClose}
-              className='px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors'
+              className='px-4 py-2 text-sm font-semibold rounded-xl transition-colors'
+              style={{ color: 'var(--color-text-body)', backgroundColor: 'var(--color-section-bg)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-section-bg)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-section-bg)')}
               disabled={loading}
             >
               {cancelText}
@@ -49,11 +52,10 @@ export function ConfirmModal({
             <button
               onClick={onConfirm}
               disabled={loading}
-              className={`px-4 py-2 text-sm font-semibold text-white rounded-xl transition-all active:scale-95 flex items-center gap-2 ${
-                variant === 'danger'
-                  ? 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-200'
-                  : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              className='px-4 py-2 text-sm font-semibold text-white rounded-xl transition-all active:scale-95 flex items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
+              style={{
+                backgroundColor: variant === 'danger' ? 'var(--color-danger)' : 'var(--color-primary)',
+              }}
             >
               {loading && (
                 <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />

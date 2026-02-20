@@ -78,105 +78,211 @@ export default function LoginPage() {
   }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700'>
-      <div className='bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md'>
+    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 px-4'>
+      {/* Background decorations */}
+      <div className='absolute inset-0 overflow-hidden'>
+        <div className='absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-10' style={{ backgroundColor: 'var(--color-primary)' }} />
+        <div className='absolute -bottom-20 -left-20 w-64 h-64 rounded-full opacity-10' style={{ backgroundColor: 'var(--color-primary)' }} />
+      </div>
+
+      <div className='relative w-full max-w-md'>
+        {/* Logo */}
         <div className='text-center mb-8'>
-          <h1 className='text-3xl font-bold text-gray-900 mb-2'>
-            Welcome Back
-          </h1>
-          <p className='text-gray-700'>Sign in to your guide account</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className='space-y-6'>
-          {error && (
-            <div className='bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm font-medium border border-red-200'>
-              {error}
-            </div>
-          )}
-
-          <div>
-            <label className='block text-sm font-semibold text-gray-900 mb-2'>
-              Email
-            </label>
-            <input
-              type='email'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-              placeholder='guide@example.com'
-              required
-            />
-          </div>
-
-          <div>
-            <label className='block text-sm font-semibold text-gray-900 mb-2'>
-              Password
-            </label>
-            <input
-              type='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-              placeholder='••••••••'
-              required
-            />
-          </div>
-
-          <button
-            type='submit'
-            disabled={loading}
-            className='w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition'
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-
-        <div className='mt-6'>
-          <div className='relative'>
-            <div className='absolute inset-0 flex items-center'>
-              <div className='w-full border-t border-gray-300'></div>
-            </div>
-            <div className='relative flex justify-center text-sm'>
-              <span className='px-2 bg-white text-gray-500'>Or continue with</span>
-            </div>
-          </div>
-
-          <div className='mt-6 grid grid-cols-3 gap-3'>
-            <button
-              onClick={() => window.location.href = `${API_BASE_URL}/auth/google`}
-              className='w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'
+          <Link href='/' className='inline-flex items-center gap-2 text-white'>
+            <span
+              className='w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold text-white'
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
-              Google
-            </button>
-            <button
-              onClick={() => window.location.href = `${API_BASE_URL}/auth/facebook`}
-              className='w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'
-            >
-              Facebook
-            </button>
-            <button
-              onClick={() => window.location.href = `${API_BASE_URL}/auth/apple`}
-              className='w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'
-            >
-              Apple
-            </button>
-          </div>
-        </div>
-
-        <div className='mt-6 text-center text-sm text-gray-700'>
-          Don't have an account?{' '}
-          <Link
-            href='/register'
-            className='text-blue-600 hover:underline font-semibold'
-          >
-            Register as a Guide
+              E
+            </span>
+            <span className='text-2xl font-bold'>Explora</span>
           </Link>
         </div>
 
-        <div className='mt-4 text-center'>
+        {/* Card */}
+        <div
+          className='p-8 rounded-2xl shadow-2xl border'
+          style={{
+            backgroundColor: 'var(--color-card-bg)',
+            borderColor: 'var(--color-card-border)',
+          }}
+        >
+          <div className='text-center mb-8'>
+            <h1 className='text-3xl font-bold mb-2' style={{ color: 'var(--color-text-heading)' }}>
+              Welcome Back
+            </h1>
+            <p style={{ color: 'var(--color-text-secondary)' }}>Sign in to your guide account</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className='space-y-6'>
+            {error && (
+              <div
+                className='px-4 py-3 rounded-lg text-sm font-medium border'
+                style={{
+                  backgroundColor: 'var(--color-danger-light)',
+                  color: 'var(--color-danger)',
+                  borderColor: 'var(--color-danger)',
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label className='block text-sm font-semibold mb-2' style={{ color: 'var(--color-text-heading)' }}>
+                Email
+              </label>
+              <input
+                type='email'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className='w-full px-4 py-3 rounded-lg transition-all outline-none'
+                style={{
+                  border: '1px solid var(--color-card-border)',
+                  backgroundColor: 'var(--color-card-bg)',
+                  color: 'var(--color-text-body)',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)'
+                  e.currentTarget.style.boxShadow = '0 0 0 3px var(--color-primary-light)'
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-card-border)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
+                placeholder='guide@example.com'
+                required
+              />
+            </div>
+
+            <div>
+              <label className='block text-sm font-semibold mb-2' style={{ color: 'var(--color-text-heading)' }}>
+                Password
+              </label>
+              <input
+                type='password'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className='w-full px-4 py-3 rounded-lg transition-all outline-none'
+                style={{
+                  border: '1px solid var(--color-card-border)',
+                  backgroundColor: 'var(--color-card-bg)',
+                  color: 'var(--color-text-body)',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)'
+                  e.currentTarget.style.boxShadow = '0 0 0 3px var(--color-primary-light)'
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-card-border)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
+                placeholder='••••••••'
+                required
+              />
+            </div>
+
+            <button
+              type='submit'
+              disabled={loading}
+              className='w-full text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all'
+              style={{ backgroundColor: 'var(--color-primary)' }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div className='mt-6'>
+            <div className='relative'>
+              <div className='absolute inset-0 flex items-center'>
+                <div className='w-full' style={{ borderTop: '1px solid var(--color-card-border)' }}></div>
+              </div>
+              <div className='relative flex justify-center text-sm'>
+                <span className='px-2' style={{ backgroundColor: 'var(--color-card-bg)', color: 'var(--color-text-muted)' }}>
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <div className='mt-6 grid grid-cols-3 gap-3'>
+              <button
+                onClick={() => window.location.href = `${API_BASE_URL}/auth/google`}
+                className='w-full inline-flex justify-center py-2.5 px-4 rounded-lg text-sm font-medium transition-colors'
+                style={{
+                  border: '1px solid var(--color-card-border)',
+                  backgroundColor: 'var(--color-card-bg)',
+                  color: 'var(--color-text-secondary)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)'
+                  e.currentTarget.style.color = 'var(--color-primary)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-card-border)'
+                  e.currentTarget.style.color = 'var(--color-text-secondary)'
+                }}
+              >
+                Google
+              </button>
+              <button
+                onClick={() => window.location.href = `${API_BASE_URL}/auth/facebook`}
+                className='w-full inline-flex justify-center py-2.5 px-4 rounded-lg text-sm font-medium transition-colors'
+                style={{
+                  border: '1px solid var(--color-card-border)',
+                  backgroundColor: 'var(--color-card-bg)',
+                  color: 'var(--color-text-secondary)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)'
+                  e.currentTarget.style.color = 'var(--color-primary)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-card-border)'
+                  e.currentTarget.style.color = 'var(--color-text-secondary)'
+                }}
+              >
+                Facebook
+              </button>
+              <button
+                onClick={() => window.location.href = `${API_BASE_URL}/auth/apple`}
+                className='w-full inline-flex justify-center py-2.5 px-4 rounded-lg text-sm font-medium transition-colors'
+                style={{
+                  border: '1px solid var(--color-card-border)',
+                  backgroundColor: 'var(--color-card-bg)',
+                  color: 'var(--color-text-secondary)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)'
+                  e.currentTarget.style.color = 'var(--color-primary)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-card-border)'
+                  e.currentTarget.style.color = 'var(--color-text-secondary)'
+                }}
+              >
+                Apple
+              </button>
+            </div>
+          </div>
+
+          <div className='mt-6 text-center text-sm' style={{ color: 'var(--color-text-secondary)' }}>
+            Don&apos;t have an account?{' '}
+            <Link
+              href='/register'
+              className='font-semibold hover:underline'
+              style={{ color: 'var(--color-primary)' }}
+            >
+              Register as a Guide
+            </Link>
+          </div>
+        </div>
+
+        <div className='mt-6 text-center'>
           <Link
             href='/'
-            className='text-sm text-gray-600 hover:text-gray-900 font-medium'
+            className='text-sm font-medium text-white/60 hover:text-white transition'
           >
             ← Back to home
           </Link>

@@ -75,20 +75,23 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
           {...getRootProps()}
           className={`
             border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-            ${isDragActive ? 'border-blue-600 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}
             ${uploading ? 'opacity-50 cursor-not-allowed' : ''}
           `}
+          style={{
+            borderColor: isDragActive ? 'var(--color-primary)' : 'var(--color-card-border)',
+            backgroundColor: isDragActive ? 'var(--color-primary-light)' : undefined,
+          }}
         >
           <input {...getInputProps()} />
-          <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+          <Upload className="w-12 h-12 mx-auto mb-4" style={{ color: 'var(--color-text-muted)' }} />
           {isDragActive ? (
-            <p className="text-blue-600 font-medium">Drop images here...</p>
+            <p className="font-medium" style={{ color: 'var(--color-primary)' }}>Drop images here...</p>
           ) : (
             <>
-              <p className="text-gray-700 font-medium mb-2">
+              <p className="font-medium mb-2" style={{ color: 'var(--color-text-body)' }}>
                 Drag images here or click to select
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 Maximum {maxImages} images, up to 5MB each
               </p>
             </>
@@ -102,7 +105,8 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
           {images.map((image, index) => (
             <div
               key={index}
-              className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200"
+              className="relative group aspect-square rounded-lg overflow-hidden border"
+              style={{ borderColor: 'var(--color-card-border)' }}
             >
               <img
                 src={image}
@@ -114,7 +118,8 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center gap-2">
                 <button
                   onClick={() => removeImage(index)}
-                  className="opacity-0 group-hover:opacity-100 p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
+                  className="opacity-0 group-hover:opacity-100 p-2 text-white rounded-lg transition-all"
+                  style={{ backgroundColor: 'var(--color-danger)' }}
                   title="Remove"
                 >
                   <X className="w-4 h-4" />
@@ -122,7 +127,8 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
                 {index > 0 && (
                   <button
                     onClick={() => moveImage(index, index - 1)}
-                    className="opacity-0 group-hover:opacity-100 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                    className="opacity-0 group-hover:opacity-100 p-2 text-white rounded-lg transition-all"
+                    style={{ backgroundColor: 'var(--color-primary)' }}
                     title="Move left"
                   >
                     ←
@@ -131,7 +137,8 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
                 {index < images.length - 1 && (
                   <button
                     onClick={() => moveImage(index, index + 1)}
-                    className="opacity-0 group-hover:opacity-100 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                    className="opacity-0 group-hover:opacity-100 p-2 text-white rounded-lg transition-all"
+                    style={{ backgroundColor: 'var(--color-primary)' }}
                     title="Move right"
                   >
                     →
@@ -141,7 +148,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
 
               {/* Primary badge */}
               {index === 0 && (
-                <div className="absolute top-2 left-2 px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded">
+                <div className="absolute top-2 left-2 px-2 py-1 text-white text-xs font-medium rounded" style={{ backgroundColor: 'var(--color-primary)' }}>
                   Primary
                 </div>
               )}
@@ -152,7 +159,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
 
       {/* Info */}
       {images.length > 0 && (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm" style={{ color: 'var(--color-text-body)' }}>
           {images.length} of {maxImages} images. The first image will be the primary one.
         </p>
       )}

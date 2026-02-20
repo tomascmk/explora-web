@@ -109,35 +109,46 @@ export function TutorialTooltip({ steps, tutorialKey }: TutorialTooltipProps) {
           left: position.left,
           transform: 'translateX(-50%)',
           zIndex: 10000,
+          backgroundColor: 'var(--color-card-bg)',
+          borderColor: 'var(--color-primary)',
         }}
-        className="w-80 bg-white rounded-lg shadow-2xl p-4 border-2 border-blue-600"
+        className="w-80 rounded-lg shadow-2xl p-4 border-2"
       >
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold text-lg">{step.title}</h3>
           <button
             onClick={handleSkip}
-            className="text-gray-400 hover:text-gray-600"
+            className=""
+            style={{ color: 'var(--color-text-muted)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-body)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
         
-        <p className="text-gray-600 mb-4">{step.content}</p>
+        <p className="mb-4" style={{ color: 'var(--color-text-body)' }}>{step.content}</p>
         
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">
+          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
             {currentStep + 1} / {steps.length}
           </span>
           <div className="flex gap-2">
             <button
               onClick={handleSkip}
-              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900"
+              className="px-3 py-1 text-sm"
+              style={{ color: 'var(--color-text-body)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-heading)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-body)')}
             >
               Saltar
             </button>
             <button
               onClick={handleNext}
-              className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-4 py-1 text-sm text-white rounded"
+              style={{ backgroundColor: 'var(--color-primary)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
             >
               {currentStep < steps.length - 1 ? 'Siguiente' : 'Finalizar'}
             </button>

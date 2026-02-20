@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from 'react'
 import { Bell, Mail, MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 interface NotificationPreferences {
   id: string
@@ -63,28 +64,29 @@ export default function NotificationSettingsPage() {
 
   if (loading) {
     return (
-      <div className='p-8'>
-        <div className='flex items-center justify-center h-64'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
-        </div>
+      <div className='flex items-center justify-center h-64'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2' style={{ borderColor: 'var(--color-primary)' }}></div>
       </div>
     )
   }
 
   return (
-    <div className='p-8'>
-      <h1 className='text-3xl font-bold mb-6'>Notification Preferences</h1>
+    <div>
+      <PageHeader title='Notification Preferences' />
 
-      <div className='bg-white rounded-lg shadow p-6 max-w-2xl'>
+      <div
+        className='rounded-xl border p-6 max-w-2xl'
+        style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+      >
         <div className='space-y-6'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
-              <div className='p-2 bg-blue-50 rounded-lg'>
-                <Mail className='w-6 h-6 text-blue-600' />
+              <div className='p-2 rounded-lg' style={{ backgroundColor: 'var(--color-primary-light)' }}>
+                <Mail className='w-6 h-6' style={{ color: 'var(--color-primary)' }} />
               </div>
               <div>
-                <h3 className='font-medium text-gray-900'>Email Notifications</h3>
-                <p className='text-sm text-gray-500'>Receive notifications via email</p>
+                <h3 className='font-medium' style={{ color: 'var(--color-text-heading)' }}>Email Notifications</h3>
+                <p className='text-sm' style={{ color: 'var(--color-text-muted)' }}>Receive notifications via email</p>
               </div>
             </div>
             <label className='relative inline-flex items-center cursor-pointer'>
@@ -96,18 +98,18 @@ export default function NotificationSettingsPage() {
                 }
                 className='sr-only peer'
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-500" style={{ backgroundColor: 'var(--color-section-bg)' }}></div>
             </label>
           </div>
 
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
-              <div className='p-2 bg-green-50 rounded-lg'>
-                <Bell className='w-6 h-6 text-green-600' />
+              <div className='p-2 rounded-lg' style={{ backgroundColor: 'var(--color-success-light)' }}>
+                <Bell className='w-6 h-6' style={{ color: 'var(--color-success)' }} />
               </div>
               <div>
-                <h3 className='font-medium text-gray-900'>Push Notifications</h3>
-                <p className='text-sm text-gray-500'>Receive browser push notifications</p>
+                <h3 className='font-medium' style={{ color: 'var(--color-text-heading)' }}>Push Notifications</h3>
+                <p className='text-sm' style={{ color: 'var(--color-text-muted)' }}>Receive browser push notifications</p>
               </div>
             </div>
             <label className='relative inline-flex items-center cursor-pointer'>
@@ -119,18 +121,18 @@ export default function NotificationSettingsPage() {
                 }
                 className='sr-only peer'
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-500" style={{ backgroundColor: 'var(--color-section-bg)' }}></div>
             </label>
           </div>
 
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
-              <div className='p-2 bg-purple-50 rounded-lg'>
-                <MessageSquare className='w-6 h-6 text-purple-600' />
+              <div className='p-2 rounded-lg' style={{ backgroundColor: 'var(--color-info-light)' }}>
+                <MessageSquare className='w-6 h-6' style={{ color: 'var(--color-info)' }} />
               </div>
               <div>
-                <h3 className='font-medium text-gray-900'>SMS Notifications</h3>
-                <p className='text-sm text-gray-500'>Receive notifications via SMS</p>
+                <h3 className='font-medium' style={{ color: 'var(--color-text-heading)' }}>SMS Notifications</h3>
+                <p className='text-sm' style={{ color: 'var(--color-text-muted)' }}>Receive notifications via SMS</p>
               </div>
             </div>
             <label className='relative inline-flex items-center cursor-pointer'>
@@ -142,16 +144,17 @@ export default function NotificationSettingsPage() {
                 }
                 className='sr-only peer'
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-500" style={{ backgroundColor: 'var(--color-section-bg)' }}></div>
             </label>
           </div>
         </div>
 
-        <div className='mt-8 pt-6 border-t'>
+        <div className='mt-8 pt-6 border-t' style={{ borderColor: 'var(--color-card-border)' }}>
           <button
             onClick={handleSave}
             disabled={updating}
-            className='px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2'
+            className='px-6 py-2 text-white rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2'
+            style={{ backgroundColor: 'var(--color-primary)' }}
           >
             {updating && (
               <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />

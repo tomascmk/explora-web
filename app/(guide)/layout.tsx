@@ -1,19 +1,18 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { ReactNode, useEffect } from 'react'
+import { Sidebar } from '@/components/layout/Sidebar'
+import { MobileHeader } from '@/components/layout/MobileHeader'
+import { useRouter } from 'next/navigation'
+import { ReactNode, useEffect, useState } from 'react'
 
 export default function GuideLayout({ children }: { children: ReactNode }) {
-  const { user, logout, isAuthenticated, loading } = useAuth()
+  const { user, isAuthenticated, loading } = useAuth()
   const router = useRouter()
-  const pathname = usePathname()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    // Wait for loading to finish
     if (!loading && !isAuthenticated) {
-      console.log('❌ Not authenticated, redirecting to login...')
       router.push('/login')
     }
   }, [isAuthenticated, loading, router])
@@ -21,10 +20,19 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
   // Show loading while checking auth
   if (loading) {
     return (
-      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+      <div
+        className='min-h-screen flex items-center justify-center'
+        style={{ backgroundColor: 'var(--color-page-bg)' }}
+      >
         <div className='text-center'>
-          <div className='text-4xl mb-4'>⏳</div>
-          <p className='text-gray-600'>Loading...</p>
+          <div
+            className='w-10 h-10 border-3 rounded-full animate-spin mx-auto mb-4'
+            style={{
+              borderColor: 'var(--color-card-border)',
+              borderTopColor: 'var(--color-primary)',
+            }}
+          />
+          <p style={{ color: 'var(--color-text-secondary)' }}>Loading...</p>
         </div>
       </div>
     )
@@ -36,106 +44,26 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50'>
-      {/* Navigation */}
-      <nav className='bg-white shadow-sm border-b'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='flex justify-between items-center h-16'>
-            <div className='flex items-center gap-8'>
-              <Link
-                href='/dashboard'
-                className='text-xl font-bold text-blue-600'
-              >
-                Explora Guide
-              </Link>
-              <div className='hidden md:flex gap-6'>
-                <NavLink href='/dashboard' active={pathname === '/dashboard'}>
-                  Dashboard
-                </NavLink>
-                <div data-tour="nav-tours">
-                  <NavLink href='/tours' active={pathname.startsWith('/tours')}>
-                    Tours
-                  </NavLink>
-                </div>
-                <NavLink href='/balance' active={pathname === '/balance'}>
-                  Balance
-                </NavLink>
-                <div data-tour="nav-orders">
-                  <NavLink href='/orders' active={pathname === '/orders'}>
-                    Orders
-                  </NavLink>
-                </div>
-                <NavLink href='/agenda' active={pathname === '/agenda'}>
-                  Agenda
-                </NavLink>
-                <NavLink href='/feedback' active={pathname === '/feedback'}>
-                  Feedback
-                </NavLink>
-                <NavLink href='/claims' active={pathname === '/claims'}>
-                  Claims
-                </NavLink>
-                <NavLink href='/discounts' active={pathname === '/discounts'}>
-                  Discounts
-                </NavLink>
-              </div>
-            </div>
-            <div className='flex items-center gap-4'>
-              <div data-tour="nav-notifications">
-                {/* Placeholder for notification bell - will be added later */}
-              </div>
-              {user && (
-                <span className='text-sm font-medium text-gray-700'>
-                  {user.fullName || user.username}
-                </span>
-              )}
-              <div data-tour="nav-settings">
-                <Link
-                  href='/settings'
-                  className={`text-sm font-medium transition-colors duration-200 ${
-                    pathname === '/settings'
-                      ? 'text-blue-600 font-semibold'
-                      : 'text-gray-600 hover:text-blue-600'
-                  }`}
-                >
-                  Settings
-                </Link>
-              </div>
-              <button
-                onClick={logout}
-                className='text-sm font-medium text-gray-600 hover:text-red-600 transition-colors duration-200'
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className='flex h-screen overflow-hidden'>
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      {/* Main Content */}
-      <main>{children}</main>
+      {/* Main content area */}
+      <div className='flex-1 flex flex-col min-w-0 overflow-hidden'>
+        {/* Mobile header with hamburger */}
+        <MobileHeader onMenuClick={() => setSidebarOpen(true)} />
+
+        {/* Scrollable content */}
+        <main
+          className='flex-1 overflow-y-auto p-4 lg:p-8'
+          style={{ backgroundColor: 'var(--color-page-bg)' }}
+        >
+          {children}
+        </main>
+      </div>
     </div>
-  )
-}
-
-function NavLink({
-  href,
-  children,
-  active = false
-}: {
-  href: string
-  children: ReactNode
-  active?: boolean
-}) {
-  return (
-    <Link
-      href={href}
-      className={`font-semibold text-sm transition-all duration-200 px-3 py-1 rounded-md ${
-        active
-          ? 'text-blue-600 bg-blue-50'
-          : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
-      }`}
-    >
-      {children}
-    </Link>
   )
 }

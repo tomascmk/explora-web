@@ -8,6 +8,54 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* ═══════════════════════════════════════════
+     EXPLORA DESIGN TOKENS
+     Change these values to update the entire app
+     ═══════════════════════════════════════════ */
+
+  /* Sidebar */
+  --color-sidebar-bg: #0F172A;
+  --color-sidebar-text: #94A3B8;
+  --color-sidebar-active: #14B8A6;
+  --color-sidebar-active-bg: rgba(20, 184, 166, 0.12);
+  --color-sidebar-hover: #1E293B;
+  --color-sidebar-divider: #1E293B;
+
+  /* Page & Card Backgrounds */
+  --color-page-bg: #F8FAFC;
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #E2E8F0;
+  --color-section-bg: #F1F5F9;
+
+  /* Text */
+  --color-text-heading: #0F172A;
+  --color-text-body: #334155;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+
+  /* Primary (Teal) */
+  --color-primary: #14B8A6;
+  --color-primary-hover: #0D9488;
+  --color-primary-light: #CCFBF1;
+  --color-primary-dark: #0F766E;
+
+  /* Semantic Colors */
+  --color-success: #10B981;
+  --color-success-light: #D1FAE5;
+  --color-warning: #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-danger: #EF4444;
+  --color-danger-light: #FEE2E2;
+  --color-info: #3B82F6;
+  --color-info-light: #DBEAFE;
+
+  /* Borders & Rings */
+  --color-border: #E2E8F0;
+  --color-ring: #14B8A6;
+
+  /* Sidebar width */
+  --sidebar-width: 256px;
 }
 
 /* Disable dark mode auto-switching */
@@ -28,7 +76,7 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px white inset !important;
-  -webkit-text-fill-color: #111827 !important;
+  -webkit-text-fill-color: #0F172A !important;
 }
 
 /* Remove input number spinners */
@@ -40,4 +88,25 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Sidebar transition for mobile overlay */
+.sidebar-overlay {
+  transition: opacity 300ms ease-in-out;
+}
+
+.sidebar-panel {
+  transition: transform 300ms ease-in-out;
+}
+
+/* Scrollbar styling for sidebar */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 2px;
 }

@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { useMutation } from '@apollo/client/react'
 import { toast } from 'sonner'
 import { ImageUpload } from '@/components/tours/ImageUpload'
+import { PageHeader } from '@/components/ui/PageHeader'
 import {
   CREATE_TOUR,
   CREATE_TOUR_STEP,
@@ -203,60 +204,66 @@ export default function CreateTourPage() {
   }
 
   return (
-    <div className='p-8'>
+    <div>
       <div className='flex items-center gap-4 mb-8'>
         <button
           onClick={() => router.back()}
-          className='text-gray-500 hover:text-gray-700'
+          className='hover:opacity-80'
+          style={{ color: 'var(--color-text-muted)' }}
         >
-          ← Back
+          &larr; Back
         </button>
-        <h1 className='text-3xl font-bold'>Create New Tour</h1>
+        <h1 className='text-3xl font-bold' style={{ color: 'var(--color-text-heading)' }}>Create New Tour</h1>
       </div>
 
       {/* Progress Steps */}
       <div className='flex items-center justify-center mb-8'>
         <StepIndicator number={1} label='Information' active={step >= 1} completed={step > 1} />
-        <div className={`w-20 h-0.5 mx-2 ${step > 1 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+        <div className='w-20 h-0.5 mx-2' style={{ backgroundColor: step > 1 ? 'var(--color-primary)' : 'var(--color-card-border)' }}></div>
         <StepIndicator number={2} label='Route & Stops' active={step >= 2} completed={step > 2} />
-        <div className={`w-20 h-0.5 mx-2 ${step > 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+        <div className='w-20 h-0.5 mx-2' style={{ backgroundColor: step > 2 ? 'var(--color-primary)' : 'var(--color-card-border)' }}></div>
         <StepIndicator number={3} label='Review' active={step >= 3} completed={false} />
       </div>
 
       {/* Step 1: Basic Info */}
       {step === 1 && (
-        <div className='max-w-2xl mx-auto bg-white rounded-lg shadow p-8'>
-          <h2 className='text-2xl font-semibold mb-6'>Tour Information</h2>
+        <div
+          className='max-w-2xl mx-auto rounded-xl border p-8'
+          style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+        >
+          <h2 className='text-2xl font-semibold mb-6' style={{ color: 'var(--color-text-heading)' }}>Tour Information</h2>
           <div className='space-y-4'>
             {/* Tour Type Selector */}
             <div>
-              <label className='block text-sm font-medium mb-3'>Tour Type *</label>
+              <label className='block text-sm font-medium mb-3' style={{ color: 'var(--color-text-body)' }}>Tour Type *</label>
               <div className='grid grid-cols-2 gap-3'>
                 <button
                   type='button'
                   onClick={() => setTourInfo({ ...tourInfo, tourType: 'SELF_GUIDED' })}
-                  className={`p-4 rounded-lg border-2 text-left transition ${
+                  className='p-4 rounded-lg border-2 text-left transition'
+                  style={
                     !isGuided
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                      ? { borderColor: 'var(--color-primary)', backgroundColor: 'var(--color-primary-light)' }
+                      : { borderColor: 'var(--color-card-border)' }
+                  }
                 >
-                  <p className='font-semibold'>Self-Guided</p>
-                  <p className='text-sm text-gray-600 mt-1'>
+                  <p className='font-semibold' style={{ color: 'var(--color-text-heading)' }}>Self-Guided</p>
+                  <p className='text-sm mt-1' style={{ color: 'var(--color-text-body)' }}>
                     Tourists follow the route independently
                   </p>
                 </button>
                 <button
                   type='button'
                   onClick={() => setTourInfo({ ...tourInfo, tourType: 'GUIDED' })}
-                  className={`p-4 rounded-lg border-2 text-left transition ${
+                  className='p-4 rounded-lg border-2 text-left transition'
+                  style={
                     isGuided
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                      ? { borderColor: 'var(--color-primary)', backgroundColor: 'var(--color-primary-light)' }
+                      : { borderColor: 'var(--color-card-border)' }
+                  }
                 >
-                  <p className='font-semibold'>Guided</p>
-                  <p className='text-sm text-gray-600 mt-1'>
+                  <p className='font-semibold' style={{ color: 'var(--color-text-heading)' }}>Guided</p>
+                  <p className='text-sm mt-1' style={{ color: 'var(--color-text-body)' }}>
                     You lead the group in person
                   </p>
                 </button>
@@ -264,7 +271,7 @@ export default function CreateTourPage() {
             </div>
 
             <div>
-              <label className='block text-sm font-medium mb-2'>
+              <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                 Tour Title *
               </label>
               <input
@@ -273,13 +280,14 @@ export default function CreateTourPage() {
                 onChange={(e) =>
                   setTourInfo({ ...tourInfo, title: e.target.value })
                 }
-                className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                style={{ borderColor: 'var(--color-card-border)' }}
                 placeholder='Historic Downtown Walking Tour'
                 required
               />
             </div>
             <div>
-              <label className='block text-sm font-medium mb-2'>
+              <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                 Description *
               </label>
               <textarea
@@ -287,7 +295,8 @@ export default function CreateTourPage() {
                 onChange={(e) =>
                   setTourInfo({ ...tourInfo, description: e.target.value })
                 }
-                className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                style={{ borderColor: 'var(--color-card-border)' }}
                 rows={4}
                 placeholder='Describe your tour...'
                 required
@@ -295,9 +304,9 @@ export default function CreateTourPage() {
             </div>
 
             {/* Price & Currency (always shown) + Max Participants (guided only) */}
-            <div className={`grid ${isGuided ? 'grid-cols-3' : 'grid-cols-2'} gap-4`}>
+            <div className={`grid ${isGuided ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'} gap-4`}>
               <div>
-                <label className='block text-sm font-medium mb-2'>
+                <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                   Price per Person
                 </label>
                 <input
@@ -308,12 +317,13 @@ export default function CreateTourPage() {
                   onChange={(e) =>
                     setTourInfo({ ...tourInfo, price: e.target.value })
                   }
-                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                  style={{ borderColor: 'var(--color-card-border)' }}
                   placeholder='75'
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium mb-2'>
+                <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                   Currency
                 </label>
                 <select
@@ -321,7 +331,8 @@ export default function CreateTourPage() {
                   onChange={(e) =>
                     setTourInfo({ ...tourInfo, currency: e.target.value })
                   }
-                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                  style={{ borderColor: 'var(--color-card-border)' }}
                 >
                   <option value='USD'>USD</option>
                   <option value='ARS'>ARS</option>
@@ -331,7 +342,7 @@ export default function CreateTourPage() {
               </div>
               {isGuided && (
                 <div>
-                  <label className='block text-sm font-medium mb-2'>
+                  <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                     Max Participants
                   </label>
                   <input
@@ -341,66 +352,71 @@ export default function CreateTourPage() {
                     onChange={(e) =>
                       setTourInfo({ ...tourInfo, maxParticipants: e.target.value })
                     }
-                    className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                    className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                    style={{ borderColor: 'var(--color-card-border)' }}
                     placeholder='10'
                   />
                 </div>
               )}
             </div>
 
-            {/* Schedule Section — Guided tours only */}
+            {/* Schedule Section -- Guided tours only */}
             {isGuided && (
-              <div className='border-t pt-4 mt-4'>
-                <h3 className='text-lg font-medium mb-3'>First Session Schedule</h3>
-                <p className='text-sm text-gray-500 mb-4'>
+              <div className='border-t pt-4 mt-4' style={{ borderColor: 'var(--color-card-border)' }}>
+                <h3 className='text-lg font-medium mb-3' style={{ color: 'var(--color-text-heading)' }}>First Session Schedule</h3>
+                <p className='text-sm mb-4' style={{ color: 'var(--color-text-muted)' }}>
                   Set the date and time for your first session. You can add more sessions later.
                 </p>
-                <div className='grid grid-cols-2 gap-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium mb-2'>Date *</label>
+                    <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>Date *</label>
                     <input
                       type='date'
                       value={scheduleInfo.date}
                       onChange={(e) =>
                         setScheduleInfo({ ...scheduleInfo, date: e.target.value })
                       }
-                      className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                      style={{ borderColor: 'var(--color-card-border)' }}
                     />
                   </div>
                   <div>
-                    <label className='block text-sm font-medium mb-2'>Meeting Point</label>
+                    <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>Meeting Point</label>
                     <input
                       type='text'
                       value={scheduleInfo.meetingPoint}
                       onChange={(e) =>
                         setScheduleInfo({ ...scheduleInfo, meetingPoint: e.target.value })
                       }
-                      className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                      style={{ borderColor: 'var(--color-card-border)' }}
                       placeholder='Main Plaza, by the fountain'
                     />
                   </div>
                 </div>
-                <div className='grid grid-cols-2 gap-4 mt-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4'>
                   <div>
-                    <label className='block text-sm font-medium mb-2'>Start Time *</label>
+                    <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>Start Time *</label>
                     <input
                       type='time'
                       value={scheduleInfo.startTime}
                       onChange={(e) =>
                         setScheduleInfo({ ...scheduleInfo, startTime: e.target.value })
                       }
-                      className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                      style={{ borderColor: 'var(--color-card-border)' }}
                     />
                   </div>
                   <div>
-                    <label className='block text-sm font-medium mb-2'>End Time</label>
+                    <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>End Time</label>
                     <input
                       type='time'
                       value={scheduleInfo.endTime}
                       onChange={(e) =>
                         setScheduleInfo({ ...scheduleInfo, endTime: e.target.value })
                       }
-                      className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                      style={{ borderColor: 'var(--color-card-border)' }}
                     />
                   </div>
                 </div>
@@ -409,7 +425,7 @@ export default function CreateTourPage() {
 
             {/* Images */}
             <div>
-              <label className='block text-sm font-medium mb-2'>
+              <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                 Tour Images
               </label>
               <ImageUpload
@@ -426,7 +442,8 @@ export default function CreateTourPage() {
                 !tourInfo.description ||
                 (isGuided && (!scheduleInfo.date || !scheduleInfo.startTime))
               }
-              className='w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full text-white py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed'
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
               Continue to Route Planning
             </button>
@@ -437,9 +454,12 @@ export default function CreateTourPage() {
       {/* Step 2: Route & Stops */}
       {step === 2 && (
         <div className='space-y-6'>
-          <div className='bg-white rounded-lg shadow p-6'>
-            <h2 className='text-2xl font-semibold mb-4'>Plan Your Route</h2>
-            <p className='text-gray-600 mb-6'>
+          <div
+            className='rounded-xl border p-6'
+            style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+          >
+            <h2 className='text-2xl font-semibold mb-4' style={{ color: 'var(--color-text-heading)' }}>Plan Your Route</h2>
+            <p className='mb-6' style={{ color: 'var(--color-text-body)' }}>
               Click on the map to add stops to your tour. They will be connected
               automatically in order.
             </p>
@@ -453,8 +473,11 @@ export default function CreateTourPage() {
 
           {/* Waypoints List */}
           {waypoints.length > 0 && (
-            <div className='bg-white rounded-lg shadow p-6'>
-              <h3 className='text-xl font-semibold mb-4'>
+            <div
+              className='rounded-xl border p-6'
+              style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+            >
+              <h3 className='text-xl font-semibold mb-4' style={{ color: 'var(--color-text-heading)' }}>
                 Tour Stops ({waypoints.length})
               </h3>
               <div className='space-y-4'>
@@ -479,14 +502,16 @@ export default function CreateTourPage() {
           <div className='flex gap-4'>
             <button
               onClick={() => setStep(1)}
-              className='flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300'
+              className='flex-1 py-3 rounded-lg font-semibold hover:opacity-80 border'
+              style={{ borderColor: 'var(--color-card-border)', color: 'var(--color-text-body)' }}
             >
               Back
             </button>
             <button
               onClick={() => setStep(3)}
               disabled={waypoints.length < 2}
-              className='flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50'
+              className='flex-1 text-white py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50'
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
               Continue to Review
             </button>
@@ -496,28 +521,31 @@ export default function CreateTourPage() {
 
       {/* Step 3: Review */}
       {step === 3 && (
-        <div className='max-w-2xl mx-auto bg-white rounded-lg shadow p-8'>
-          <h2 className='text-2xl font-semibold mb-6'>Review & Publish</h2>
+        <div
+          className='max-w-2xl mx-auto rounded-xl border p-8'
+          style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+        >
+          <h2 className='text-2xl font-semibold mb-6' style={{ color: 'var(--color-text-heading)' }}>Review & Publish</h2>
 
           <div className='space-y-4 mb-8'>
             <div>
-              <p className='text-sm text-gray-600'>Tour Type</p>
-              <p className='font-medium'>
-                {isGuided ? 'Guided — You lead the group' : 'Self-Guided — Independent exploration'}
+              <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Tour Type</p>
+              <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
+                {isGuided ? 'Guided \u2014 You lead the group' : 'Self-Guided \u2014 Independent exploration'}
               </p>
             </div>
             <div>
-              <p className='text-sm text-gray-600'>Title</p>
-              <p className='font-medium'>{tourInfo.title}</p>
+              <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Title</p>
+              <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>{tourInfo.title}</p>
             </div>
             <div>
-              <p className='text-sm text-gray-600'>Description</p>
-              <p className='text-sm'>{tourInfo.description}</p>
+              <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Description</p>
+              <p className='text-sm' style={{ color: 'var(--color-text-body)' }}>{tourInfo.description}</p>
             </div>
-            <div className={`grid ${isGuided ? 'grid-cols-3' : 'grid-cols-2'} gap-4`}>
+            <div className={`grid ${isGuided ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'} gap-4`}>
               <div>
-                <p className='text-sm text-gray-600'>Price</p>
-                <p className='font-medium'>
+                <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Price</p>
+                <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
                   {tourInfo.price
                     ? `${tourInfo.currency} $${tourInfo.price} per person`
                     : 'Free'}
@@ -525,36 +553,38 @@ export default function CreateTourPage() {
               </div>
               {isGuided && (
                 <div>
-                  <p className='text-sm text-gray-600'>Max Participants</p>
-                  <p className='font-medium'>
+                  <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Max Participants</p>
+                  <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
                     {tourInfo.maxParticipants || 'No limit'}
                   </p>
                 </div>
               )}
               <div>
-                <p className='text-sm text-gray-600'>Stops</p>
-                <p className='font-medium'>{waypoints.length} locations</p>
+                <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Stops</p>
+                <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>{waypoints.length} locations</p>
               </div>
             </div>
 
             {/* Schedule summary for guided tours */}
             {isGuided && scheduleInfo.date && (
-              <div className='bg-blue-50 rounded-lg p-4'>
-                <p className='text-sm font-medium text-blue-800 mb-2'>First Session</p>
-                <div className='grid grid-cols-2 gap-2 text-sm'>
+              <div className='rounded-lg p-4' style={{ backgroundColor: 'var(--color-primary-light)' }}>
+                <p className='text-sm font-medium mb-2' style={{ color: 'var(--color-primary)' }}>First Session</p>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm'>
                   <div>
-                    <span className='text-blue-600'>Date:</span>{' '}
-                    {scheduleInfo.date}
+                    <span style={{ color: 'var(--color-primary)' }}>Date:</span>{' '}
+                    <span style={{ color: 'var(--color-text-heading)' }}>{scheduleInfo.date}</span>
                   </div>
                   <div>
-                    <span className='text-blue-600'>Time:</span>{' '}
-                    {scheduleInfo.startTime}
-                    {scheduleInfo.endTime && ` - ${scheduleInfo.endTime}`}
+                    <span style={{ color: 'var(--color-primary)' }}>Time:</span>{' '}
+                    <span style={{ color: 'var(--color-text-heading)' }}>
+                      {scheduleInfo.startTime}
+                      {scheduleInfo.endTime && ` - ${scheduleInfo.endTime}`}
+                    </span>
                   </div>
                   {scheduleInfo.meetingPoint && (
                     <div className='col-span-2'>
-                      <span className='text-blue-600'>Meeting Point:</span>{' '}
-                      {scheduleInfo.meetingPoint}
+                      <span style={{ color: 'var(--color-primary)' }}>Meeting Point:</span>{' '}
+                      <span style={{ color: 'var(--color-text-heading)' }}>{scheduleInfo.meetingPoint}</span>
                     </div>
                   )}
                 </div>
@@ -563,16 +593,19 @@ export default function CreateTourPage() {
 
             {/* Waypoints summary */}
             <div>
-              <p className='text-sm text-gray-600 mb-2'>Route</p>
+              <p className='text-sm mb-2' style={{ color: 'var(--color-text-secondary)' }}>Route</p>
               <div className='space-y-2'>
                 {waypoints.map((wp, i) => (
                   <div key={wp.id} className='flex items-center gap-2 text-sm'>
-                    <span className='bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0'>
+                    <span
+                      className='text-white w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0'
+                      style={{ backgroundColor: 'var(--color-primary)' }}
+                    >
                       {i + 1}
                     </span>
-                    <span className='font-medium'>{wp.title}</span>
+                    <span className='font-medium' style={{ color: 'var(--color-text-heading)' }}>{wp.title}</span>
                     {wp.description && (
-                      <span className='text-gray-500'>— {wp.description}</span>
+                      <span style={{ color: 'var(--color-text-muted)' }}>&mdash; {wp.description}</span>
                     )}
                   </div>
                 ))}
@@ -583,14 +616,16 @@ export default function CreateTourPage() {
           <div className='flex gap-4'>
             <button
               onClick={() => setStep(2)}
-              className='flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300'
+              className='flex-1 py-3 rounded-lg font-semibold hover:opacity-80 border'
+              style={{ borderColor: 'var(--color-card-border)', color: 'var(--color-text-body)' }}
             >
               Back
             </button>
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className='flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50'
+              className='flex-1 text-white py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50'
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
               {submitting ? 'Creating Tour...' : 'Publish Tour'}
             </button>
@@ -615,20 +650,23 @@ function StepIndicator({
   return (
     <div className='flex flex-col items-center'>
       <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+        className='w-10 h-10 rounded-full flex items-center justify-center font-semibold'
+        style={
           completed
-            ? 'bg-green-600 text-white'
+            ? { backgroundColor: 'var(--color-success)', color: '#FFFFFF' }
             : active
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-200 text-gray-600'
-        }`}
+            ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
+            : { backgroundColor: 'var(--color-section-bg)', color: 'var(--color-text-secondary)' }
+        }
       >
-        {completed ? '✓' : number}
+        {completed ? '\u2713' : number}
       </div>
       <p
-        className={`text-xs mt-2 ${
-          active ? 'text-blue-600 font-medium' : 'text-gray-500'
-        }`}
+        className='text-xs mt-2'
+        style={{
+          color: active ? 'var(--color-primary)' : 'var(--color-text-muted)',
+          fontWeight: active ? 500 : 400,
+        }}
       >
         {label}
       </p>
@@ -656,36 +694,43 @@ function WaypointItem({
 
   if (isEditing) {
     return (
-      <div className='border rounded-lg p-4'>
+      <div className='border rounded-lg p-4' style={{ borderColor: 'var(--color-card-border)' }}>
         <div className='flex items-center gap-2 mb-3'>
-          <span className='bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm'>
+          <span
+            className='text-white w-6 h-6 rounded-full flex items-center justify-center text-sm'
+            style={{ backgroundColor: 'var(--color-primary)' }}
+          >
             {index + 1}
           </span>
           <input
             type='text'
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className='flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500'
+            className='flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none'
+            style={{ borderColor: 'var(--color-card-border)' }}
             placeholder='Stop name'
           />
         </div>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className='w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 mb-3'
+          className='w-full px-3 py-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none mb-3'
+          style={{ borderColor: 'var(--color-card-border)' }}
           rows={2}
           placeholder='Description of this stop...'
         />
         <div className='flex gap-2'>
           <button
             onClick={() => onSave(title, description)}
-            className='flex-1 bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700'
+            className='flex-1 text-white py-2 rounded text-sm hover:opacity-90'
+            style={{ backgroundColor: 'var(--color-primary)' }}
           >
             Save
           </button>
           <button
             onClick={onRemove}
-            className='px-4 bg-red-100 text-red-600 py-2 rounded text-sm hover:bg-red-200'
+            className='px-4 py-2 rounded text-sm hover:opacity-80'
+            style={{ backgroundColor: 'var(--color-danger-light)', color: 'var(--color-danger)' }}
           >
             Remove
           </button>
@@ -696,22 +741,26 @@ function WaypointItem({
 
   return (
     <div
-      className='border rounded-lg p-4 hover:border-blue-300 transition cursor-pointer'
+      className='border rounded-lg p-4 hover:opacity-90 transition cursor-pointer'
+      style={{ borderColor: 'var(--color-card-border)' }}
       onClick={onEdit}
     >
       <div className='flex items-start justify-between'>
         <div className='flex items-start gap-3'>
-          <span className='bg-gray-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0'>
+          <span
+            className='text-white w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0'
+            style={{ backgroundColor: 'var(--color-text-secondary)' }}
+          >
             {index + 1}
           </span>
           <div>
-            <p className='font-medium'>{waypoint.title}</p>
+            <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>{waypoint.title}</p>
             {waypoint.description && (
-              <p className='text-sm text-gray-600 mt-1'>
+              <p className='text-sm mt-1' style={{ color: 'var(--color-text-body)' }}>
                 {waypoint.description}
               </p>
             )}
-            <p className='text-xs text-gray-400 mt-1'>
+            <p className='text-xs mt-1' style={{ color: 'var(--color-text-muted)' }}>
               {waypoint.latitude.toFixed(6)}, {waypoint.longitude.toFixed(6)}
             </p>
           </div>
@@ -721,9 +770,10 @@ function WaypointItem({
             e.stopPropagation()
             onRemove()
           }}
-          className='text-gray-400 hover:text-red-600'
+          className='hover:opacity-80'
+          style={{ color: 'var(--color-text-muted)' }}
         >
-          ✕
+          &#10005;
         </button>
       </div>
     </div>

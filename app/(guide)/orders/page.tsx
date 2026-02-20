@@ -6,8 +6,13 @@ import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
 import { GET_GUIDE_RESERVATIONS, UPDATE_RESERVATION_STATUS } from '@/graphql/reservations'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { StatsCard } from '@/components/ui/StatsCard'
+import { FilterButton } from '@/components/ui/FilterButton'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { ShoppingCart, Clock, CheckCircle, DollarSign } from 'lucide-react'
 
 interface Order {
   id: string
@@ -75,7 +80,6 @@ export default function OrdersPage() {
 
   const pendingCount = orders.filter((o) => o.reservation_status === 'PENDING').length
   const confirmedCount = orders.filter((o) => o.reservation_status === 'CONFIRMED').length
-  const completedCount = orders.filter((o) => o.reservation_status === 'COMPLETED').length
 
   const handleAction = async () => {
     if (!actionTarget) return
@@ -149,15 +153,25 @@ export default function OrdersPage() {
 
   if (loading) {
     return (
-      <div className='p-8'>
+      <div>
         <div className='animate-pulse space-y-4'>
-          <div className='h-8 bg-gray-200 rounded w-1/4'></div>
-          <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
+          <div
+            className='h-8 rounded w-1/4'
+            style={{ backgroundColor: 'var(--color-section-bg)' }}
+          />
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className='h-24 bg-gray-200 rounded-lg'></div>
+              <div
+                key={i}
+                className='h-24 rounded-xl'
+                style={{ backgroundColor: 'var(--color-section-bg)' }}
+              />
             ))}
           </div>
-          <div className='h-96 bg-gray-200 rounded-lg'></div>
+          <div
+            className='h-96 rounded-xl'
+            style={{ backgroundColor: 'var(--color-section-bg)' }}
+          />
         </div>
       </div>
     )
@@ -166,31 +180,40 @@ export default function OrdersPage() {
   const modalConfig = getActionModalConfig()
 
   return (
-    <div className='p-8'>
-      <h1 className='text-3xl font-bold mb-8'>Orders & Reservations</h1>
+    <div>
+      <PageHeader title='Orders & Reservations' />
 
       {/* Stats */}
-      <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-8'>
-        <div className='bg-white rounded-lg shadow p-6'>
-          <p className='text-sm text-gray-600 mb-1'>Total Orders</p>
-          <p className='text-3xl font-bold'>{orders.length}</p>
-        </div>
-        <div className='bg-white rounded-lg shadow p-6'>
-          <p className='text-sm text-gray-600 mb-1'>Pending</p>
-          <p className='text-3xl font-bold text-yellow-600'>{pendingCount}</p>
-        </div>
-        <div className='bg-white rounded-lg shadow p-6'>
-          <p className='text-sm text-gray-600 mb-1'>Confirmed</p>
-          <p className='text-3xl font-bold text-blue-600'>{confirmedCount}</p>
-        </div>
-        <div className='bg-white rounded-lg shadow p-6'>
-          <p className='text-sm text-gray-600 mb-1'>Total Revenue</p>
-          <p className='text-3xl font-bold text-green-600'>${totalRevenue.toFixed(2)}</p>
-        </div>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+        <StatsCard
+          label='Total Orders'
+          value={orders.length}
+          icon={<ShoppingCart size={20} />}
+          variant='default'
+        />
+        <StatsCard
+          label='Pending'
+          value={pendingCount}
+          icon={<Clock size={20} />}
+          variant='warning'
+        />
+        <StatsCard
+          label='Confirmed'
+          value={confirmedCount}
+          icon={<CheckCircle size={20} />}
+          variant='primary'
+        />
+        <StatsCard
+          label='Total Revenue'
+          value={totalRevenue.toFixed(2)}
+          prefix='$'
+          icon={<DollarSign size={20} />}
+          variant='success'
+        />
       </div>
 
       {/* Filters */}
-      <div className='flex gap-2 mb-6'>
+      <div className='flex flex-wrap gap-2 mb-6'>
         {(['all', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'] as const).map((f) => (
           <FilterButton key={f} active={filter === f} onClick={() => setFilter(f)}>
             {f === 'all' ? 'All' : f.charAt(0) + f.slice(1).toLowerCase()}
@@ -200,107 +223,217 @@ export default function OrdersPage() {
 
       {/* Orders Table */}
       {filteredOrders.length === 0 ? (
-        <div className='bg-white rounded-lg shadow p-12 text-center'>
-          <p className='text-gray-500'>No reservations found</p>
+        <div
+          className='rounded-xl border p-12 text-center'
+          style={{
+            backgroundColor: 'var(--color-card-bg)',
+            borderColor: 'var(--color-card-border)',
+          }}
+        >
+          <p style={{ color: 'var(--color-text-muted)' }}>No reservations found</p>
         </div>
       ) : (
-        <div className='bg-white rounded-lg shadow overflow-hidden'>
-          <table className='w-full'>
-            <thead className='bg-gray-50'>
-              <tr>
-                <th className='text-left py-3 px-4 text-sm font-medium text-gray-600'>Customer</th>
-                <th className='text-left py-3 px-4 text-sm font-medium text-gray-600'>Tour</th>
-                <th className='text-left py-3 px-4 text-sm font-medium text-gray-600'>Date</th>
-                <th className='text-right py-3 px-4 text-sm font-medium text-gray-600'>Amount</th>
-                <th className='text-center py-3 px-4 text-sm font-medium text-gray-600'>Payment</th>
-                <th className='text-center py-3 px-4 text-sm font-medium text-gray-600'>Status</th>
-                <th className='text-right py-3 px-4 text-sm font-medium text-gray-600'>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className='border-t hover:bg-gray-50'>
-                  <td className='py-3 px-4'>
-                    <p className='text-sm font-medium'>{order.user.fullName || order.user.username}</p>
-                    <p className='text-xs text-gray-500'>{order.user.email}</p>
-                  </td>
-                  <td className='py-3 px-4 text-sm'>{order.tour.title}</td>
-                  <td className='py-3 px-4 text-sm'>
-                    {format(new Date(order.schedule.startTime), 'MMM d, yyyy h:mm a')}
-                  </td>
-                  <td className='py-3 px-4 text-sm text-right font-medium'>
-                    ${order.total_amount?.toFixed(2)}
-                  </td>
-                  <td className='py-3 px-4 text-center'>
-                    <PaymentStatusBadge status={order.payment_status} />
-                  </td>
-                  <td className='py-3 px-4 text-center'>
-                    <ReservationStatusBadge status={order.reservation_status} />
-                  </td>
-                  <td className='py-3 px-4 text-right'>
-                    <div className='flex items-center justify-end gap-2'>
-                      {order.reservation_status === 'PENDING' && (
-                        <>
-                          <button
-                            onClick={() => setActionTarget({ order, action: 'CONFIRM' })}
-                            className='text-green-600 hover:text-green-800 text-xs font-medium'
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            onClick={() => setActionTarget({ order, action: 'CANCEL' })}
-                            className='text-red-600 hover:text-red-800 text-xs font-medium'
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      )}
-                      {order.reservation_status === 'CONFIRMED' && (
-                        <>
-                          <button
-                            onClick={() => setActionTarget({ order, action: 'COMPLETE' })}
-                            className='text-blue-600 hover:text-blue-800 text-xs font-medium'
-                          >
-                            Complete
-                          </button>
-                          <button
-                            onClick={() => setActionTarget({ order, action: 'CANCEL' })}
-                            className='text-red-600 hover:text-red-800 text-xs font-medium'
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      )}
-                      <Link
-                        href={`/orders/${order.id}`}
-                        className='text-blue-600 hover:text-blue-800 text-xs font-medium ml-2'
-                      >
-                        Details
-                      </Link>
-                    </div>
-                  </td>
+        <div
+          className='rounded-xl border overflow-hidden'
+          style={{
+            backgroundColor: 'var(--color-card-bg)',
+            borderColor: 'var(--color-card-border)',
+          }}
+        >
+          <div className='overflow-x-auto'>
+            <table className='w-full'>
+              <thead>
+                <tr style={{ backgroundColor: 'var(--color-section-bg)' }}>
+                  <th
+                    className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider'
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    Customer
+                  </th>
+                  <th
+                    className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider'
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    Tour
+                  </th>
+                  <th
+                    className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider'
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    Date
+                  </th>
+                  <th
+                    className='text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider'
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    Amount
+                  </th>
+                  <th
+                    className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider'
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    Payment
+                  </th>
+                  <th
+                    className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider'
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    Status
+                  </th>
+                  <th
+                    className='text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider'
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredOrders.map((order) => (
+                  <tr
+                    key={order.id}
+                    className='border-t transition-colors'
+                    style={{ borderColor: 'var(--color-card-border)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-section-bg)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                  >
+                    <td className='py-3 px-4'>
+                      <p
+                        className='text-sm font-medium'
+                        style={{ color: 'var(--color-text-heading)' }}
+                      >
+                        {order.user.fullName || order.user.username}
+                      </p>
+                      <p
+                        className='text-xs'
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
+                        {order.user.email}
+                      </p>
+                    </td>
+                    <td
+                      className='py-3 px-4 text-sm'
+                      style={{ color: 'var(--color-text-body)' }}
+                    >
+                      {order.tour.title}
+                    </td>
+                    <td
+                      className='py-3 px-4 text-sm'
+                      style={{ color: 'var(--color-text-body)' }}
+                    >
+                      {format(new Date(order.schedule.startTime), 'MMM d, yyyy h:mm a')}
+                    </td>
+                    <td
+                      className='py-3 px-4 text-sm text-right font-medium'
+                      style={{ color: 'var(--color-text-heading)' }}
+                    >
+                      ${order.total_amount?.toFixed(2)}
+                    </td>
+                    <td className='py-3 px-4 text-center'>
+                      <StatusBadge status={order.payment_status} />
+                    </td>
+                    <td className='py-3 px-4 text-center'>
+                      <StatusBadge status={order.reservation_status} />
+                    </td>
+                    <td className='py-3 px-4 text-right'>
+                      <div className='flex items-center justify-end gap-2'>
+                        {order.reservation_status === 'PENDING' && (
+                          <>
+                            <button
+                              onClick={() => setActionTarget({ order, action: 'CONFIRM' })}
+                              className='text-xs font-medium transition-colors'
+                              style={{ color: 'var(--color-success)' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
+                              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => setActionTarget({ order, action: 'CANCEL' })}
+                              className='text-xs font-medium transition-colors'
+                              style={{ color: 'var(--color-danger)' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
+                              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                        {order.reservation_status === 'CONFIRMED' && (
+                          <>
+                            <button
+                              onClick={() => setActionTarget({ order, action: 'COMPLETE' })}
+                              className='text-xs font-medium transition-colors'
+                              style={{ color: 'var(--color-primary)' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
+                              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                            >
+                              Complete
+                            </button>
+                            <button
+                              onClick={() => setActionTarget({ order, action: 'CANCEL' })}
+                              className='text-xs font-medium transition-colors'
+                              style={{ color: 'var(--color-danger)' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
+                              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                        <Link
+                          href={`/orders/${order.id}`}
+                          className='text-xs font-medium ml-2 transition-colors'
+                          style={{ color: 'var(--color-primary)' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
+                          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                        >
+                          Details
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* Action Modal - for Cancel show reason input */}
       {actionTarget && actionTarget.action === 'CANCEL' ? (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-          <div className='bg-white rounded-lg p-8 max-w-md w-full'>
-            <h2 className='text-xl font-bold mb-2'>Cancel Reservation</h2>
-            <p className='text-sm text-gray-600 mb-6'>
+          <div
+            className='rounded-xl p-8 max-w-md w-full shadow-xl'
+            style={{ backgroundColor: 'var(--color-card-bg)' }}
+          >
+            <h2
+              className='text-xl font-bold mb-2'
+              style={{ color: 'var(--color-text-heading)' }}
+            >
+              Cancel Reservation
+            </h2>
+            <p
+              className='text-sm mb-6'
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               Cancel reservation for &quot;{actionTarget.order.tour.title}&quot; by{' '}
               {actionTarget.order.user.fullName || actionTarget.order.user.username}?
             </p>
             <div className='mb-6'>
-              <label className='block text-sm font-medium mb-2'>Cancellation Reason (optional)</label>
+              <label
+                className='block text-sm font-medium mb-2'
+                style={{ color: 'var(--color-text-body)' }}
+              >
+                Cancellation Reason (optional)
+              </label>
               <textarea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                className='w-full px-4 py-3 border rounded focus:ring-2 focus:ring-red-500'
+                className='w-full px-4 py-3 border rounded-lg outline-none transition'
+                style={{ borderColor: 'var(--color-card-border)' }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-danger)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--color-danger-light)' }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-card-border)'; e.currentTarget.style.boxShadow = 'none' }}
                 rows={3}
                 placeholder='Provide a reason for cancellation...'
               />
@@ -309,14 +442,20 @@ export default function OrdersPage() {
               <button
                 onClick={() => { setActionTarget(null); setCancelReason('') }}
                 disabled={updating}
-                className='flex-1 px-4 py-2 border rounded hover:bg-gray-50 disabled:opacity-50'
+                className='flex-1 px-4 py-2 border rounded-lg transition disabled:opacity-50'
+                style={{ borderColor: 'var(--color-card-border)', color: 'var(--color-text-body)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-section-bg)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
               >
                 Go Back
               </button>
               <button
                 onClick={handleAction}
                 disabled={updating}
-                className='flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400 flex items-center justify-center gap-2'
+                className='flex-1 px-4 py-2 text-white rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2'
+                style={{ backgroundColor: 'var(--color-danger)' }}
+                onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.opacity = '0.9' }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
               >
                 {updating && (
                   <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />
@@ -339,58 +478,5 @@ export default function OrdersPage() {
         />
       )}
     </div>
-  )
-}
-
-function FilterButton({
-  children,
-  active,
-  onClick
-}: {
-  children: React.ReactNode
-  active: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 rounded font-medium text-sm transition ${
-        active
-          ? 'bg-blue-600 text-white'
-          : 'bg-white text-gray-600 hover:bg-gray-50 border'
-      }`}
-    >
-      {children}
-    </button>
-  )
-}
-
-function ReservationStatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    PENDING: 'bg-yellow-100 text-yellow-800',
-    CONFIRMED: 'bg-blue-100 text-blue-800',
-    COMPLETED: 'bg-green-100 text-green-800',
-    CANCELLED: 'bg-red-100 text-red-800'
-  }
-
-  return (
-    <span className={`px-2 py-1 rounded text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}`}>
-      {status}
-    </span>
-  )
-}
-
-function PaymentStatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    PENDING: 'bg-orange-100 text-orange-800',
-    COMPLETED: 'bg-green-100 text-green-800',
-    FAILED: 'bg-red-100 text-red-800',
-    REFUNDED: 'bg-purple-100 text-purple-800'
-  }
-
-  return (
-    <span className={`px-2 py-1 rounded text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}`}>
-      {status}
-    </span>
   )
 }

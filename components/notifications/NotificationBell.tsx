@@ -38,11 +38,14 @@ export function NotificationBell({ onClick }: NotificationBellProps) {
   return (
     <button
       onClick={onClick}
-      className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+      className="relative p-2 rounded-lg transition-colors"
+      style={{ color: 'var(--color-text-body)' }}
+      onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-heading)'; e.currentTarget.style.backgroundColor = 'var(--color-section-bg)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-body)'; e.currentTarget.style.backgroundColor = ''; }}
     >
       <Bell className="w-6 h-6" />
       {unreadCount > 0 && (
-        <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+        <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 rounded-full" style={{ backgroundColor: 'var(--color-danger)' }}>
           {unreadCount > 99 ? '99+' : unreadCount}
         </span>
       )}

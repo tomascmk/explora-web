@@ -70,7 +70,7 @@ function OAuthCallbackContent() {
       // Store tokens with consistent naming (same as login/register)
       localStorage.setItem('authToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
-      
+
       // Fetch user data and update AuthContext
       fetchUserAndLogin(accessToken);
     } else {
@@ -79,10 +79,20 @@ function OAuthCallbackContent() {
   }, [searchParams, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold">Procesando autenticación...</h2>
-        <p className="mt-2 text-gray-600">Por favor espera un momento.</p>
+    <div
+      className='flex min-h-screen items-center justify-center'
+      style={{ background: 'linear-gradient(to bottom right, #0F172A, #134E4A, #0F172A)' }}
+    >
+      <div className='text-center'>
+        <div
+          className='w-12 h-12 border-3 rounded-full animate-spin mx-auto mb-6'
+          style={{
+            borderColor: 'var(--color-card-border)',
+            borderTopColor: 'var(--color-primary)',
+          }}
+        />
+        <h2 className='text-2xl font-semibold text-white'>Processing authentication...</h2>
+        <p className='mt-2 text-slate-400'>Please wait a moment.</p>
       </div>
     </div>
   );
@@ -91,9 +101,19 @@ function OAuthCallbackContent() {
 export default function OAuthCallbackPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold">Cargando...</h2>
+      <div
+        className='flex min-h-screen items-center justify-center'
+        style={{ background: 'linear-gradient(to bottom right, #0F172A, #134E4A, #0F172A)' }}
+      >
+        <div className='text-center'>
+          <div
+            className='w-12 h-12 border-3 rounded-full animate-spin mx-auto mb-6'
+            style={{
+              borderColor: 'var(--color-card-border)',
+              borderTopColor: 'var(--color-primary)',
+            }}
+          />
+          <h2 className='text-2xl font-semibold text-white'>Loading...</h2>
         </div>
       </div>
     }>

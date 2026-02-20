@@ -91,8 +91,8 @@ export function TourCreationMap({
 
   if (!isMounted) {
     return (
-      <div className='w-full h-[600px] bg-gray-100 rounded-lg flex items-center justify-center'>
-        <p className='text-gray-500'>Loading map...</p>
+      <div className='w-full h-[600px] rounded-lg flex items-center justify-center' style={{ backgroundColor: 'var(--color-section-bg)' }}>
+        <p style={{ color: 'var(--color-text-secondary)' }}>Loading map...</p>
       </div>
     )
   }
@@ -132,13 +132,16 @@ export function TourCreationMap({
                   </span>
                   <button
                     onClick={() => onWaypointRemove(waypoint.id)}
-                    className='text-red-600 hover:text-red-800 text-xs'
+                    className='text-xs'
+                    style={{ color: 'var(--color-danger)' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-danger)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-danger)')}
                   >
                     Remove
                   </button>
                 </div>
                 <p className='font-medium text-sm'>{waypoint.title}</p>
-                <p className='text-xs text-gray-600'>{waypoint.description}</p>
+                <p className='text-xs' style={{ color: 'var(--color-text-body)' }}>{waypoint.description}</p>
               </div>
             </Popup>
           </Marker>
@@ -157,9 +160,9 @@ export function TourCreationMap({
       </MapContainer>
 
       {/* Instructions */}
-      <div className='absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg max-w-xs z-[1000]'>
+      <div className='absolute top-4 right-4 p-4 rounded-lg shadow-lg max-w-xs z-[1000]' style={{ backgroundColor: 'var(--color-card-bg)' }}>
         <h3 className='font-semibold text-sm mb-2'>How to add waypoints:</h3>
-        <ul className='text-xs text-gray-600 space-y-1'>
+        <ul className='text-xs space-y-1' style={{ color: 'var(--color-text-body)' }}>
           <li>• Click on map to add a new waypoint</li>
           <li>• Click marker to see details or remove</li>
           <li>• Waypoints connect in order automatically</li>
