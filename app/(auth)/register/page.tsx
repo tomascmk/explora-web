@@ -4,11 +4,13 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { encryptPassword } from '@/utils/crypto'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { setUser } = useAuth()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -87,9 +89,10 @@ export default function RegisterPage() {
         localStorage.setItem('authToken', result.data.register.access_token)
         localStorage.setItem('refreshToken', result.data.register.refresh_token)
         localStorage.setItem('user', JSON.stringify(result.data.register.user))
+        setUser(result.data.register.user)
 
-        // Redirect to dashboard
-        router.push('/dashboard')
+        // Hard navigation to ensure AuthProvider re-mounts with fresh state
+        window.location.href = '/dashboard'
       } else {
         throw new Error('No data returned from server')
       }

@@ -8,6 +8,7 @@ const publicPaths = [
   '/register',
   '/guides',
   '/tourists',
+  '/trip',
   '/api',
   '/_next',
   '/favicon.ico'
