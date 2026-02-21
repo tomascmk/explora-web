@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { encryptPassword } from '@/utils/crypto'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
 
@@ -62,8 +63,8 @@ export default function RegisterPage() {
               username: formData.username,
               email: formData.email,
               fullName: formData.fullName,
-              password: formData.password,
-              confirmPassword: formData.confirmPassword,
+              password: encryptPassword(formData.password),
+              confirmPassword: encryptPassword(formData.confirmPassword),
               roles: 'GUIDE'
             }
           }

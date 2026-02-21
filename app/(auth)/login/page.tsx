@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { encryptPassword } from '@/utils/crypto'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
@@ -39,7 +40,7 @@ export default function LoginPage() {
               }
             }
           `,
-          variables: { email, password }
+          variables: { email, password: encryptPassword(password) }
         })
       })
 
