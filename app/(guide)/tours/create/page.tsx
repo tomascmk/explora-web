@@ -117,7 +117,7 @@ export default function CreateTourPage() {
             description: tourInfo.description,
             guideId: user.id,
             status: 'DRAFT',
-            tourType: tourInfo.tourType === 'GUIDED' ? 'guided' : 'self_guided',
+            tourType: tourInfo.tourType,
           },
         },
       })

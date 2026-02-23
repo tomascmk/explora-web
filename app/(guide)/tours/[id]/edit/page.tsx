@@ -94,7 +94,7 @@ export default function EditTourPage() {
     if (fetchData?.tour) {
       const tour = fetchData.tour
       const pricing = tour.tourPricings?.[0]
-      const tourTypeValue = tour.tourType === 'guided' ? 'GUIDED' : 'SELF_GUIDED'
+      const tourTypeValue = tour.tourType === 'GUIDED' ? 'GUIDED' : 'SELF_GUIDED'
 
       setTourInfo({
         title: tour.title || '',
@@ -179,7 +179,7 @@ export default function EditTourPage() {
             id,
             title: tourInfo.title,
             description: tourInfo.description,
-            tourType: tourInfo.tourType === 'GUIDED' ? 'guided' : 'self_guided',
+            tourType: tourInfo.tourType,
           },
         },
       })

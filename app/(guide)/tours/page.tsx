@@ -428,7 +428,7 @@ function TourCard({
   onAddSession: (tourId: string, title: string) => void
   deleting: boolean
 }) {
-  const isGuided = tour.tourType === 'guided'
+  const isGuided = tour.tourType === 'GUIDED'
   const pricing = tour.tourPricings?.[0]
   const scheduleCount = tour.tourSchedules?.length || 0
   const formattedDate = new Date(tour.createdAt).toLocaleDateString('en-US', {
