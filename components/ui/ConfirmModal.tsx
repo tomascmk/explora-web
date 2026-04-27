@@ -41,10 +41,8 @@ export function ConfirmModal({
           <div className='flex justify-end gap-3 pt-2'>
             <button
               onClick={onClose}
-              className='px-4 py-2 text-sm font-semibold rounded-xl transition-colors'
+              className='px-4 py-2 text-sm font-semibold rounded-xl transition hover:opacity-80 disabled:opacity-50'
               style={{ color: 'var(--color-text-body)', backgroundColor: 'var(--color-section-bg)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-section-bg)')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-section-bg)')}
               disabled={loading}
             >
               {cancelText}

@@ -31,6 +31,7 @@ export default function DiscountsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingDiscount, setEditingDiscount] = useState<DiscountGroup | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<DiscountGroup | null>(null)
+  const [toggleTarget, setToggleTarget] = useState<DiscountGroup | null>(null)
   const [togglingId, setTogglingId] = useState<string | null>(null)
 
   const { data, loading, refetch } = useQuery<{ discountGroupsByGuide: DiscountGroup[] }>(
@@ -41,13 +42,20 @@ export default function DiscountsPage() {
     }
   )
 
-  const [updateDiscountMutation] = useMutation(UPDATE_DISCOUNT_GROUP, {
-    onCompleted: () => refetch()
-  })
+  // Apollo merges by `id` (UPDATE_DISCOUNT_GROUP returns the updated entity), no refetch needed.
+  const [updateDiscountMutation] = useMutation(UPDATE_DISCOUNT_GROUP)
 
   const [deleteDiscountMutation, { loading: deleting }] = useMutation(DELETE_DISCOUNT_GROUP, {
+    update: (cache, _result, options) => {
+      const id = options?.variables?.id
+      if (!id) return
+      const cacheId = cache.identify({ __typename: 'DiscountGroup', id })
+      if (cacheId) {
+        cache.evict({ id: cacheId })
+        cache.gc()
+      }
+    },
     onCompleted: () => {
-      refetch()
       setDeleteTarget(null)
       toast.success('Discount group deleted successfully')
     },
@@ -59,7 +67,13 @@ export default function DiscountsPage() {
 
   const discounts = data?.discountGroupsByGuide || []
 
-  const toggleActive = async (id: string, isActive: boolean) => {
+  const requestToggleActive = (discount: DiscountGroup) => {
+    setToggleTarget(discount)
+  }
+
+  const confirmToggleActive = async () => {
+    if (!toggleTarget) return
+    const { id, isActive } = toggleTarget
     setTogglingId(id)
     try {
       await updateDiscountMutation({
@@ -74,6 +88,7 @@ export default function DiscountsPage() {
       toast.error('Failed to update discount status')
     } finally {
       setTogglingId(null)
+      setToggleTarget(null)
     }
   }
 
@@ -147,7 +162,7 @@ export default function DiscountsPage() {
               key={discount.id}
               discount={discount}
               toggling={togglingId === discount.id}
-              onToggleActive={(id, isActive) => toggleActive(id, isActive)}
+              onToggleActive={() => requestToggleActive(discount)}
               onEdit={() => handleEdit(discount)}
               onDelete={() => setDeleteTarget(discount)}
             />
@@ -181,6 +196,21 @@ export default function DiscountsPage() {
         variant='danger'
         loading={deleting}
       />
+
+      <ConfirmModal
+        isOpen={!!toggleTarget}
+        onClose={() => setToggleTarget(null)}
+        onConfirm={confirmToggleActive}
+        title={toggleTarget?.isActive ? 'Deactivate Discount Group?' : 'Activate Discount Group?'}
+        description={
+          toggleTarget?.isActive
+            ? `"${toggleTarget?.name}" will no longer apply to new bookings until you reactivate it.`
+            : `"${toggleTarget?.name}" will start applying to new bookings immediately.`
+        }
+        confirmText={toggleTarget?.isActive ? 'Deactivate' : 'Activate'}
+        variant={toggleTarget?.isActive ? 'danger' : 'primary'}
+        loading={togglingId === toggleTarget?.id}
+      />
     </div>
   )
 }
@@ -194,7 +224,7 @@ function DiscountCard({
 }: {
   discount: DiscountGroup
   toggling: boolean
-  onToggleActive: (id: string, isActive: boolean) => void
+  onToggleActive: () => void
   onEdit: () => void
   onDelete: () => void
 }) {
@@ -224,7 +254,7 @@ function DiscountCard({
           </p>
         </div>
         <button
-          onClick={() => onToggleActive(discount.id, discount.isActive)}
+          onClick={onToggleActive}
           disabled={toggling || isExpired}
           className={`px-3 py-1 rounded-full text-xs font-medium transition ${
             toggling ? 'opacity-50 cursor-wait' : isExpired ? 'cursor-not-allowed' : 'cursor-pointer hover:opacity-80'

@@ -4,8 +4,9 @@ import { useQuery, useMutation } from '@apollo/client/react'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import { format } from 'date-fns'
 import { GET_TOURS_BY_GUIDE, DELETE_TOUR, CREATE_TOUR_SCHEDULE } from '@/graphql/tours'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -48,15 +49,23 @@ export default function ToursPage() {
   const router = useRouter()
   const [filter, setFilter] = useState('all')
 
-  const { data, loading, refetch } = useQuery<GetToursByGuideData, GetToursByGuideVars>(GET_TOURS_BY_GUIDE, {
+  const { data, loading } = useQuery<GetToursByGuideData, GetToursByGuideVars>(GET_TOURS_BY_GUIDE, {
     variables: { guideId: user?.id },
     skip: !user?.id,
   })
 
   const [deleteTour, { loading: deleting }] = useMutation(DELETE_TOUR, {
+    update: (cache, _result, options) => {
+      const id = options?.variables?.id
+      if (!id) return
+      const cacheId = cache.identify({ __typename: 'Tour', id })
+      if (cacheId) {
+        cache.evict({ id: cacheId })
+        cache.gc()
+      }
+    },
     onCompleted: () => {
       toast.success('Tour deleted successfully')
-      refetch()
     },
     onError: (error) => {
       toast.error('Failed to delete tour: ' + error.message)
@@ -64,9 +73,9 @@ export default function ToursPage() {
   })
 
   const [createTourSchedule] = useMutation(CREATE_TOUR_SCHEDULE, {
+    refetchQueries: [{ query: GET_TOURS_BY_GUIDE, variables: { guideId: user?.id } }],
     onCompleted: () => {
       toast.success('Session added successfully')
-      refetch()
     },
     onError: (error) => {
       toast.error('Failed to add session: ' + error.message)
@@ -130,13 +139,31 @@ export default function ToursPage() {
       return
     }
 
+    const startDateTime = new Date(`${sessionForm.date}T${sessionForm.startTime}:00`)
+    if (Number.isNaN(startDateTime.getTime())) {
+      toast.error('Invalid start date or time')
+      return
+    }
+    if (startDateTime.getTime() < Date.now()) {
+      toast.error('Sessions cannot be scheduled in the past')
+      return
+    }
+
+    let endDateTime: Date | undefined
+    if (sessionForm.endTime) {
+      endDateTime = new Date(`${sessionForm.date}T${sessionForm.endTime}:00`)
+      if (Number.isNaN(endDateTime.getTime())) {
+        toast.error('Invalid end time')
+        return
+      }
+      if (endDateTime <= startDateTime) {
+        toast.error('End time must be after start time')
+        return
+      }
+    }
+
     setAddingSession(true)
     try {
-      const startDateTime = new Date(`${sessionForm.date}T${sessionForm.startTime}:00`)
-      const endDateTime = sessionForm.endTime
-        ? new Date(`${sessionForm.date}T${sessionForm.endTime}:00`)
-        : undefined
-
       await createTourSchedule({
         variables: {
           input: {
@@ -154,6 +181,8 @@ export default function ToursPage() {
       setAddingSession(false)
     }
   }
+
+  const todayStr = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
 
   const tours = data?.toursByGuide || []
 
@@ -190,10 +219,8 @@ export default function ToursPage() {
         actions={
           <Link
             href='/tours/create'
-            className='flex items-center gap-2 text-white px-6 py-2 rounded-lg transition'
+            className='flex items-center gap-2 text-white px-6 py-2 rounded-lg transition hover:opacity-90'
             style={{ backgroundColor: 'var(--color-primary)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
           >
             <Plus className='w-5 h-5' />
             Create New Tour
@@ -223,10 +250,8 @@ export default function ToursPage() {
           <p className='text-lg mb-4' style={{ color: 'var(--color-text-muted)' }}>No tours yet</p>
           <Link
             href='/tours/create'
-            className='inline-block text-white px-6 py-3 rounded-lg transition'
+            className='inline-block text-white px-6 py-3 rounded-lg transition hover:opacity-90'
             style={{ backgroundColor: 'var(--color-primary)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
           >
             Create your first tour
           </Link>
@@ -276,9 +301,8 @@ export default function ToursPage() {
                 </h2>
                 <button
                   onClick={() => setSessionModal((prev) => ({ ...prev, isOpen: false }))}
+                  className='transition hover:text-[var(--color-text-body)]'
                   style={{ color: 'var(--color-text-muted)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-body)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-muted)' }}
                 >
                   <X className='w-5 h-5' />
                 </button>
@@ -300,6 +324,7 @@ export default function ToursPage() {
                     <input
                       type='date'
                       value={sessionForm.date}
+                      min={todayStr}
                       onChange={(e) => setSessionForm({ ...sessionForm, date: e.target.value })}
                       className='w-full px-3 py-2 border rounded-lg outline-none transition'
                       style={{ borderColor: 'var(--color-card-border)' }}
@@ -388,10 +413,8 @@ export default function ToursPage() {
               <div className='flex gap-3 mt-6'>
                 <button
                   onClick={() => setSessionModal((prev) => ({ ...prev, isOpen: false }))}
-                  className='flex-1 px-4 py-2 border rounded-lg transition'
+                  className='flex-1 px-4 py-2 border rounded-lg transition hover:bg-[var(--color-section-bg)]'
                   style={{ borderColor: 'var(--color-card-border)', color: 'var(--color-text-body)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-section-bg)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                   disabled={addingSession}
                 >
                   Cancel
@@ -399,10 +422,8 @@ export default function ToursPage() {
                 <button
                   onClick={handleSubmitSession}
                   disabled={addingSession || !sessionForm.date || !sessionForm.startTime}
-                  className='flex-1 px-4 py-2 text-white rounded-lg transition disabled:opacity-50'
+                  className='flex-1 px-4 py-2 text-white rounded-lg transition disabled:opacity-50 enabled:hover:opacity-90'
                   style={{ backgroundColor: 'var(--color-primary)' }}
-                  onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
                 >
                   {addingSession ? 'Adding...' : 'Add Session'}
                 </button>
@@ -436,6 +457,14 @@ function TourCard({
     month: 'short',
     day: 'numeric'
   })
+
+  const now = Date.now()
+  const upcomingSessions = (tour.tourSchedules || [])
+    .filter((s) => new Date(s.startTime).getTime() > now)
+    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+  const nextSession = upcomingSessions[0]
+  const upcomingCount = upcomingSessions.length
+  const allCompleted = scheduleCount > 0 && upcomingCount === 0
 
   return (
     <div
@@ -518,9 +547,20 @@ function TourCard({
         </div>
 
         {/* Schedule info for guided tours */}
-        {isGuided && scheduleCount > 0 && (
+        {isGuided && nextSession && (
           <div className='text-xs mb-2' style={{ color: 'var(--color-info)' }}>
-            {scheduleCount} session{scheduleCount > 1 ? 's' : ''} scheduled
+            Next: {format(new Date(nextSession.startTime), 'MMM d, HH:mm')}
+            {upcomingCount > 1 ? ` · ${upcomingCount - 1} more` : ''}
+          </div>
+        )}
+        {isGuided && allCompleted && (
+          <div className='text-xs mb-2' style={{ color: 'var(--color-text-muted)' }}>
+            All sessions completed
+          </div>
+        )}
+        {isGuided && scheduleCount === 0 && (
+          <div className='text-xs mb-2' style={{ color: 'var(--color-text-muted)' }}>
+            No sessions scheduled yet
           </div>
         )}
 
@@ -530,20 +570,16 @@ function TourCard({
         >
           <button
             onClick={() => onEdit(tour.id)}
-            className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium'
+            className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium hover:opacity-80'
             style={{ backgroundColor: 'var(--color-section-bg)', color: 'var(--color-text-body)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-card-border)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-section-bg)' }}
           >
             Edit
           </button>
           {isGuided && (
             <button
               onClick={() => onAddSession(tour.id, tour.title)}
-              className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium'
+              className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium hover:opacity-85'
               style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary-dark)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
             >
               + Session
             </button>
@@ -551,10 +587,8 @@ function TourCard({
           <button
             onClick={() => onDelete(tour.id, tour.title)}
             disabled={deleting}
-            className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium disabled:opacity-50'
+            className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium disabled:opacity-50 enabled:hover:opacity-85'
             style={{ backgroundColor: 'var(--color-danger-light)', color: 'var(--color-danger)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
           >
             {deleting ? 'Deleting...' : 'Delete'}
           </button>

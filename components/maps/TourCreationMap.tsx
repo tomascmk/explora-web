@@ -2,8 +2,9 @@
 
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
+  CircleMarker,
   MapContainer,
   Marker,
   Polyline,
@@ -12,6 +13,7 @@ import {
   useMapEvents
 } from 'react-leaflet'
 import { getWalkingRoute } from '@/lib/osrmRoute'
+import type { PlaceSummary } from '@/components/tours/PlaceSearchAutocomplete'
 
 // Fix for default marker icons in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -31,12 +33,20 @@ interface Waypoint {
   title: string
   description: string
   order: number
+  placeId?: string
+  placeName?: string
 }
 
 interface TourCreationMapProps {
   waypoints: Waypoint[]
   onWaypointAdd: (lat: number, lng: number) => void
   onWaypointRemove: (id: string) => void
+  /**
+   * Places cercanos para mostrar como markers secundarios. Cuando el guía
+   * tapea uno se agrega un waypoint linkeado con `placeId` + nombre.
+   */
+  nearbyPlaces?: PlaceSummary[]
+  onPlaceClick?: (place: PlaceSummary) => void
   center?: [number, number]
 }
 
@@ -44,6 +54,8 @@ export function TourCreationMap({
   waypoints,
   onWaypointAdd,
   onWaypointRemove,
+  nearbyPlaces = [],
+  onPlaceClick,
   center = [-34.6037, -58.3816] // Buenos Aires default
 }: TourCreationMapProps) {
   const [isMounted, setIsMounted] = useState(false)
@@ -89,6 +101,24 @@ export function TourCreationMap({
     }
   }, [waypoints, fetchRoute])
 
+  /**
+   * Filtrar places ya agregados al tour para no duplicar markers.
+   * `waypoint.placeId` es el único tie-break fiable — latitud/longitud
+   * puede coincidir por azar en lugares grandes.
+   */
+  const usedPlaceIds = useMemo(
+    () => new Set(waypoints.map((w) => w.placeId).filter(Boolean) as string[]),
+    [waypoints]
+  )
+
+  const visiblePlaces = useMemo(
+    () =>
+      nearbyPlaces.filter(
+        (p) => !!p.address && !usedPlaceIds.has(p.id)
+      ),
+    [nearbyPlaces, usedPlaceIds]
+  )
+
   if (!isMounted) {
     return (
       <div className='w-full h-[600px] rounded-lg flex items-center justify-center' style={{ backgroundColor: 'var(--color-section-bg)' }}>
@@ -118,7 +148,52 @@ export function TourCreationMap({
 
         <MapClickHandler onMapClick={onWaypointAdd} />
 
-        {/* Draw waypoints */}
+        {/*
+          Places cercanos. Se pintan como círculos teal, más chicos que los
+          markers de waypoint, para no competir visualmente con la ruta ya
+          construida. Click agrega el place como step.
+        */}
+        {visiblePlaces.map((place) => (
+          <CircleMarker
+            key={place.id}
+            center={[place.address!.latitude, place.address!.longitude]}
+            radius={8}
+            pathOptions={{
+              color: '#0D9488',
+              fillColor: '#14B8A6',
+              fillOpacity: 0.8,
+              weight: 2
+            }}
+            eventHandlers={{
+              click: () => {
+                if (onPlaceClick) onPlaceClick(place)
+              }
+            }}
+          >
+            <Popup>
+              <div className='p-2 min-w-[180px]'>
+                <p className='font-semibold text-sm mb-1'>{place.name}</p>
+                {place.address?.city && (
+                  <p className='text-xs text-gray-600 mb-2'>
+                    {place.address.city}
+                    {place.address.country ? `, ${place.address.country}` : ''}
+                  </p>
+                )}
+                {onPlaceClick && (
+                  <button
+                    onClick={() => onPlaceClick(place)}
+                    className='w-full text-xs text-white py-1.5 rounded hover:opacity-90'
+                    style={{ backgroundColor: 'var(--color-primary)' }}
+                  >
+                    Add as stop
+                  </button>
+                )}
+              </div>
+            </Popup>
+          </CircleMarker>
+        ))}
+
+        {/* Draw waypoints (stops already added to the tour) */}
         {waypoints.map((waypoint, index) => (
           <Marker
             key={waypoint.id}
@@ -134,14 +209,19 @@ export function TourCreationMap({
                     onClick={() => onWaypointRemove(waypoint.id)}
                     className='text-xs'
                     style={{ color: 'var(--color-danger)' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-danger)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-danger)')}
                   >
                     Remove
                   </button>
                 </div>
                 <p className='font-medium text-sm'>{waypoint.title}</p>
-                <p className='text-xs' style={{ color: 'var(--color-text-body)' }}>{waypoint.description}</p>
+                {waypoint.placeName && (
+                  <p className='text-xs mt-0.5' style={{ color: 'var(--color-primary)' }}>
+                    Linked: {waypoint.placeName}
+                  </p>
+                )}
+                {waypoint.description && (
+                  <p className='text-xs mt-1' style={{ color: 'var(--color-text-body)' }}>{waypoint.description}</p>
+                )}
               </div>
             </Popup>
           </Marker>
@@ -161,11 +241,17 @@ export function TourCreationMap({
 
       {/* Instructions */}
       <div className='absolute top-4 right-4 p-4 rounded-lg shadow-lg max-w-xs z-[1000]' style={{ backgroundColor: 'var(--color-card-bg)' }}>
-        <h3 className='font-semibold text-sm mb-2'>How to add waypoints:</h3>
+        <h3 className='font-semibold text-sm mb-2'>How to add stops:</h3>
         <ul className='text-xs space-y-1' style={{ color: 'var(--color-text-body)' }}>
-          <li>• Click on map to add a new waypoint</li>
-          <li>• Click marker to see details or remove</li>
-          <li>• Waypoints connect in order automatically</li>
+          <li>
+            <span
+              className='inline-block w-2.5 h-2.5 rounded-full mr-1.5'
+              style={{ backgroundColor: '#14B8A6' }}
+            />
+            Teal dots are known places. Click to add as a stop.
+          </li>
+          <li>• Or click anywhere on the map to add a custom stop.</li>
+          <li>• Use the search box above to find places by name.</li>
         </ul>
       </div>
     </div>

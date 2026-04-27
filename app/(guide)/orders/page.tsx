@@ -47,7 +47,7 @@ export default function OrdersPage() {
   const [actionTarget, setActionTarget] = useState<{ order: Order; action: string } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
 
-  const { data, loading, refetch } = useQuery<{ tourReservationsByGuide: Order[] }>(
+  const { data, loading } = useQuery<{ tourReservationsByGuide: Order[] }>(
     GET_GUIDE_RESERVATIONS,
     {
       variables: { guideId: user?.id },
@@ -55,9 +55,10 @@ export default function OrdersPage() {
     }
   )
 
+  // Apollo automatically merges by `id` so the updated reservation is patched in cache.
+  // No refetch() needed as long as the mutation response includes the changed fields.
   const [updateStatusMutation, { loading: updating }] = useMutation(UPDATE_RESERVATION_STATUS, {
     onCompleted: () => {
-      refetch()
       setActionTarget(null)
       setCancelReason('')
     },
@@ -292,10 +293,8 @@ export default function OrdersPage() {
                 {filteredOrders.map((order) => (
                   <tr
                     key={order.id}
-                    className='border-t transition-colors'
+                    className='border-t transition-colors hover:bg-[var(--color-section-bg)]'
                     style={{ borderColor: 'var(--color-card-border)' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-section-bg)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                   >
                     <td className='py-3 px-4'>
                       <p
@@ -341,19 +340,15 @@ export default function OrdersPage() {
                           <>
                             <button
                               onClick={() => setActionTarget({ order, action: 'CONFIRM' })}
-                              className='text-xs font-medium transition-colors'
+                              className='text-xs font-medium transition hover:opacity-70'
                               style={{ color: 'var(--color-success)' }}
-                              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
-                              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
                             >
                               Confirm
                             </button>
                             <button
                               onClick={() => setActionTarget({ order, action: 'CANCEL' })}
-                              className='text-xs font-medium transition-colors'
+                              className='text-xs font-medium transition hover:opacity-70'
                               style={{ color: 'var(--color-danger)' }}
-                              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
-                              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
                             >
                               Cancel
                             </button>
@@ -363,19 +358,15 @@ export default function OrdersPage() {
                           <>
                             <button
                               onClick={() => setActionTarget({ order, action: 'COMPLETE' })}
-                              className='text-xs font-medium transition-colors'
+                              className='text-xs font-medium transition hover:opacity-70'
                               style={{ color: 'var(--color-primary)' }}
-                              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
-                              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
                             >
                               Complete
                             </button>
                             <button
                               onClick={() => setActionTarget({ order, action: 'CANCEL' })}
-                              className='text-xs font-medium transition-colors'
+                              className='text-xs font-medium transition hover:opacity-70'
                               style={{ color: 'var(--color-danger)' }}
-                              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
-                              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
                             >
                               Cancel
                             </button>
@@ -383,10 +374,8 @@ export default function OrdersPage() {
                         )}
                         <Link
                           href={`/orders/${order.id}`}
-                          className='text-xs font-medium ml-2 transition-colors'
+                          className='text-xs font-medium ml-2 transition hover:opacity-70'
                           style={{ color: 'var(--color-primary)' }}
-                          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
-                          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
                         >
                           Details
                         </Link>
@@ -442,20 +431,16 @@ export default function OrdersPage() {
               <button
                 onClick={() => { setActionTarget(null); setCancelReason('') }}
                 disabled={updating}
-                className='flex-1 px-4 py-2 border rounded-lg transition disabled:opacity-50'
+                className='flex-1 px-4 py-2 border rounded-lg transition disabled:opacity-50 hover:bg-[var(--color-section-bg)]'
                 style={{ borderColor: 'var(--color-card-border)', color: 'var(--color-text-body)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-section-bg)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
               >
                 Go Back
               </button>
               <button
                 onClick={handleAction}
                 disabled={updating}
-                className='flex-1 px-4 py-2 text-white rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2'
+                className='flex-1 px-4 py-2 text-white rounded-lg transition disabled:opacity-50 enabled:hover:opacity-90 flex items-center justify-center gap-2'
                 style={{ backgroundColor: 'var(--color-danger)' }}
-                onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.opacity = '0.9' }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
               >
                 {updating && (
                   <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />

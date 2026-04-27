@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Calendar } from '@/components/agenda/Calendar';
@@ -58,7 +58,39 @@ export default function AgendaPage() {
     title: '',
   });
   const [formError, setFormError] = useState<string | null>(null);
+  const [startTimeValue, setStartTimeValue] = useState('09:00');
+  const [endTimeValue, setEndTimeValue] = useState('10:00');
+  const [endTouched, setEndTouched] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Helper: add 1 hour to a HH:mm string, capping at 23:59
+  const addOneHour = (time: string): string => {
+    const [hStr, mStr] = time.split(':');
+    const h = parseInt(hStr, 10);
+    const m = parseInt(mStr, 10);
+    if (Number.isNaN(h) || Number.isNaN(m)) return time;
+    const nextH = h + 1;
+    if (nextH >= 24) return '23:59';
+    return `${String(nextH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  };
+
+  // Sync time state when modal opens or editing target changes
+  useEffect(() => {
+    if (!showModal) return;
+    if (editingEvent) {
+      const start = format(new Date(editingEvent.startTime), 'HH:mm');
+      const end = editingEvent.endTime
+        ? format(new Date(editingEvent.endTime), 'HH:mm')
+        : addOneHour(start);
+      setStartTimeValue(start);
+      setEndTimeValue(end);
+      setEndTouched(true); // when editing, treat existing end time as user-set
+    } else {
+      setStartTimeValue('09:00');
+      setEndTimeValue('10:00');
+      setEndTouched(false);
+    }
+  }, [showModal, editingEvent]);
 
   const { data, loading, error, refetch } = useQuery<{ userSchedulesByUser: UserScheduleRow[] }>(
     GET_USER_SCHEDULES_BY_USER,
@@ -78,22 +110,46 @@ export default function AgendaPage() {
 
   const guideTours = toursData?.toursByGuide || [];
 
+  // We manipulate the Apollo cache directly instead of refetching after each
+  // mutation. Reason: the outer `if (loading) return <spinner/>` would unmount
+  // the calendar on every CRUD if `notifyOnNetworkStatusChange` is ever flipped
+  // on — the same anti-pattern that caused the dashboard filter reset bug.
   const [createMyUserSchedule, { loading: creating }] = useMutation(CREATE_MY_USER_SCHEDULE, {
+    update: (cache, { data: mutationData }) => {
+      const created = (mutationData as { createMyUserSchedule?: UserScheduleRow } | undefined)
+        ?.createMyUserSchedule;
+      if (!created || !user?.id) return;
+      cache.updateQuery<{ userSchedulesByUser: UserScheduleRow[] }>(
+        {
+          query: GET_USER_SCHEDULES_BY_USER,
+          variables: { userId: user.id },
+        },
+        (existing) => {
+          if (!existing) return existing;
+          if (existing.userSchedulesByUser.some((s) => s.id === created.id)) {
+            return existing;
+          }
+          return {
+            userSchedulesByUser: [...existing.userSchedulesByUser, created],
+          };
+        }
+      );
+    },
     onCompleted: () => {
       closeModal();
       toast.success('Event created successfully');
-      refetch();
     },
     onError: (err) => {
       setFormError(err.message ?? 'Failed to create event');
     },
   });
 
+  // UPDATE: Apollo auto-merges by `id` since the mutation response includes the
+  // full UserScheduleFields fragment — no manual cache update needed.
   const [updateUserSchedule, { loading: updating }] = useMutation(UPDATE_USER_SCHEDULE, {
     onCompleted: () => {
       closeModal();
       toast.success('Event updated successfully');
-      refetch();
     },
     onError: (err) => {
       setFormError(err.message ?? 'Failed to update event');
@@ -101,10 +157,18 @@ export default function AgendaPage() {
   });
 
   const [removeUserSchedule, { loading: removing }] = useMutation(REMOVE_USER_SCHEDULE, {
+    update: (cache, _result, options) => {
+      const id = options?.variables?.id as string | undefined;
+      if (!id) return;
+      const cacheId = cache.identify({ __typename: 'UserSchedule', id });
+      if (cacheId) {
+        cache.evict({ id: cacheId });
+        cache.gc();
+      }
+    },
     onCompleted: () => {
       setDeleteModalConfig({ isOpen: false, eventId: '', title: '' });
       toast.success('Event deleted successfully');
-      refetch();
     },
     onError: (err) => {
       toast.error(err.message ?? 'Failed to delete event');
@@ -368,10 +432,8 @@ export default function AgendaPage() {
                         </button>
                         <button
                           onClick={() => setDeleteModalConfig({ isOpen: true, eventId: event.id, title: event.title })}
-                          className="p-1 transition"
+                          className="p-1 transition hover:text-[var(--color-danger)]"
                           style={{ color: 'var(--color-text-muted)' }}
-                          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-danger)' }}
-                          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-muted)' }}
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -497,11 +559,14 @@ export default function AgendaPage() {
                     <input
                       type="time"
                       name="startTime"
-                      defaultValue={
-                        editingEvent
-                          ? format(new Date(editingEvent.startTime), 'HH:mm')
-                          : '09:00'
-                      }
+                      value={startTimeValue}
+                      onChange={(e) => {
+                        const newStart = e.target.value;
+                        setStartTimeValue(newStart);
+                        if (!endTouched && newStart) {
+                          setEndTimeValue(addOneHour(newStart));
+                        }
+                      }}
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
                       style={{ borderColor: 'var(--color-card-border)' }}
                       required
@@ -512,11 +577,11 @@ export default function AgendaPage() {
                     <input
                       type="time"
                       name="endTime"
-                      defaultValue={
-                        editingEvent?.endTime
-                          ? format(new Date(editingEvent.endTime), 'HH:mm')
-                          : '17:00'
-                      }
+                      value={endTimeValue}
+                      onChange={(e) => {
+                        setEndTimeValue(e.target.value);
+                        setEndTouched(true);
+                      }}
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
                       style={{ borderColor: 'var(--color-card-border)' }}
                       required

@@ -70,6 +70,10 @@ export const GET_TOUR_BY_ID = gql`
         latitude
         longitude
         order
+        place {
+          id
+          name
+        }
       }
       tourPricings {
         id

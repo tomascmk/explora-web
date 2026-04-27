@@ -3,11 +3,33 @@
 import { useAuth } from '@/contexts/AuthContext'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { useMutation } from '@apollo/client/react'
+import { useMemo, useState } from 'react'
+import { useMutation, useQuery } from '@apollo/client/react'
+import { format } from 'date-fns'
 import { toast } from 'sonner'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable'
 import { ImageUpload } from '@/components/tours/ImageUpload'
 import { PageHeader } from '@/components/ui/PageHeader'
+import {
+  PlaceSearchAutocomplete,
+  type PlaceSummary
+} from '@/components/tours/PlaceSearchAutocomplete'
+import { SortableWaypointItem } from '@/components/tours/SortableWaypointItem'
+import { PLACES_IN_RADIUS_FOR_TOUR_BUILDER } from '@/graphql/places'
 import {
   CREATE_TOUR,
   CREATE_TOUR_STEP,
@@ -31,6 +53,26 @@ interface Waypoint {
   title: string
   description: string
   order: number
+  /**
+   * Si el waypoint se agregó seleccionando un Place existente (por search o
+   * por tap en el marker del mapa), este campo tiene el id del place. El
+   * backend lo guarda en `tour_step.place_id` vía `CreateTourStepInput`.
+   * Los waypoints free-form (click libre en el mapa) lo dejan `undefined`.
+   */
+  placeId?: string
+  placeName?: string
+}
+
+/**
+ * Centro por defecto del buscador de places. Cuando agreguemos detección
+ * de ciudad activa del guía, mover a un store. Por ahora Buenos Aires
+ * cubre el 100% de los tours piloto.
+ */
+const DEFAULT_MAP_CENTER: [number, number] = [-34.6037, -58.3816]
+const NEARBY_RADIUS_METERS = 5000
+
+interface PlacesInRadiusResult {
+  getPlacesInRadius: PlaceSummary[]
 }
 
 export default function CreateTourPage() {
@@ -64,6 +106,10 @@ export default function CreateTourPage() {
   const [waypoints, setWaypoints] = useState<Waypoint[]>([])
   const [editingWaypoint, setEditingWaypoint] = useState<string | null>(null)
 
+  // Today's date in YYYY-MM-DD — used as `min` on the date input so the
+  // native picker blocks past dates, and to validate on submit.
+  const todayStr = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
+
   // Apollo Mutations
   const [createTour] = useMutation<any>(CREATE_TOUR)
   const [createTourStep] = useMutation(CREATE_TOUR_STEP)
@@ -72,6 +118,23 @@ export default function CreateTourPage() {
   const [updateTour] = useMutation(UPDATE_TOUR)
 
   const isGuided = tourInfo.tourType === 'GUIDED'
+
+  // Places cercanos al centro del mapa — se muestran como markers teal
+  // clickables y se excluyen los que ya están en la ruta.
+  const { data: nearbyData } = useQuery<PlacesInRadiusResult>(
+    PLACES_IN_RADIUS_FOR_TOUR_BUILDER,
+    {
+      variables: {
+        input: {
+          latitude: DEFAULT_MAP_CENTER[0],
+          longitude: DEFAULT_MAP_CENTER[1],
+          radius: NEARBY_RADIUS_METERS
+        }
+      },
+      fetchPolicy: 'cache-first'
+    }
+  )
+  const nearbyPlaces = nearbyData?.getPlacesInRadius ?? []
 
   const handleAddWaypoint = (lat: number, lng: number) => {
     const newWaypoint: Waypoint = {
@@ -84,6 +147,31 @@ export default function CreateTourPage() {
     }
     setWaypoints([...waypoints, newWaypoint])
     setEditingWaypoint(newWaypoint.id)
+  }
+
+  /**
+   * Agrega un stop linkeado a un Place existente. Se usa tanto desde el
+   * autocomplete como desde el tap en un marker del mapa. No pone el
+   * waypoint en modo edición porque el title ya viene útil — el guía
+   * puede abrirlo si quiere customizar descripción.
+   */
+  const handleAddPlaceWaypoint = (place: PlaceSummary) => {
+    if (!place.address) return
+    if (waypoints.some((wp) => wp.placeId === place.id)) {
+      toast.info('This place is already in your tour')
+      return
+    }
+    const newWaypoint: Waypoint = {
+      id: `waypoint-${Date.now()}`,
+      latitude: place.address.latitude,
+      longitude: place.address.longitude,
+      title: place.name,
+      description: place.description ?? '',
+      order: waypoints.length + 1,
+      placeId: place.id,
+      placeName: place.name
+    }
+    setWaypoints([...waypoints, newWaypoint])
   }
 
   const handleRemoveWaypoint = (id: string) => {
@@ -100,10 +188,77 @@ export default function CreateTourPage() {
     )
   }
 
+  /**
+   * Desvincular el place de un waypoint — el stop sigue existiendo con
+   * sus coords + título pero `placeId` se limpia. Útil cuando el guía
+   * empezó desde un place y luego prefiere customizar el step sin linkeo.
+   */
+  const handleUnlinkPlace = (id: string) => {
+    setWaypoints(
+      waypoints.map((wp) =>
+        wp.id === id ? { ...wp, placeId: undefined, placeName: undefined } : wp
+      )
+    )
+  }
+
+  // Sensores de @dnd-kit. PointerSensor con `distance: 5` evita que un
+  // simple click arranque un drag (si el user clickea para editar el
+  // stop no queremos consumir el evento como drag). KeyboardSensor con
+  // las coordinates sortables da accesibilidad completa.
+  const dndSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates
+    })
+  )
+
+  /**
+   * Handler del drag-end de @dnd-kit. `active.id` es el id del waypoint
+   * que se arrastró; `over.id` el del item sobre el que se soltó.
+   * `arrayMove` computa el nuevo orden y luego reescribimos `order`
+   * 1..N para mantener el contrato con el backend. OSRM re-rutea
+   * automáticamente vía el useEffect de TourCreationMap.
+   */
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = waypoints.findIndex((wp) => wp.id === active.id)
+    const newIndex = waypoints.findIndex((wp) => wp.id === over.id)
+    if (oldIndex < 0 || newIndex < 0) return
+    const reordered = arrayMove(waypoints, oldIndex, newIndex)
+    setWaypoints(reordered.map((wp, i) => ({ ...wp, order: i + 1 })))
+  }
+
   const handleSubmit = async () => {
     if (!user?.id) {
       toast.error('You must be logged in to create a tour')
       return
+    }
+
+    // Guided-only: validate the first session's date/time before hitting
+    // the API. Mirrors the validations in the Add Session modal at
+    // app/(guide)/tours/page.tsx (PLAN-017 fix #3).
+    if (isGuided && scheduleInfo.date && scheduleInfo.startTime) {
+      const startDateTime = new Date(
+        `${scheduleInfo.date}T${scheduleInfo.startTime}:00`
+      )
+      if (Number.isNaN(startDateTime.getTime())) {
+        toast.error('Invalid session date or start time')
+        return
+      }
+      if (startDateTime.getTime() < Date.now()) {
+        toast.error('Sessions cannot be scheduled in the past')
+        return
+      }
+      if (scheduleInfo.endTime) {
+        const endDateTime = new Date(
+          `${scheduleInfo.date}T${scheduleInfo.endTime}:00`
+        )
+        if (Number.isNaN(endDateTime.getTime()) || endDateTime <= startDateTime) {
+          toast.error('End time must be after start time')
+          return
+        }
+      }
     }
 
     setSubmitting(true)
@@ -125,7 +280,9 @@ export default function CreateTourPage() {
       const tourId = tourData?.createTour?.id
       if (!tourId) throw new Error('Failed to create tour')
 
-      // 2. Create TourSteps in parallel
+      // 2. Create TourSteps in parallel. `placeId` se envía sólo cuando el
+      // step fue agregado desde un Place existente — el backend deja el
+      // campo null en steps free-form.
       const stepPromises = waypoints.map((waypoint, index) =>
         createTourStep({
           variables: {
@@ -136,6 +293,7 @@ export default function CreateTourPage() {
               latitude: waypoint.latitude,
               longitude: waypoint.longitude,
               order: index + 1,
+              ...(waypoint.placeId ? { placeId: waypoint.placeId } : {}),
             },
           },
         })
@@ -373,6 +531,7 @@ export default function CreateTourPage() {
                     <input
                       type='date'
                       value={scheduleInfo.date}
+                      min={todayStr}
                       onChange={(e) =>
                         setScheduleInfo({ ...scheduleInfo, date: e.target.value })
                       }
@@ -459,15 +618,34 @@ export default function CreateTourPage() {
             style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
           >
             <h2 className='text-2xl font-semibold mb-4' style={{ color: 'var(--color-text-heading)' }}>Plan Your Route</h2>
-            <p className='mb-6' style={{ color: 'var(--color-text-body)' }}>
-              Click on the map to add stops to your tour. They will be connected
-              automatically in order.
+            <p className='mb-4' style={{ color: 'var(--color-text-body)' }}>
+              Add stops by searching for a known place, clicking a teal dot on
+              the map, or clicking anywhere on the map for a custom stop.
             </p>
+
+            {/* Search existing places */}
+            <div className='mb-4'>
+              <label
+                className='block text-sm font-medium mb-2'
+                style={{ color: 'var(--color-text-body)' }}
+              >
+                Search for a place
+              </label>
+              <PlaceSearchAutocomplete
+                onSelect={handleAddPlaceWaypoint}
+                excludedIds={waypoints
+                  .map((w) => w.placeId)
+                  .filter(Boolean) as string[]}
+              />
+            </div>
 
             <TourCreationMap
               waypoints={waypoints}
               onWaypointAdd={handleAddWaypoint}
               onWaypointRemove={handleRemoveWaypoint}
+              nearbyPlaces={nearbyPlaces}
+              onPlaceClick={handleAddPlaceWaypoint}
+              center={DEFAULT_MAP_CENTER}
             />
           </div>
 
@@ -480,22 +658,40 @@ export default function CreateTourPage() {
               <h3 className='text-xl font-semibold mb-4' style={{ color: 'var(--color-text-heading)' }}>
                 Tour Stops ({waypoints.length})
               </h3>
-              <div className='space-y-4'>
-                {waypoints.map((waypoint, index) => (
-                  <WaypointItem
-                    key={waypoint.id}
-                    waypoint={waypoint}
-                    index={index}
-                    isEditing={editingWaypoint === waypoint.id}
-                    onEdit={() => setEditingWaypoint(waypoint.id)}
-                    onSave={(title, description) => {
-                      handleUpdateWaypoint(waypoint.id, title, description)
-                      setEditingWaypoint(null)
-                    }}
-                    onRemove={() => handleRemoveWaypoint(waypoint.id)}
-                  />
-                ))}
-              </div>
+              <p
+                className='text-xs mb-3'
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                Drag the handle on the left to reorder stops.
+              </p>
+              <DndContext
+                sensors={dndSensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={waypoints.map((wp) => wp.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className='space-y-4'>
+                    {waypoints.map((waypoint, index) => (
+                      <SortableWaypointItem
+                        key={waypoint.id}
+                        waypoint={waypoint}
+                        index={index}
+                        isEditing={editingWaypoint === waypoint.id}
+                        onEdit={() => setEditingWaypoint(waypoint.id)}
+                        onSave={(title, description) => {
+                          handleUpdateWaypoint(waypoint.id, title, description)
+                          setEditingWaypoint(null)
+                        }}
+                        onRemove={() => handleRemoveWaypoint(waypoint.id)}
+                        onUnlinkPlace={() => handleUnlinkPlace(waypoint.id)}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </div>
           )}
 
@@ -674,108 +870,3 @@ function StepIndicator({
   )
 }
 
-function WaypointItem({
-  waypoint,
-  index,
-  isEditing,
-  onEdit,
-  onSave,
-  onRemove,
-}: {
-  waypoint: Waypoint
-  index: number
-  isEditing: boolean
-  onEdit: () => void
-  onSave: (title: string, description: string) => void
-  onRemove: () => void
-}) {
-  const [title, setTitle] = useState(waypoint.title)
-  const [description, setDescription] = useState(waypoint.description)
-
-  if (isEditing) {
-    return (
-      <div className='border rounded-lg p-4' style={{ borderColor: 'var(--color-card-border)' }}>
-        <div className='flex items-center gap-2 mb-3'>
-          <span
-            className='text-white w-6 h-6 rounded-full flex items-center justify-center text-sm'
-            style={{ backgroundColor: 'var(--color-primary)' }}
-          >
-            {index + 1}
-          </span>
-          <input
-            type='text'
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className='flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none'
-            style={{ borderColor: 'var(--color-card-border)' }}
-            placeholder='Stop name'
-          />
-        </div>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className='w-full px-3 py-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none mb-3'
-          style={{ borderColor: 'var(--color-card-border)' }}
-          rows={2}
-          placeholder='Description of this stop...'
-        />
-        <div className='flex gap-2'>
-          <button
-            onClick={() => onSave(title, description)}
-            className='flex-1 text-white py-2 rounded text-sm hover:opacity-90'
-            style={{ backgroundColor: 'var(--color-primary)' }}
-          >
-            Save
-          </button>
-          <button
-            onClick={onRemove}
-            className='px-4 py-2 rounded text-sm hover:opacity-80'
-            style={{ backgroundColor: 'var(--color-danger-light)', color: 'var(--color-danger)' }}
-          >
-            Remove
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div
-      className='border rounded-lg p-4 hover:opacity-90 transition cursor-pointer'
-      style={{ borderColor: 'var(--color-card-border)' }}
-      onClick={onEdit}
-    >
-      <div className='flex items-start justify-between'>
-        <div className='flex items-start gap-3'>
-          <span
-            className='text-white w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0'
-            style={{ backgroundColor: 'var(--color-text-secondary)' }}
-          >
-            {index + 1}
-          </span>
-          <div>
-            <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>{waypoint.title}</p>
-            {waypoint.description && (
-              <p className='text-sm mt-1' style={{ color: 'var(--color-text-body)' }}>
-                {waypoint.description}
-              </p>
-            )}
-            <p className='text-xs mt-1' style={{ color: 'var(--color-text-muted)' }}>
-              {waypoint.latitude.toFixed(6)}, {waypoint.longitude.toFixed(6)}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onRemove()
-          }}
-          className='hover:opacity-80'
-          style={{ color: 'var(--color-text-muted)' }}
-        >
-          &#10005;
-        </button>
-      </div>
-    </div>
-  )
-}

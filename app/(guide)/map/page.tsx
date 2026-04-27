@@ -44,7 +44,7 @@ export default function MapPage() {
   })).filter(tour => tour.latitude && tour.longitude);
 
   const handleTourClick = (tourId: string) => {
-    router.push(`/tours/${tourId}`);
+    router.push(`/tours/${tourId}/edit`);
   };
 
   if (loading) {

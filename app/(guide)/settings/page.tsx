@@ -59,6 +59,17 @@ function ProfileTab() {
   const [username, setUsername] = useState(user?.username || '')
   const [stripeAccountId, setStripeAccountId] = useState('')
 
+  // Hydrate form from `user` when it becomes available after mount.
+  // Without this, navigating to /settings while the auth check is still in
+  // flight leaves the form permanently empty — useState only reads `user`
+  // on the initial render.
+  useEffect(() => {
+    if (user) {
+      setFullName(user.fullName || '')
+      setUsername(user.username || '')
+    }
+  }, [user])
+
   const { data: balanceData } = useQuery<{ myBalance: Balance }>(MY_BALANCE, { skip: !user })
 
   const [updateProfile, { loading: savingProfile }] = useMutation(UPDATE_USER_PROFILE, {

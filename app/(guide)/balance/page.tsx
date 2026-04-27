@@ -141,10 +141,8 @@ export default function BalancePage() {
             />
             <button
               onClick={handleRequestPayout}
-              className='text-white px-6 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2'
+              className='text-white px-6 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed enabled:hover:opacity-90 flex items-center gap-2'
               style={{ backgroundColor: 'var(--color-primary)' }}
-              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
               disabled={!balance || balance.availableBalance <= 0 || requestingPayout}
             >
               {requestingPayout && (
@@ -170,10 +168,8 @@ export default function BalancePage() {
             account in{' '}
             <a
               href='/settings/payments'
-              className='underline'
+              className='underline transition hover:opacity-80'
               style={{ color: 'var(--color-primary-dark)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-primary)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-primary-dark)' }}
             >
               Settings &gt; Payments
             </a>{' '}
@@ -291,10 +287,8 @@ export default function BalancePage() {
                 {payoutRequests.map((request) => (
                   <tr
                     key={request.id}
-                    className='border-t transition-colors'
+                    className='border-t transition-colors hover:bg-[var(--color-section-bg)]'
                     style={{ borderColor: 'var(--color-card-border)' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-section-bg)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                   >
                     <td
                       className='py-3 px-4 text-sm'

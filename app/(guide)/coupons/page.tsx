@@ -1,10 +1,14 @@
 'use client';
 
 import { useQuery, useMutation } from '@apollo/client/react';
-import { GET_MY_COUPONS, DEACTIVATE_COUPON } from '@/graphql/coupons';
+import {
+  GET_MY_COUPONS,
+  DEACTIVATE_COUPON,
+  UPDATE_COUPON,
+} from '@/graphql/coupons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { Plus, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -30,42 +34,64 @@ interface MyCouponsData {
 }
 
 export default function CouponsPage() {
-  const { data, loading, error, refetch } = useQuery<MyCouponsData>(GET_MY_COUPONS);
-  const [deactivateCoupon] = useMutation(DEACTIVATE_COUPON, {
-    onCompleted: () => refetch(),
-  });
+  const { data, loading, error } = useQuery<MyCouponsData>(GET_MY_COUPONS);
+  // Apollo automatically merges by `id` (DEACTIVATE_COUPON / UPDATE_COUPON
+  // both return the updated coupon), so no refetch is needed.
+  const [deactivateCoupon] = useMutation(DEACTIVATE_COUPON);
+  const [updateCoupon] = useMutation(UPDATE_COUPON);
 
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean;
     couponId: string;
     couponCode: string;
+    /** Acción objetivo. `null` significa modal cerrado. */
+    target: 'activate' | 'deactivate' | null;
   }>({
     isOpen: false,
     couponId: '',
     couponCode: '',
+    target: null,
   });
 
-  const [deactivating, setDeactivating] = useState(false);
+  const [toggling, setToggling] = useState(false);
 
-  const handleDeactivateClick = (id: string, code: string) => {
+  const handleToggleClick = (
+    id: string,
+    code: string,
+    currentlyActive: boolean,
+  ) => {
     setModalConfig({
       isOpen: true,
       couponId: id,
       couponCode: code,
+      target: currentlyActive ? 'deactivate' : 'activate',
     });
   };
 
-  const handleConfirmDeactivate = async () => {
-    setDeactivating(true);
+  const handleConfirmToggle = async () => {
+    setToggling(true);
     try {
-      await deactivateCoupon({ variables: { id: modalConfig.couponId } });
-      toast.success('Coupon deactivated successfully');
+      if (modalConfig.target === 'deactivate') {
+        await deactivateCoupon({ variables: { id: modalConfig.couponId } });
+        toast.success('Coupon deactivated');
+      } else if (modalConfig.target === 'activate') {
+        // UPDATE_COUPON con active=true reactiva el cupón. La mutation
+        // está expuesta en el backend (CouponsResolver.updateCoupon)
+        // y acepta el campo `active` opcional vía PartialType.
+        await updateCoupon({
+          variables: {
+            id: modalConfig.couponId,
+            input: { active: true },
+          },
+        });
+        toast.success('Coupon activated');
+      }
     } catch (err) {
-      console.error('Error deactivating coupon:', err);
-      toast.error('Failed to deactivate coupon');
+      console.error('Error toggling coupon:', err);
+      toast.error('Failed to update coupon');
     } finally {
-      setDeactivating(false);
-      setModalConfig((prev) => ({ ...prev, isOpen: false }));
+      setToggling(false);
+      setModalConfig((prev) => ({ ...prev, isOpen: false, target: null }));
     }
   };
 
@@ -173,18 +199,36 @@ export default function CouponsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end items-center">
+                        {/* Bug-fix 2026-04-25: switch pill real, bidireccional.
+                            Antes era un ícono ToggleRight/ToggleLeft estático
+                            que no se entendía como interactivo y para inactivos
+                            no permitía reactivar. */}
                         <button
-                          onClick={() => handleDeactivateClick(coupon.id, coupon.code)}
-                          className="hover:opacity-80 transition"
-                          style={{ color: 'var(--color-danger)' }}
-                          title="Deactivate"
+                          type="button"
+                          role="switch"
+                          aria-checked={coupon.active}
+                          onClick={() =>
+                            handleToggleClick(coupon.id, coupon.code, coupon.active)
+                          }
+                          title={
+                            coupon.active ? 'Deactivate coupon' : 'Activate coupon'
+                          }
+                          className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                          style={{
+                            backgroundColor: coupon.active
+                              ? 'var(--color-success)'
+                              : 'var(--color-card-border)',
+                          }}
                         >
-                          {coupon.active ? (
-                            <ToggleRight className="w-5 h-5" />
-                          ) : (
-                            <ToggleLeft className="w-5 h-5" />
-                          )}
+                          <span
+                            className="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform"
+                            style={{
+                              transform: coupon.active
+                                ? 'translateX(22px)'
+                                : 'translateX(2px)',
+                            }}
+                          />
                         </button>
                       </div>
                     </td>
@@ -198,14 +242,26 @@ export default function CouponsPage() {
 
       <ConfirmModal
         isOpen={modalConfig.isOpen}
-        onClose={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
-        onConfirm={handleConfirmDeactivate}
-        title={`Deactivate ${modalConfig.couponCode}?`}
-        description="This coupon will no longer be usable by customers. You can create a new coupon if needed."
-        confirmText="Deactivate"
+        onClose={() =>
+          setModalConfig((prev) => ({ ...prev, isOpen: false, target: null }))
+        }
+        onConfirm={handleConfirmToggle}
+        title={
+          modalConfig.target === 'activate'
+            ? `Activate ${modalConfig.couponCode}?`
+            : `Deactivate ${modalConfig.couponCode}?`
+        }
+        description={
+          modalConfig.target === 'activate'
+            ? 'This coupon will be usable by customers again.'
+            : 'This coupon will no longer be usable by customers. You can re-activate it later.'
+        }
+        confirmText={
+          modalConfig.target === 'activate' ? 'Activate' : 'Deactivate'
+        }
         cancelText="Cancel"
-        variant="danger"
-        loading={deactivating}
+        variant={modalConfig.target === 'activate' ? 'primary' : 'danger'}
+        loading={toggling}
       />
     </div>
   );

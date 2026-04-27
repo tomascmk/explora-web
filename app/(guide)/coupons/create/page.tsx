@@ -1,15 +1,20 @@
 'use client';
 
 import { useMutation } from '@apollo/client/react';
-import { CREATE_COUPON } from '@/graphql/coupons';
+import { CREATE_COUPON, GET_MY_COUPONS } from '@/graphql/coupons';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/ui/PageHeader';
 
 export default function CreateCouponPage() {
   const router = useRouter();
-  const [createCoupon, { loading }] = useMutation(CREATE_COUPON);
+  // refetchQueries keeps the /coupons list in sync without a manual refresh
+  // after creation — otherwise the new coupon only shows up on next mount.
+  const [createCoupon, { loading }] = useMutation(CREATE_COUPON, {
+    refetchQueries: [{ query: GET_MY_COUPONS }],
+  });
 
   const [formData, setFormData] = useState({
     code: '',
@@ -22,8 +27,24 @@ export default function CreateCouponPage() {
     endDate: '',
   });
 
+  // YYYY-MM-DD today — powers `min` on both date inputs so the picker
+  // blocks past dates, and is used to validate endDate on submit.
+  const todayStr = useMemo(() => format(new Date(), 'yyyy-MM-dd'), []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate date ranges before hitting the API
+    if (formData.startDate && formData.endDate) {
+      if (formData.endDate < formData.startDate) {
+        toast.error('End date must be after start date');
+        return;
+      }
+    }
+    if (formData.endDate && formData.endDate < todayStr) {
+      toast.error('End date cannot be in the past');
+      return;
+    }
 
     try {
       const input: any = {
@@ -160,6 +181,7 @@ export default function CreateCouponPage() {
               <input
                 type="date"
                 value={formData.startDate}
+                min={todayStr}
                 onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
                 style={{ borderColor: 'var(--color-card-border)' }}
@@ -173,6 +195,7 @@ export default function CreateCouponPage() {
               <input
                 type="date"
                 value={formData.endDate}
+                min={formData.startDate || todayStr}
                 onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
                 style={{ borderColor: 'var(--color-card-border)' }}
