@@ -48,3 +48,6 @@ CLAUDE.md
 .cursor/
 
 *.md
+
+# Temp files
+_tmp_*
