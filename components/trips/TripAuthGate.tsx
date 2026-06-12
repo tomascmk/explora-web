@@ -10,7 +10,6 @@ import {
 import { TripContent } from './TripContent'
 import { TripPlaceholder } from './TripPlaceholder'
 import { useState } from 'react'
-import { encryptPassword } from '@/utils/crypto'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
@@ -238,7 +237,7 @@ function LoginForm({ shareCode }: { shareCode: string }) {
               }
             }
           `,
-          variables: { email, password: encryptPassword(password) }
+          variables: { email, password }
         })
       })
 
@@ -476,8 +475,8 @@ function RegisterForm({
               username: formData.username,
               email: formData.email,
               fullName: formData.fullName,
-              password: encryptPassword(formData.password),
-              confirmPassword: encryptPassword(formData.confirmPassword),
+              password: formData.password,
+              confirmPassword: formData.confirmPassword,
               roles: 'TOURIST'
             }
           }
