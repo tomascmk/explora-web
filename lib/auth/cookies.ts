@@ -28,13 +28,15 @@ export function setAuthCookies(
 export function clearAuthCookies(): { headers: Headers } {
   const headers = new Headers()
 
+  const secureSuffix = IS_PRODUCTION ? "; Secure" : ""
+
   headers.append(
     "Set-Cookie",
-    "authToken=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0",
+    `authToken=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${secureSuffix}`,
   )
   headers.append(
     "Set-Cookie",
-    "refreshToken=; HttpOnly; SameSite=Strict; Path=/api; Max-Age=0",
+    `refreshToken=; HttpOnly; SameSite=Strict; Path=/api; Max-Age=0${secureSuffix}`,
   )
 
   return { headers }

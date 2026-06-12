@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { jwtVerify } from "jose"
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_ACCESS_SECRET || "",
-)
+if (!process.env.JWT_ACCESS_SECRET) {
+  throw new Error("JWT_ACCESS_SECRET environment variable is required")
+}
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET)
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("authToken")?.value

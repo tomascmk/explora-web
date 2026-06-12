@@ -6,36 +6,43 @@ import {
 } from "@/lib/auth/cookies"
 
 export async function POST(request: NextRequest) {
-  const accessToken = request.cookies.get("authToken")?.value
-  const body = await request.text()
+  try {
+    const accessToken = request.cookies.get("authToken")?.value
+    const body = await request.text()
 
-  // Forward to backend API with auth header
-  const apiResponse = await forwardToApi(body, accessToken)
+    // Forward to backend API with auth header
+    const apiResponse = await forwardToApi(body, accessToken)
 
-  // If UNAUTHENTICATED error, try refresh
-  if (hasUnauthenticatedError(apiResponse.data)) {
-    const refreshToken = request.cookies.get("refreshToken")?.value
-    if (!refreshToken) {
-      return NextResponse.json(apiResponse.data, { status: 200 })
+    // If UNAUTHENTICATED error, try refresh
+    if (hasUnauthenticatedError(apiResponse.data)) {
+      const refreshToken = request.cookies.get("refreshToken")?.value
+      if (!refreshToken) {
+        return NextResponse.json(apiResponse.data, { status: 200 })
+      }
+
+      const refreshResult = await tryRefresh(refreshToken)
+      if (!refreshResult) {
+        const { headers } = clearAuthCookies()
+        return NextResponse.json(apiResponse.data, { status: 200, headers })
+      }
+
+      // Retry original request with new token
+      const retryResponse = await forwardToApi(body, refreshResult.accessToken)
+      const { headers } = setAuthCookies(
+        refreshResult.accessToken,
+        refreshResult.refreshToken,
+      )
+
+      return NextResponse.json(retryResponse.data, { status: 200, headers })
     }
 
-    const refreshResult = await tryRefresh(refreshToken)
-    if (!refreshResult) {
-      const { headers } = clearAuthCookies()
-      return NextResponse.json(apiResponse.data, { status: 200, headers })
-    }
-
-    // Retry original request with new token
-    const retryResponse = await forwardToApi(body, refreshResult.accessToken)
-    const { headers } = setAuthCookies(
-      refreshResult.accessToken,
-      refreshResult.refreshToken,
+    return NextResponse.json(apiResponse.data, { status: 200 })
+  } catch {
+    return NextResponse.json(
+      { errors: [{ message: "Internal proxy error" }] },
+      { status: 500 },
     )
-
-    return NextResponse.json(retryResponse.data, { status: 200, headers })
   }
-
-  return NextResponse.json(apiResponse.data, { status: 200 })
 }
 
 async function forwardToApi(
@@ -54,6 +61,10 @@ async function forwardToApi(
     headers,
     body,
   })
+
+  if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) {
+    return { data: { errors: [{ message: "Backend unavailable" }] } }
+  }
 
   return { data: await response.json() }
 }

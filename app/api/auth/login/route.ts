@@ -3,7 +3,15 @@ import { getApiUrl, setAuthCookies } from "@/lib/auth/cookies"
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json()
+    const body = await request.json()
+    const { email, password } = body
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and password are required" },
+        { status: 400 },
+      )
+    }
 
     const response = await fetch(getApiUrl(), {
       method: "POST",
