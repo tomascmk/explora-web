@@ -6,8 +6,7 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_ACCESS_SECRET || "",
 )
 
-const publicPaths = [
-  "/",
+const publicPrefixes = [
   "/login",
   "/register",
   "/guides",
@@ -18,7 +17,10 @@ const publicPaths = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path))
+  // Exact match for root, prefix match for other public paths
+  const isPublicPath =
+    pathname === "/" ||
+    publicPrefixes.some((prefix) => pathname.startsWith(prefix))
   if (isPublicPath) {
     return NextResponse.next()
   }
