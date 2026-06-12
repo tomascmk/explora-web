@@ -11,7 +11,6 @@ import { TripContent } from './TripContent'
 import { TripPlaceholder } from './TripPlaceholder'
 import { useState } from 'react'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
 
 // ── Main Auth Gate ──
@@ -218,46 +217,23 @@ function LoginForm({ shareCode }: { shareCode: string }) {
     setLoading(true)
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: `
-            mutation Login($email: String!, $password: String!) {
-              login(loginInput: { email: $email, password: $password }) {
-                access_token
-                refresh_token
-                user {
-                  id
-                  username
-                  email
-                  fullName
-                  roles
-                }
-              }
-            }
-          `,
-          variables: { email, password }
-        })
+        body: JSON.stringify({ email, password }),
       })
 
       const result = await response.json()
 
-      if (result.errors?.length > 0) {
-        throw new Error(result.errors[0].message || 'Login failed')
+      if (!response.ok) {
+        throw new Error(result.error || 'Login failed')
       }
 
-      if (result.data?.login) {
-        localStorage.setItem('authToken', result.data.login.access_token)
-        localStorage.setItem('refreshToken', result.data.login.refresh_token)
-        localStorage.setItem('user', JSON.stringify(result.data.login.user))
-        setUser(result.data.login.user)
-        // Stay on trip page — no navigation
-      } else {
-        throw new Error('No data returned from server')
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to login. Please check your credentials.')
+      setUser(result.user)
+      // Stay on trip page — no navigation
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to login. Please check your credentials.'
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -451,55 +427,30 @@ function RegisterForm({
     setLoading(true)
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: `
-            mutation Register($input: RegisterInput!) {
-              register(registerInput: $input) {
-                access_token
-                refresh_token
-                user {
-                  id
-                  username
-                  email
-                  roles
-                  fullName
-                }
-              }
-            }
-          `,
-          variables: {
-            input: {
-              username: formData.username,
-              email: formData.email,
-              fullName: formData.fullName,
-              password: formData.password,
-              confirmPassword: formData.confirmPassword,
-              roles: 'TOURIST'
-            }
-          }
-        })
+          username: formData.username,
+          email: formData.email,
+          fullName: formData.fullName,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          roles: 'TOURIST',
+        }),
       })
 
       const result = await response.json()
 
-      if (result.errors?.length > 0) {
-        throw new Error(result.errors[0].message || 'Registration failed')
+      if (!response.ok) {
+        throw new Error(result.error || 'Registration failed')
       }
 
-      if (result.data?.register) {
-        localStorage.setItem('authToken', result.data.register.access_token)
-        localStorage.setItem('refreshToken', result.data.register.refresh_token)
-        localStorage.setItem('user', JSON.stringify(result.data.register.user))
-        setUser(result.data.register.user)
-        // Stay on trip page — no navigation
-      } else {
-        throw new Error('No data returned from server')
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to register. Please try again.')
+      setUser(result.user)
+      // Stay on trip page — no navigation
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to register. Please try again.'
+      setError(message)
     } finally {
       setLoading(false)
     }

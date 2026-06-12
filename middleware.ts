@@ -1,45 +1,69 @@
-import type { NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
+import type { NextRequest } from "next/server"
+import { NextResponse } from "next/server"
+import { jwtVerify } from "jose"
 
-// Paths that don't require authentication
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_ACCESS_SECRET || "",
+)
+
 const publicPaths = [
-  '/',
-  '/login',
-  '/register',
-  '/guides',
-  '/tourists',
-  '/trip',
-  '/api',
-  '/_next',
-  '/favicon.ico'
+  "/",
+  "/login",
+  "/register",
+  "/guides",
+  "/tourists",
+  "/trip",
 ]
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Check if path is public
   const isPublicPath = publicPaths.some((path) => pathname.startsWith(path))
-
   if (isPublicPath) {
     return NextResponse.next()
   }
 
-  // For protected routes, let the client-side auth handle it
-  // since we're using localStorage for tokens (not httpOnly cookies)
-  // The AuthContext and page-level checks will handle authentication
-  return NextResponse.next()
+  const token = request.cookies.get("authToken")?.value
+
+  if (!token) {
+    return redirectToLogin(request, pathname)
+  }
+
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET)
+
+    if (!payload.exp || payload.exp * 1000 < Date.now()) {
+      return redirectToLogin(request, pathname)
+    }
+
+    // Web portal is for guides (and admins)
+    const roles = (payload.roles as string[]) ?? []
+    if (
+      !roles.includes("GUIDE") &&
+      !roles.includes("ADMIN") &&
+      !roles.includes("SUPER_ADMIN")
+    ) {
+      return redirectToLogin(request, pathname)
+    }
+
+    return NextResponse.next()
+  } catch {
+    return redirectToLogin(request, pathname)
+  }
+}
+
+function redirectToLogin(
+  request: NextRequest,
+  pathname: string,
+): NextResponse {
+  const url = request.nextUrl.clone()
+  url.pathname = "/login"
+  url.searchParams.set("redirect", pathname)
+  return NextResponse.redirect(url)
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (images, etc.)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
-  ]
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 }

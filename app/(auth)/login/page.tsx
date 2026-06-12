@@ -1,15 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
 
 export default function LoginPage() {
-  const router = useRouter()
   const { setUser } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -22,59 +19,25 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: `
-            mutation Login($email: String!, $password: String!) {
-              login(loginInput: { email: $email, password: $password }) {
-                access_token
-                refresh_token
-                user {
-                  id
-                  username
-                  email
-                  fullName
-                  roles
-                }
-              }
-            }
-          `,
-          variables: { email, password }
-        })
+        body: JSON.stringify({ email, password }),
       })
 
       const result = await response.json()
 
       if (!response.ok) {
-        console.error('HTTP Error:', response.status, result)
-        throw new Error(`Server error: ${response.status}`)
+        throw new Error(result.error || 'Login failed')
       }
 
-      if (result.errors && result.errors.length > 0) {
-        console.error('GraphQL Errors:', result.errors)
-        const errorMessage = result.errors[0].message || 'Login failed'
-        throw new Error(errorMessage)
-      }
+      setUser(result.user)
 
-      if (result.data?.login) {
-        // Store tokens
-        localStorage.setItem('authToken', result.data.login.access_token)
-        localStorage.setItem('refreshToken', result.data.login.refresh_token)
-        localStorage.setItem('user', JSON.stringify(result.data.login.user))
-        setUser(result.data.login.user)
-
-        console.log('✅ Login successful, redirecting to dashboard...')
-
-        // Hard navigation to ensure AuthProvider re-mounts with fresh state
-        window.location.href = '/dashboard'
-      } else {
-        throw new Error('No data returned from server')
-      }
-    } catch (err: any) {
-      console.error('Login error:', err)
-      setError(err.message || 'Failed to login. Please check your credentials.')
+      // Hard navigation to ensure AuthProvider re-mounts with fresh state
+      window.location.href = '/dashboard'
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to login. Please check your credentials.'
+      setError(message)
     } finally {
       setLoading(false)
     }

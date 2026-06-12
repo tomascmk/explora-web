@@ -1,15 +1,13 @@
-'use client'
+"use client"
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import {
   createContext,
   ReactNode,
   useContext,
   useEffect,
-  useState
-} from 'react'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
+  useState,
+} from "react"
 
 interface User {
   id: string
@@ -35,18 +33,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  // Check authentication status on mount
+  // Rehydrate session on mount via /api/auth/me
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       try {
-        const storedUser = localStorage.getItem('user')
-        const token = localStorage.getItem('authToken')
-
-        if (storedUser && token) {
-          setUser(JSON.parse(storedUser))
+        const response = await fetch("/api/auth/me")
+        if (response.ok) {
+          const data = await response.json()
+          setUser(data.user)
         }
-      } catch (error) {
-        console.error('Auth check error:', error)
+      } catch {
+        // Not authenticated
       } finally {
         setLoading(false)
       }
@@ -56,49 +53,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string) => {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: `
-          mutation Login($email: String!, $password: String!) {
-            login(loginInput: { email: $email, password: $password }) {
-              access_token
-              refresh_token
-              user {
-                id
-                username
-                email
-                roles
-                fullName
-              }
-            }
-          }
-        `,
-        variables: { email, password }
-      })
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     })
 
-    const { data, errors } = await response.json()
+    const data = await response.json()
 
-    if (errors) {
-      throw new Error(errors[0].message)
+    if (!response.ok) {
+      throw new Error(data.error || "Login failed")
     }
 
-    if (data?.login) {
-      localStorage.setItem('authToken', data.login.access_token)
-      localStorage.setItem('refreshToken', data.login.refresh_token)
-      localStorage.setItem('user', JSON.stringify(data.login.user))
-      setUser(data.login.user)
-    }
+    setUser(data.user)
   }
 
-  const logout = () => {
-    localStorage.removeItem('authToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" })
+    } catch {
+      // Best effort
+    }
     setUser(null)
-    router.push('/login')
+    router.push("/login")
   }
 
   return (
@@ -109,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         logout,
-        setUser
+        setUser,
       }}
     >
       {children}
@@ -120,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider')
+    throw new Error("useAuth must be used within AuthProvider")
   }
   return context
 }

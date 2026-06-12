@@ -3,58 +3,10 @@ import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql';
-
 function OAuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUser } = useAuth();
-
-  const fetchUserAndLogin = async (token: string) => {
-    try {
-      // Fetch user data from backend
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          query: `
-            query Me {
-              me {
-                id
-                username
-                email
-                roles
-                fullName
-              }
-            }
-          `
-        })
-      });
-
-      const { data, errors } = await response.json();
-
-      if (errors) {
-        console.error('Error fetching user:', errors);
-        router.push('/login?error=oauth_failed');
-        return;
-      }
-
-      if (data?.me) {
-        // Store user and update AuthContext
-        localStorage.setItem('user', JSON.stringify(data.me));
-        setUser(data.me);
-        router.push('/dashboard');
-      } else {
-        router.push('/login?error=oauth_failed');
-      }
-    } catch (error) {
-      console.error('Error in OAuth callback:', error);
-      router.push('/login?error=oauth_failed');
-    }
-  };
 
   useEffect(() => {
     const accessToken = searchParams.get('access_token');
@@ -67,16 +19,28 @@ function OAuthCallbackContent() {
     }
 
     if (accessToken && refreshToken) {
-      // Store tokens with consistent naming (same as login/register)
-      localStorage.setItem('authToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-
-      // Fetch user data and update AuthContext
-      fetchUserAndLogin(accessToken);
+      // Exchange URL tokens for httpOnly cookies via BFF
+      fetch('/api/auth/oauth-exchange', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessToken, refreshToken }),
+      })
+        .then(async (response) => {
+          if (!response.ok) {
+            router.push('/login?error=oauth_failed');
+            return;
+          }
+          const data = await response.json();
+          setUser(data.user);
+          router.push('/dashboard');
+        })
+        .catch(() => {
+          router.push('/login?error=oauth_failed');
+        });
     } else {
       router.push('/login');
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, setUser]);
 
   return (
     <div

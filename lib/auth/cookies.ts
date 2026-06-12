@@ -19,7 +19,7 @@ export function setAuthCookies(
   )
   headers.append(
     "Set-Cookie",
-    `refreshToken=${refreshToken}; HttpOnly; SameSite=Strict; Path=/api/auth; Max-Age=604800${secureSuffix}`,
+    `refreshToken=${refreshToken}; HttpOnly; SameSite=Strict; Path=/api; Max-Age=604800${secureSuffix}`,
   )
 
   return { headers }
@@ -34,7 +34,7 @@ export function clearAuthCookies(): { headers: Headers } {
   )
   headers.append(
     "Set-Cookie",
-    "refreshToken=; HttpOnly; SameSite=Strict; Path=/api/auth; Max-Age=0",
+    "refreshToken=; HttpOnly; SameSite=Strict; Path=/api; Max-Age=0",
   )
 
   return { headers }

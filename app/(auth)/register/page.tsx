@@ -1,14 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/graphql'
-
 export default function RegisterPage() {
-  const router = useRouter()
   const { setUser } = useAuth()
   const [formData, setFormData] = useState({
     username: '',
@@ -41,63 +37,32 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: `
-            mutation Register($input: RegisterInput!) {
-              register(registerInput: $input) {
-                access_token
-                refresh_token
-                user {
-                  id
-                  username
-                  email
-                  roles
-                }
-              }
-            }
-          `,
-          variables: {
-            input: {
-              username: formData.username,
-              email: formData.email,
-              fullName: formData.fullName,
-              password: formData.password,
-              confirmPassword: formData.confirmPassword,
-              roles: 'GUIDE'
-            }
-          }
-        })
+          username: formData.username,
+          email: formData.email,
+          fullName: formData.fullName,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          roles: 'GUIDE',
+        }),
       })
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error(result.error || 'Registration failed')
       }
 
-      if (result.errors && result.errors.length > 0) {
-        console.error('GraphQL Errors:', result.errors)
-        throw new Error(result.errors[0].message || 'Registration failed')
-      }
+      setUser(result.user)
 
-      if (result.data?.register) {
-        // Store tokens
-        localStorage.setItem('authToken', result.data.register.access_token)
-        localStorage.setItem('refreshToken', result.data.register.refresh_token)
-        localStorage.setItem('user', JSON.stringify(result.data.register.user))
-        setUser(result.data.register.user)
-
-        // Hard navigation to ensure AuthProvider re-mounts with fresh state
-        window.location.href = '/dashboard'
-      } else {
-        throw new Error('No data returned from server')
-      }
-    } catch (err: any) {
-      console.error('Registration error:', err)
-      setError(err.message || 'Failed to register. Please try again.')
+      // Hard navigation to ensure AuthProvider re-mounts with fresh state
+      window.location.href = '/dashboard'
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to register. Please try again.'
+      setError(message)
     } finally {
       setLoading(false)
     }
