@@ -8,6 +8,7 @@ import { BookingsChart } from '@/components/dashboard/BookingsChart'
 import { TopToursTable } from '@/components/dashboard/TopToursTable'
 import { DashboardTour } from '@/components/tutorial/DashboardTour'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { getDisplayError } from '@/utils/errorMessages'
 import { useAuth } from '@/contexts/AuthContext'
 import { useMemo, useState } from 'react'
 import { subMonths } from 'date-fns'
@@ -147,7 +148,7 @@ export default function GuideDashboardPage() {
           }}
         >
           <p className='font-medium' style={{ color: 'var(--color-text-body)' }}>No data available</p>
-          <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>{error.message}</p>
+          <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>{getDisplayError(error)}</p>
           <button
             onClick={() => refetch()}
             className='mt-2 px-4 py-2 text-white rounded transition hover:opacity-90'

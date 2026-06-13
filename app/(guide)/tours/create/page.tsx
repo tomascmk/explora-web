@@ -37,6 +37,7 @@ import {
   CREATE_TOUR_SCHEDULE,
   UPDATE_TOUR,
 } from '@/graphql/tours'
+import { getDisplayError } from '@/utils/errorMessages'
 
 const TourCreationMap = dynamic(
   () =>
@@ -355,7 +356,7 @@ export default function CreateTourPage() {
       router.push('/tours')
     } catch (error: any) {
       console.error('Error creating tour:', error)
-      toast.error(error.message || 'Failed to create tour')
+      toast.error(getDisplayError(error))
     } finally {
       setSubmitting(false)
     }

@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 import { Bell, Mail, MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { getDisplayError } from '@/utils/errorMessages'
 
 interface NotificationPreferences {
   id: string
@@ -28,7 +29,7 @@ export default function NotificationSettingsPage() {
       toast.success('Preferences updated successfully')
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to update preferences')
+      toast.error(getDisplayError(error))
     }
   })
 

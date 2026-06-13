@@ -10,6 +10,7 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { StatsCard } from '@/components/ui/StatsCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { getDisplayError } from '@/utils/errorMessages'
 import { Wallet, Clock, TrendingUp, ArrowDownToLine } from 'lucide-react'
 
 interface Balance {
@@ -54,7 +55,7 @@ export default function BalancePage() {
       setShowPayoutConfirm(false)
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to request payout')
+      toast.error(getDisplayError(error))
       setShowPayoutConfirm(false)
     }
   })

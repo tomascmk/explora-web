@@ -9,6 +9,7 @@ import { CreditCard, DollarSign } from 'lucide-react'
 import { toast } from 'sonner'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { getDisplayError } from '@/utils/errorMessages'
 
 interface Balance {
   id: string
@@ -35,7 +36,7 @@ export default function PaymentSettingsPage() {
       refetch()
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to update Stripe account')
+      toast.error(getDisplayError(error))
     }
   })
 

@@ -11,6 +11,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, User, Calendar, DollarSign, MapPin, Clock, Users } from 'lucide-react'
 import Link from 'next/link'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { getDisplayError } from '@/utils/errorMessages'
 
 interface ReservationDetail {
   id: string
@@ -134,7 +135,7 @@ export default function OrderDetailPage() {
           Back to Orders
         </button>
         <div className='border px-4 py-3 rounded-lg' style={{ backgroundColor: 'var(--color-danger-light)', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
-          {error ? error.message : 'Reservation not found'}
+          {error ? getDisplayError(error) : 'Reservation not found'}
         </div>
       </div>
     )

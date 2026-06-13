@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { getDisplayError } from '@/utils/errorMessages';
 
 export default function CreateCouponPage() {
   const router = useRouter();
@@ -63,7 +64,7 @@ export default function CreateCouponPage() {
       router.push('/coupons');
     } catch (err: any) {
       console.error('Error creating coupon:', err);
-      toast.error(err.message || 'Failed to create coupon');
+      toast.error(getDisplayError(err));
     }
   };
 

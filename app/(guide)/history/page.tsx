@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { FileText, Edit, Trash2, Plus, Eye, LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { getDisplayError } from '@/utils/errorMessages';
 
 interface AuditLog {
   id: string;
@@ -49,7 +50,7 @@ export default function HistoryPage() {
   if (error) {
     return (
       <div className="border px-4 py-3 rounded-lg" style={{ backgroundColor: 'var(--color-danger-light)', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
-        Error loading history: {error.message}
+        Error loading history: {getDisplayError(error)}
       </div>
     );
   }

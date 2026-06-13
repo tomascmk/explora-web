@@ -12,6 +12,7 @@ import { MY_BALANCE } from '@/graphql/balance'
 import { toast } from 'sonner'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { getDisplayError } from '@/utils/errorMessages'
 
 interface NotificationPreferences {
   id: string
@@ -74,12 +75,12 @@ function ProfileTab() {
 
   const [updateProfile, { loading: savingProfile }] = useMutation(UPDATE_USER_PROFILE, {
     onCompleted: () => toast.success('Profile updated successfully'),
-    onError: (error) => toast.error(error.message || 'Failed to update profile')
+    onError: (error) => toast.error(getDisplayError(error))
   })
 
   const [updateStripe, { loading: savingStripe }] = useMutation(UPDATE_STRIPE_ACCOUNT, {
     onCompleted: () => { toast.success('Stripe account connected successfully'); setStripeAccountId('') },
-    onError: (error) => toast.error(error.message || 'Failed to connect Stripe account')
+    onError: (error) => toast.error(getDisplayError(error))
   })
 
   const stripeConnected = !!balanceData?.myBalance?.stripeAccountId
@@ -179,7 +180,7 @@ function PreferencesTab() {
   const { data, loading } = useQuery<{ myNotificationPreferences: NotificationPreferences }>(GET_NOTIFICATION_PREFERENCES)
   const [updatePreferences, { loading: saving }] = useMutation(UPDATE_NOTIFICATION_PREFERENCES, {
     onCompleted: () => toast.success('Preferences saved successfully'),
-    onError: (error) => toast.error(error.message || 'Failed to save preferences')
+    onError: (error) => toast.error(getDisplayError(error))
   })
 
   useEffect(() => {
@@ -235,7 +236,7 @@ function SecurityTab() {
 
   const [updatePassword, { loading: changingPassword }] = useMutation(UPDATE_USER_PROFILE, {
     onCompleted: () => { toast.success('Password updated successfully'); setCurrentPassword(''); setNewPassword(''); setConfirmPassword('') },
-    onError: (error) => toast.error(error.message || 'Failed to update password')
+    onError: (error) => toast.error(getDisplayError(error))
   })
 
   const handleChangePassword = async () => {

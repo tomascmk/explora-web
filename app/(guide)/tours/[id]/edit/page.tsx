@@ -39,6 +39,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { getDisplayError } from '@/utils/errorMessages'
 
 const TourCreationMap = dynamic(
   () =>
@@ -374,7 +375,7 @@ export default function EditTourPage() {
       router.refresh()
     } catch (error: any) {
       console.error('Error updating tour:', error)
-      toast.error(error.message || 'Failed to update tour')
+      toast.error(getDisplayError(error))
     } finally {
       setSubmitting(false)
     }

@@ -12,6 +12,7 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { getDisplayError } from '@/utils/errorMessages';
 import { useState } from 'react';
 
 interface Coupon {
@@ -106,7 +107,7 @@ export default function CouponsPage() {
   if (error) {
     return (
       <div className="border px-4 py-3 rounded-lg" style={{ backgroundColor: 'var(--color-danger-light)', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
-        Error loading coupons: {error.message}
+        Error loading coupons: {getDisplayError(error)}
       </div>
     );
   }

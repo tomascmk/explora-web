@@ -17,6 +17,7 @@ import {
   REMOVE_USER_SCHEDULE,
 } from '@/graphql/agenda';
 import { GET_TOURS_BY_GUIDE } from '@/graphql/tours';
+import { getDisplayError } from '@/utils/errorMessages';
 
 interface TourOption {
   id: string;
@@ -140,7 +141,7 @@ export default function AgendaPage() {
       toast.success('Event created successfully');
     },
     onError: (err) => {
-      setFormError(err.message ?? 'Failed to create event');
+      setFormError(getDisplayError(err));
     },
   });
 
@@ -152,7 +153,7 @@ export default function AgendaPage() {
       toast.success('Event updated successfully');
     },
     onError: (err) => {
-      setFormError(err.message ?? 'Failed to update event');
+      setFormError(getDisplayError(err));
     },
   });
 
@@ -171,7 +172,7 @@ export default function AgendaPage() {
       toast.success('Event deleted successfully');
     },
     onError: (err) => {
-      toast.error(err.message ?? 'Failed to delete event');
+      toast.error(getDisplayError(err));
     },
   });
 
@@ -307,7 +308,7 @@ export default function AgendaPage() {
         style={{ backgroundColor: 'var(--color-section-bg)', borderColor: 'var(--color-card-border)' }}
       >
         <p className="font-medium" style={{ color: 'var(--color-text-body)' }}>Could not load events</p>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{error.message}</p>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{getDisplayError(error)}</p>
         <button
           onClick={() => refetch()}
           className="mt-2 px-4 py-2 text-white rounded-lg hover:opacity-90"

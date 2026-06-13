@@ -11,6 +11,7 @@ import { GET_TOURS_BY_GUIDE, DELETE_TOUR, CREATE_TOUR_SCHEDULE } from '@/graphql
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { FilterButton } from '@/components/ui/FilterButton'
+import { getDisplayError } from '@/utils/errorMessages'
 import { Plus, X, Calendar, Clock, MapPin } from 'lucide-react'
 
 interface TourSchedule {
@@ -68,7 +69,7 @@ export default function ToursPage() {
       toast.success('Tour deleted successfully')
     },
     onError: (error) => {
-      toast.error('Failed to delete tour: ' + error.message)
+      toast.error(getDisplayError(error))
     }
   })
 
@@ -78,7 +79,7 @@ export default function ToursPage() {
       toast.success('Session added successfully')
     },
     onError: (error) => {
-      toast.error('Failed to add session: ' + error.message)
+      toast.error(getDisplayError(error))
     }
   })
 
