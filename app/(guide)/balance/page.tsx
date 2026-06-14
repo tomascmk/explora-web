@@ -12,6 +12,7 @@ import { StatsCard } from '@/components/ui/StatsCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { getDisplayError } from '@/utils/errorMessages'
 import { Wallet, Clock, TrendingUp, ArrowDownToLine } from 'lucide-react'
+import { ConnectMercadoPagoCard } from '@/components/ConnectMercadoPagoCard'
 
 interface Balance {
   id: string
@@ -154,6 +155,9 @@ export default function BalancePage() {
           </div>
         }
       />
+
+      {/* PLAN-036: conexión de la cuenta de cobro (MercadoPago) */}
+      <ConnectMercadoPagoCard enabled={!!user} />
 
       {/* Stripe Connection Warning */}
       {balance && !balance.stripeAccountId && (
