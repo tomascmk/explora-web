@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  lint-build:
+  lint-typecheck-build:
     runs-on: ubuntu-latest
     # Dummy values so `next build` page-collection succeeds in CI.
     # Real values are provided via repo/environment secrets on deploy.
@@ -26,4 +26,5 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      - run: pnpm typecheck
       - run: pnpm build

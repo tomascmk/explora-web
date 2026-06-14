@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build && node scripts/patch-routes-manifest.cjs",
     "start": "next start",
-    "lint": "tsc --noEmit"
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@apollo/client": "^4.0.7",
@@ -42,12 +44,15 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@tailwindcss/postcss": "^4",
     "@types/leaflet": "^1.9.21",
     "@types/leaflet.markercluster": "^1.5.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "15.5.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
