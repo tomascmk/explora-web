@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { useQuery } from "@apollo/client/react"
 import {
   createContext,
   ReactNode,
@@ -8,6 +9,11 @@ import {
   useEffect,
   useState,
 } from "react"
+import {
+  FEATURE_FLAGS,
+  type FeatureFlags,
+  type FeatureFlagsData,
+} from "@/graphql/feature-flags"
 
 interface User {
   id: string
@@ -17,16 +23,45 @@ interface User {
   fullName?: string
 }
 
+// Safe defaults while the flags load or the request fails: everything ON
+// except chat (gated subsystem, PLAN-037). Mirrors the app store.
+const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
+  tourCreationEnabled: true,
+  discountGroupsEnabled: true,
+  claimsEnabled: true,
+  reviewsEnabled: true,
+  selfGuidedToursEnabled: true,
+  inPersonToursEnabled: true,
+  chatEnabled: false,
+}
+
 interface AuthContextType {
   user: User | null
   loading: boolean
   isAuthenticated: boolean
+  featureFlags: FeatureFlags
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   setUser: (user: User | null) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+// Mounted only when authenticated (client-side), so the query never runs during
+// SSR/prerender where there is no ApolloProvider. Reports flags up via callback.
+function FeatureFlagsLoader({
+  onLoaded,
+}: {
+  onLoaded: (flags: FeatureFlags) => void
+}) {
+  const { data } = useQuery<FeatureFlagsData>(FEATURE_FLAGS)
+  useEffect(() => {
+    if (data?.featureFlags) {
+      onLoaded(data.featureFlags)
+    }
+  }, [data, onLoaded])
+  return null
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -51,6 +86,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     checkAuth()
   }, [])
+
+  // Feature flags hydrate once the session is established. The query is mounted
+  // only when a user exists, so it never runs during SSR/prerender (where no
+  // ApolloProvider is available); flags fall back to safe defaults until then.
+  const [featureFlags, setFeatureFlags] = useState<FeatureFlags>(
+    DEFAULT_FEATURE_FLAGS
+  )
 
   const login = async (email: string, password: string) => {
     const response = await fetch("/api/auth/login", {
@@ -84,11 +126,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         loading,
         isAuthenticated: !!user,
+        featureFlags,
         login,
         logout,
         setUser,
       }}
     >
+      {user && <FeatureFlagsLoader onLoaded={setFeatureFlags} />}
       {children}
     </AuthContext.Provider>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
+import type { FeatureFlags } from '@/graphql/feature-flags'
 import {
   Calendar,
   CreditCard,
@@ -31,6 +32,7 @@ interface NavItem {
   label: string
   icon: ReactNode
   matchPath?: string // for prefix matching
+  flag?: keyof FeatureFlags // hide this item when the flag is off (PLAN-035)
 }
 
 const navItems: NavItem[] = [
@@ -40,8 +42,8 @@ const navItems: NavItem[] = [
   { href: '/agenda', label: 'Agenda', icon: <Calendar size={20} /> },
   { href: '/balance', label: 'Balance', icon: <CreditCard size={20} /> },
   { href: '/feedback', label: 'Feedback', icon: <MessageSquare size={20} /> },
-  { href: '/claims', label: 'Claims', icon: <ShieldAlert size={20} /> },
-  { href: '/discounts', label: 'Discounts', icon: <Percent size={20} /> },
+  { href: '/claims', label: 'Claims', icon: <ShieldAlert size={20} />, flag: 'claimsEnabled' },
+  { href: '/discounts', label: 'Discounts', icon: <Percent size={20} />, flag: 'discountGroupsEnabled' },
   { href: '/coupons', label: 'Coupons', icon: <Tag size={20} />, matchPath: '/coupons' },
   { href: '/history', label: 'History', icon: <History size={20} /> },
   { href: '/map', label: 'Map', icon: <Map size={20} /> },
@@ -52,8 +54,12 @@ const bottomNavItems: NavItem[] = [
 ]
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const { user, logout } = useAuth()
+  const { user, logout, featureFlags } = useAuth()
   const pathname = usePathname()
+
+  const visibleNavItems = navItems.filter(
+    (item) => !item.flag || featureFlags[item.flag],
+  )
 
   const isActive = (item: NavItem) => {
     if (item.matchPath) {
@@ -90,7 +96,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Navigation */}
       <nav className='flex-1 overflow-y-auto sidebar-scroll px-3 py-4 space-y-1'>
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const active = isActive(item)
           return (
             <Link

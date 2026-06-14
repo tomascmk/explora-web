@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileHeader } from '@/components/layout/MobileHeader'
+import { GuideBanner } from '@/components/GuideBanner'
 import { useRouter } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 
@@ -61,6 +62,7 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
           className='flex-1 overflow-y-auto p-4 lg:p-8'
           style={{ backgroundColor: 'var(--color-page-bg)' }}
         >
+          <GuideBanner />
           {children}
         </main>
       </div>
