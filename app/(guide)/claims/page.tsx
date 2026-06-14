@@ -5,7 +5,6 @@ import { format } from 'date-fns'
 import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
 import { CLAIMS_BY_GUIDE, RESOLVE_CLAIM, REJECT_CLAIM } from '@/graphql/claims'
-import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { FilterButton } from '@/components/ui/FilterButton'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -83,7 +82,7 @@ export default function ClaimsPage() {
           refundAmount: refundAmount || undefined
         }
       })
-    } catch (error) {
+    } catch {
       // Handled by onError
     }
   }
@@ -97,7 +96,7 @@ export default function ClaimsPage() {
           rejectedById: user?.id
         }
       })
-    } catch (error) {
+    } catch {
       // Handled by onError
     }
   }

@@ -1,5 +1,119 @@
 import { gql } from '@apollo/client/core';
 
+export interface GuideTourListItem {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  tourType: string;
+  createdAt: string;
+  guide: {
+    id: string;
+    fullName: string;
+    username: string;
+  };
+  tourSteps: {
+    id: string;
+    title: string;
+    latitude: number;
+    longitude: number;
+    order: number;
+  }[];
+  tourPricings: {
+    id: string;
+    price: number;
+    currency: string;
+    minParticipants: number;
+    maxParticipants: number;
+  }[];
+  tourSchedules: {
+    id: string;
+    startTime: string;
+    endTime: string;
+    isAvailable: boolean;
+    maxCapacity: number;
+    specialInfo: string;
+  }[];
+  media: {
+    id: string;
+    url: string;
+    type: string;
+  }[];
+  categories: {
+    id: string;
+    name: string;
+  }[];
+}
+
+export interface ToursByGuideData {
+  toursByGuide: GuideTourListItem[];
+}
+
+export interface TourByIdStep {
+  id: string;
+  title: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  order: number;
+  place: {
+    id: string;
+    name: string;
+  } | null;
+}
+
+export interface TourByIdData {
+  tour: {
+    id: string;
+    title: string;
+    description: string;
+    status: string;
+    tourType: string;
+    createdAt: string;
+    guide: {
+      id: string;
+      fullName: string;
+      username: string;
+    };
+    tourSteps: TourByIdStep[];
+    tourPricings: {
+      id: string;
+      price: number;
+      currency: string;
+      startDate: string;
+      endDate: string;
+      minParticipants: number;
+      maxParticipants: number;
+    }[];
+    tourSchedules: {
+      id: string;
+      startTime: string;
+      endTime: string;
+      isAvailable: boolean;
+      maxCapacity: number;
+      specialInfo: string;
+    }[];
+    media: {
+      id: string;
+      url: string;
+      type: string;
+    }[];
+    categories: {
+      id: string;
+      name: string;
+    }[];
+  } | null;
+}
+
+export interface CreateTourData {
+  createTour: {
+    id: string;
+    title: string;
+    description: string;
+    tourType: string;
+  };
+}
+
 export const GET_TOURS_BY_GUIDE = gql`
   query GetToursByGuide($guideId: String!) {
     toursByGuide(guideId: $guideId) {

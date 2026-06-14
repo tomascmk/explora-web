@@ -13,18 +13,25 @@ import {
   ADMIN_REMOVE_PLACE,
   ADMIN_REMOVE_EVENT,
   ADMIN_UPDATE_TOUR,
+  AdminTour,
+  AdminPlace,
+  AdminEvent,
+  AdminToursData,
+  AdminPlacesData,
+  AdminEventsData,
 } from '@/graphql/admin/tours'
-import { Compass, MapPin, Calendar, Trash2, CheckCircle, XCircle } from 'lucide-react'
+import { Compass, MapPin, Calendar, Trash2, CheckCircle, XCircle, LucideIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 type TabKey = 'tours' | 'places' | 'events'
+type AdminContentItem = AdminTour | AdminPlace | AdminEvent
 
 export default function AdminToursPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('tours')
 
-  const { data: toursData, loading: toursLoading, refetch: refetchTours } = useQuery(ADMIN_GET_ALL_TOURS)
-  const { data: placesData, loading: placesLoading, refetch: refetchPlaces } = useQuery(ADMIN_GET_ALL_PLACES)
-  const { data: eventsData, loading: eventsLoading, refetch: refetchEvents } = useQuery(ADMIN_GET_ALL_EVENTS)
+  const { data: toursData, loading: toursLoading, refetch: refetchTours } = useQuery<AdminToursData>(ADMIN_GET_ALL_TOURS)
+  const { data: placesData, loading: placesLoading, refetch: refetchPlaces } = useQuery<AdminPlacesData>(ADMIN_GET_ALL_PLACES)
+  const { data: eventsData, loading: eventsLoading, refetch: refetchEvents } = useQuery<AdminEventsData>(ADMIN_GET_ALL_EVENTS)
 
   const [removeTour] = useMutation(ADMIN_REMOVE_TOUR)
   const [removePlace] = useMutation(ADMIN_REMOVE_PLACE)
@@ -33,29 +40,29 @@ export default function AdminToursPage() {
 
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(25)
+  const [pageSize] = useState(25)
   const [sortKey, setSortKey] = useState('createdAt')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   const [deleteModal, setDeleteModal] = useState<{
     open: boolean
     type: TabKey
-    item: any
+    item: AdminContentItem | null
   }>({ open: false, type: 'tours', item: null })
 
-  const tabs: { key: TabKey; label: string; icon: any; count: number }[] = [
-    { key: 'tours', label: 'Tours', icon: Compass, count: (toursData as any)?.tours?.length || 0 },
-    { key: 'places', label: 'Places', icon: MapPin, count: (placesData as any)?.places?.length || 0 },
-    { key: 'events', label: 'Events', icon: Calendar, count: (eventsData as any)?.events?.length || 0 },
+  const tabs: { key: TabKey; label: string; icon: LucideIcon; count: number }[] = [
+    { key: 'tours', label: 'Tours', icon: Compass, count: toursData?.tours?.length || 0 },
+    { key: 'places', label: 'Places', icon: MapPin, count: placesData?.places?.length || 0 },
+    { key: 'events', label: 'Events', icon: Calendar, count: eventsData?.events?.length || 0 },
   ]
 
   // Tours
   const filteredTours = useMemo(() => {
-    const tours = (toursData as any)?.tours || []
+    const tours = toursData?.tours || []
     if (!search) return tours
     const q = search.toLowerCase()
     return tours.filter(
-      (t: any) =>
+      (t) =>
         t.title?.toLowerCase().includes(q) ||
         t.guide?.fullName?.toLowerCase().includes(q) ||
         t.guide?.username?.toLowerCase().includes(q)
@@ -64,11 +71,11 @@ export default function AdminToursPage() {
 
   // Places
   const filteredPlaces = useMemo(() => {
-    const places = (placesData as any)?.places || []
+    const places = placesData?.places || []
     if (!search) return places
     const q = search.toLowerCase()
     return places.filter(
-      (p: any) =>
+      (p) =>
         p.name?.toLowerCase().includes(q) ||
         p.address?.city?.toLowerCase().includes(q)
     )
@@ -76,11 +83,11 @@ export default function AdminToursPage() {
 
   // Events
   const filteredEvents = useMemo(() => {
-    const events = (eventsData as any)?.events || []
+    const events = eventsData?.events || []
     if (!search) return events
     const q = search.toLowerCase()
     return events.filter(
-      (e: any) =>
+      (e) =>
         e.title?.toLowerCase().includes(q) ||
         e.createdBy?.fullName?.toLowerCase().includes(q)
     )
@@ -118,7 +125,7 @@ export default function AdminToursPage() {
     }
   }
 
-  const tourColumns: AdminColumn<any>[] = [
+  const tourColumns: AdminColumn<AdminTour>[] = [
     {
       key: 'title',
       header: 'Title',
@@ -164,7 +171,7 @@ export default function AdminToursPage() {
       header: 'Categories',
       render: (t) => (
         <div className='flex flex-wrap gap-1'>
-          {(t.categories || []).slice(0, 2).map((c: any) => (
+          {(t.categories || []).slice(0, 2).map((c) => (
             <span
               key={c.id}
               className='text-xs px-1.5 py-0.5 rounded'
@@ -243,7 +250,7 @@ export default function AdminToursPage() {
     },
   ]
 
-  const placeColumns: AdminColumn<any>[] = [
+  const placeColumns: AdminColumn<AdminPlace>[] = [
     {
       key: 'name',
       header: 'Name',
@@ -310,7 +317,7 @@ export default function AdminToursPage() {
     },
   ]
 
-  const eventColumns: AdminColumn<any>[] = [
+  const eventColumns: AdminColumn<AdminEvent>[] = [
     {
       key: 'title',
       header: 'Title',
@@ -376,28 +383,34 @@ export default function AdminToursPage() {
     },
   ]
 
-  const getActiveData = () => {
+  const getActiveData = (): {
+    columns: AdminColumn<AdminContentItem>[]
+    data: AdminContentItem[]
+    total: number
+    loading: boolean
+  } => {
     switch (activeTab) {
-      case 'tours':
-        return {
-          columns: tourColumns,
-          data: filteredTours.slice((page - 1) * pageSize, page * pageSize),
-          total: filteredTours.length,
-          loading: toursLoading,
-        }
       case 'places':
         return {
-          columns: placeColumns,
+          columns: placeColumns as AdminColumn<AdminContentItem>[],
           data: filteredPlaces.slice((page - 1) * pageSize, page * pageSize),
           total: filteredPlaces.length,
           loading: placesLoading,
         }
       case 'events':
         return {
-          columns: eventColumns,
+          columns: eventColumns as AdminColumn<AdminContentItem>[],
           data: filteredEvents.slice((page - 1) * pageSize, page * pageSize),
           total: filteredEvents.length,
           loading: eventsLoading,
+        }
+      case 'tours':
+      default:
+        return {
+          columns: tourColumns as AdminColumn<AdminContentItem>[],
+          data: filteredTours.slice((page - 1) * pageSize, page * pageSize),
+          total: filteredTours.length,
+          loading: toursLoading,
         }
     }
   }
@@ -446,7 +459,7 @@ export default function AdminToursPage() {
       <AdminDataTable
         columns={activeData.columns}
         data={activeData.data}
-        keyExtractor={(item: any) => item.id}
+        keyExtractor={(item) => item.id}
         loading={activeData.loading}
         emptyMessage={`No ${activeTab} found`}
         searchValue={search}
@@ -472,7 +485,13 @@ export default function AdminToursPage() {
         onClose={() => setDeleteModal({ open: false, type: 'tours', item: null })}
         onConfirm={handleDelete}
         title={`Delete ${deleteModal.type === 'tours' ? 'Tour' : deleteModal.type === 'places' ? 'Place' : 'Event'}`}
-        description={`Are you sure you want to delete "${deleteModal.item?.title || deleteModal.item?.name}"? This action cannot be undone.`}
+        description={`Are you sure you want to delete "${
+          deleteModal.item
+            ? 'title' in deleteModal.item
+              ? deleteModal.item.title
+              : deleteModal.item.name
+            : ''
+        }"? This action cannot be undone.`}
         variant='danger'
         confirmText='Delete'
       />

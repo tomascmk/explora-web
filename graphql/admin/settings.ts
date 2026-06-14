@@ -64,3 +64,21 @@ export const ADMIN_REMOVE_LANGUAGE = gql`
     }
   }
 `
+
+export interface TourCategory {
+  id: string
+  name: string
+}
+
+export interface TourCategoriesData {
+  findAllTourCategories: TourCategory[]
+}
+
+export interface Language {
+  id: string
+  name: string
+}
+
+export interface LanguagesData {
+  findAllLanguages: Language[]
+}

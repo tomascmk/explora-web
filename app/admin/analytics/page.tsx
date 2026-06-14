@@ -3,9 +3,9 @@
 import { useQuery } from '@apollo/client/react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { StatsCard } from '@/components/ui/StatsCard'
-import { ADMIN_GET_ALL_USERS } from '@/graphql/admin/users'
-import { ADMIN_GET_ALL_RESERVATIONS } from '@/graphql/admin/reservations'
-import { ADMIN_GET_ALL_TOURS } from '@/graphql/admin/tours'
+import { ADMIN_GET_ALL_USERS, AdminUsersData } from '@/graphql/admin/users'
+import { ADMIN_GET_ALL_RESERVATIONS, AdminReservationsData } from '@/graphql/admin/reservations'
+import { ADMIN_GET_ALL_TOURS, AdminToursData } from '@/graphql/admin/tours'
 import {
   Users,
   DollarSign,
@@ -16,46 +16,46 @@ import {
 import { useMemo } from 'react'
 
 export default function AdminAnalyticsPage() {
-  const { data: usersData, loading: usersLoading } = useQuery(ADMIN_GET_ALL_USERS)
-  const { data: reservationsData, loading: reservationsLoading } = useQuery(ADMIN_GET_ALL_RESERVATIONS)
-  const { data: toursData, loading: toursLoading } = useQuery(ADMIN_GET_ALL_TOURS)
+  const { data: usersData, loading: usersLoading } = useQuery<AdminUsersData>(ADMIN_GET_ALL_USERS)
+  const { data: reservationsData, loading: reservationsLoading } = useQuery<AdminReservationsData>(ADMIN_GET_ALL_RESERVATIONS)
+  const { data: toursData, loading: toursLoading } = useQuery<AdminToursData>(ADMIN_GET_ALL_TOURS)
 
   const loading = usersLoading || reservationsLoading || toursLoading
 
   const stats = useMemo(() => {
-    const users = (usersData as any)?.users || []
-    const reservations = (reservationsData as any)?.tourReservations || []
-    const tours = (toursData as any)?.tours || []
+    const users = usersData?.users || []
+    const reservations = reservationsData?.tourReservations || []
+    const tours = toursData?.tours || []
 
     const totalRevenue = reservations
-      .filter((r: any) => r.payment_status === 'PAID')
-      .reduce((sum: number, r: any) => sum + (parseFloat(r.total_amount) || 0), 0)
+      .filter((r) => r.payment_status === 'PAID')
+      .reduce((sum, r) => sum + (parseFloat(String(r.total_amount)) || 0), 0)
 
-    const confirmedReservations = reservations.filter((r: any) => r.reservation_status === 'CONFIRMED')
-    const cancelledReservations = reservations.filter((r: any) => r.reservation_status === 'CANCELLED')
-    const guides = users.filter((u: any) => u.roles?.includes('GUIDE'))
-    const tourists = users.filter((u: any) => u.roles?.includes('TOURIST'))
+    const confirmedReservations = reservations.filter((r) => r.reservation_status === 'CONFIRMED')
+    const cancelledReservations = reservations.filter((r) => r.reservation_status === 'CANCELLED')
+    const guides = users.filter((u) => u.roles?.includes('GUIDE'))
+    const tourists = users.filter((u) => u.roles?.includes('TOURIST'))
 
     // Monthly breakdown
     const now = new Date()
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     const recentReservations = reservations.filter(
-      (r: any) => new Date(r.created_at) >= thirtyDaysAgo
+      (r) => new Date(r.created_at) >= thirtyDaysAgo
     )
     const recentRevenue = recentReservations
-      .filter((r: any) => r.payment_status === 'PAID')
-      .reduce((sum: number, r: any) => sum + (parseFloat(r.total_amount) || 0), 0)
+      .filter((r) => r.payment_status === 'PAID')
+      .reduce((sum, r) => sum + (parseFloat(String(r.total_amount)) || 0), 0)
 
     // Top tours by reservations
     const tourReservationCount: Record<string, { title: string; count: number; revenue: number }> = {}
-    reservations.forEach((r: any) => {
+    reservations.forEach((r) => {
       if (r.tour?.id) {
         if (!tourReservationCount[r.tour.id]) {
           tourReservationCount[r.tour.id] = { title: r.tour.title, count: 0, revenue: 0 }
         }
         tourReservationCount[r.tour.id].count++
         if (r.payment_status === 'PAID') {
-          tourReservationCount[r.tour.id].revenue += parseFloat(r.total_amount) || 0
+          tourReservationCount[r.tour.id].revenue += parseFloat(String(r.total_amount)) || 0
         }
       }
     })
@@ -68,7 +68,7 @@ export default function AdminAnalyticsPage() {
       totalGuides: guides.length,
       totalTourists: tourists.length,
       totalTours: tours.length,
-      activeTours: tours.filter((t: any) => t.status === 'PUBLISHED' || t.status === 'ACTIVE').length,
+      activeTours: tours.filter((t) => t.status === 'PUBLISHED' || t.status === 'ACTIVE').length,
       totalReservations: reservations.length,
       confirmedReservations: confirmedReservations.length,
       cancelledReservations: cancelledReservations.length,

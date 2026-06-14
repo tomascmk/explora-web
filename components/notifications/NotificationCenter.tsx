@@ -3,7 +3,7 @@
 import { useQuery, useMutation } from '@apollo/client/react';
 import { GET_MY_NOTIFICATIONS, MARK_AS_READ, MARK_ALL_AS_READ } from '@/graphql/notifications';
 import { formatDistanceToNow } from 'date-fns';
-import { X, Check, CheckCheck, Bell } from 'lucide-react';
+import { X, CheckCheck, Bell } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 interface Notification {

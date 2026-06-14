@@ -10,6 +10,10 @@ import {
   ADMIN_GET_LANGUAGES,
   ADMIN_CREATE_LANGUAGE,
   ADMIN_REMOVE_LANGUAGE,
+  TourCategory,
+  TourCategoriesData,
+  Language,
+  LanguagesData,
 } from '@/graphql/admin/settings'
 import { Plus, Trash2, Tag, Globe, Loader2 } from 'lucide-react'
 import { useState } from 'react'
@@ -20,7 +24,7 @@ export default function AdminSettingsPage() {
     data: categoriesData,
     loading: categoriesLoading,
     refetch: refetchCategories,
-  } = useQuery(ADMIN_GET_TOUR_CATEGORIES)
+  } = useQuery<TourCategoriesData>(ADMIN_GET_TOUR_CATEGORIES)
   const [createCategory] = useMutation(ADMIN_CREATE_TOUR_CATEGORY)
   const [removeCategory] = useMutation(ADMIN_REMOVE_TOUR_CATEGORY)
 
@@ -29,7 +33,7 @@ export default function AdminSettingsPage() {
     data: languagesData,
     loading: languagesLoading,
     refetch: refetchLanguages,
-  } = useQuery(ADMIN_GET_LANGUAGES)
+  } = useQuery<LanguagesData>(ADMIN_GET_LANGUAGES)
   const [createLanguage] = useMutation(ADMIN_CREATE_LANGUAGE)
   const [removeLanguage] = useMutation(ADMIN_REMOVE_LANGUAGE)
 
@@ -39,11 +43,11 @@ export default function AdminSettingsPage() {
   const [deleteModal, setDeleteModal] = useState<{
     open: boolean
     type: 'category' | 'language'
-    item: any
+    item: TourCategory | Language | null
   }>({ open: false, type: 'category', item: null })
 
-  const categories = (categoriesData as any)?.findAllTourCategories || []
-  const languages = (languagesData as any)?.findAllLanguages || []
+  const categories = categoriesData?.findAllTourCategories || []
+  const languages = languagesData?.findAllLanguages || []
 
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) return
@@ -159,7 +163,7 @@ export default function AdminSettingsPage() {
                 No categories yet
               </p>
             ) : (
-              categories.map((cat: any) => (
+              categories.map((cat) => (
                 <div key={cat.id} className='px-5 py-2.5 flex items-center justify-between'>
                   <span className='text-sm' style={{ color: 'var(--color-text-body)' }}>
                     {cat.name}
@@ -242,7 +246,7 @@ export default function AdminSettingsPage() {
                 No languages yet
               </p>
             ) : (
-              languages.map((lang: any) => (
+              languages.map((lang) => (
                 <div key={lang.id} className='px-5 py-2.5 flex items-center justify-between'>
                   <span className='text-sm' style={{ color: 'var(--color-text-body)' }}>
                     {lang.name}

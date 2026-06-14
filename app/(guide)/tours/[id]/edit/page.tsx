@@ -1,6 +1,5 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
 import dynamic from 'next/dynamic'
 import { useRouter, useParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -13,7 +12,8 @@ import {
   DELETE_TOUR_STEP,
   CREATE_TOUR_PRICING,
   UPDATE_TOUR_PRICING,
-  CREATE_TOUR_SCHEDULE,
+  type TourByIdData,
+  type TourByIdStep,
 } from '@/graphql/tours'
 import { PLACES_IN_RADIUS_FOR_TOUR_BUILDER } from '@/graphql/places'
 import {
@@ -38,7 +38,6 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
-import { PageHeader } from '@/components/ui/PageHeader'
 import { getDisplayError } from '@/utils/errorMessages'
 
 const TourCreationMap = dynamic(
@@ -94,7 +93,6 @@ export default function EditTourPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
-  const { user } = useAuth()
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
 
@@ -122,7 +120,7 @@ export default function EditTourPage() {
   const isGuided = tourInfo.tourType === 'GUIDED'
 
   // Fetch tour data
-  const { data: fetchData, loading: fetchLoading } = useQuery<any>(GET_TOUR_BY_ID, {
+  const { data: fetchData, loading: fetchLoading } = useQuery<TourByIdData>(GET_TOUR_BY_ID, {
     variables: { id },
     skip: !id,
   })
@@ -151,7 +149,7 @@ export default function EditTourPage() {
       }
 
       const tourSteps = (tour.tourSteps || [])
-        .map((s: any) => ({
+        .map((s: TourByIdStep) => ({
           id: s.id,
           latitude: s.latitude,
           longitude: s.longitude,
@@ -373,7 +371,7 @@ export default function EditTourPage() {
       toast.success('Tour updated successfully')
       router.push('/tours')
       router.refresh()
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating tour:', error)
       toast.error(getDisplayError(error))
     } finally {

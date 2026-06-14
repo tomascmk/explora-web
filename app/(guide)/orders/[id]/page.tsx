@@ -1,16 +1,13 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
 import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
-import { GET_RESERVATION_DETAIL, UPDATE_RESERVATION_STATUS } from '@/graphql/reservations'
+import { GET_RESERVATION_DETAIL, UPDATE_RESERVATION_STATUS, type UpdateReservationStatusInput } from '@/graphql/reservations'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { toast } from 'sonner'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, User, Calendar, DollarSign, MapPin, Clock, Users } from 'lucide-react'
-import Link from 'next/link'
-import { PageHeader } from '@/components/ui/PageHeader'
+import { ArrowLeft, User, Calendar, DollarSign, MapPin, Clock } from 'lucide-react'
 import { getDisplayError } from '@/utils/errorMessages'
 
 interface ReservationDetail {
@@ -44,7 +41,6 @@ interface ReservationDetail {
 }
 
 export default function OrderDetailPage() {
-  const { user } = useAuth()
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
@@ -77,7 +73,7 @@ export default function OrderDetailPage() {
   const handleAction = async () => {
     if (!reservation || !actionType) return
 
-    const input: any = {}
+    const input: UpdateReservationStatusInput = {}
 
     switch (actionType) {
       case 'CONFIRM':
@@ -475,7 +471,7 @@ const paymentColors: Record<string, { bg: string; text: string }> = {
   REFUNDED: { bg: 'var(--color-info-light)', text: 'var(--color-info)' }
 }
 
-function StatusBadge({ label, status, colors }: { label: string; status: string; colors: Record<string, { bg: string; text: string }> }) {
+function StatusBadge({ status, colors }: { label: string; status: string; colors: Record<string, { bg: string; text: string }> }) {
   const colorSet = colors[status] || { bg: 'var(--color-section-bg)', text: 'var(--color-text-body)' }
   return (
     <span

@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
 import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
-import { GET_GUIDE_RESERVATIONS, UPDATE_RESERVATION_STATUS } from '@/graphql/reservations'
+import { GET_GUIDE_RESERVATIONS, UPDATE_RESERVATION_STATUS, type UpdateReservationStatusInput } from '@/graphql/reservations'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { StatsCard } from '@/components/ui/StatsCard'
@@ -86,7 +86,7 @@ export default function OrdersPage() {
     if (!actionTarget) return
 
     const { order, action } = actionTarget
-    const input: any = {}
+    const input: UpdateReservationStatusInput = {}
 
     switch (action) {
       case 'CONFIRM':
@@ -114,7 +114,7 @@ export default function OrdersPage() {
         CANCEL: 'cancelled'
       }
       toast.success(`Reservation ${actionLabels[action]}`)
-    } catch (error) {
+    } catch {
       // Handled by onError
     }
   }

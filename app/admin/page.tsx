@@ -4,11 +4,11 @@ import { useQuery } from '@apollo/client/react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { StatsCard } from '@/components/ui/StatsCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { ADMIN_GET_ALL_USERS } from '@/graphql/admin/users'
-import { ADMIN_GET_ALL_RESERVATIONS } from '@/graphql/admin/reservations'
-import { ADMIN_GET_ALL_TOURS } from '@/graphql/admin/tours'
-import { ADMIN_GET_ALL_CLAIMS } from '@/graphql/admin/moderation'
-import { ADMIN_GET_AUDIT_LOG } from '@/graphql/admin/audit-log'
+import { ADMIN_GET_ALL_USERS, AdminUsersData } from '@/graphql/admin/users'
+import { ADMIN_GET_ALL_RESERVATIONS, AdminReservationsData } from '@/graphql/admin/reservations'
+import { ADMIN_GET_ALL_TOURS, AdminToursData } from '@/graphql/admin/tours'
+import { ADMIN_GET_ALL_CLAIMS, AdminClaimsData } from '@/graphql/admin/moderation'
+import { ADMIN_GET_AUDIT_LOG, AuditLogData } from '@/graphql/admin/audit-log'
 import {
   Users,
   ClipboardList,
@@ -21,48 +21,48 @@ import Link from 'next/link'
 import { useMemo } from 'react'
 
 export default function AdminDashboardPage() {
-  const { data: usersData, loading: usersLoading } = useQuery(ADMIN_GET_ALL_USERS)
-  const { data: reservationsData, loading: reservationsLoading } = useQuery(ADMIN_GET_ALL_RESERVATIONS)
-  const { data: toursData, loading: toursLoading } = useQuery(ADMIN_GET_ALL_TOURS)
-  const { data: claimsData, loading: claimsLoading } = useQuery(ADMIN_GET_ALL_CLAIMS)
-  const { data: auditData, loading: auditLoading } = useQuery(ADMIN_GET_AUDIT_LOG, {
+  const { data: usersData, loading: usersLoading } = useQuery<AdminUsersData>(ADMIN_GET_ALL_USERS)
+  const { data: reservationsData, loading: reservationsLoading } = useQuery<AdminReservationsData>(ADMIN_GET_ALL_RESERVATIONS)
+  const { data: toursData, loading: toursLoading } = useQuery<AdminToursData>(ADMIN_GET_ALL_TOURS)
+  const { data: claimsData, loading: claimsLoading } = useQuery<AdminClaimsData>(ADMIN_GET_ALL_CLAIMS)
+  const { data: auditData, loading: auditLoading } = useQuery<AuditLogData>(ADMIN_GET_AUDIT_LOG, {
     variables: { limit: 10, offset: 0 },
   })
 
   const loading = usersLoading || reservationsLoading || toursLoading || claimsLoading
 
   const stats = useMemo(() => {
-    const users = (usersData as any)?.users || []
-    const reservations = (reservationsData as any)?.tourReservations || []
-    const tours = (toursData as any)?.tours || []
-    const claims = (claimsData as any)?.claims || []
+    const users = usersData?.users || []
+    const reservations = reservationsData?.tourReservations || []
+    const tours = toursData?.tours || []
+    const claims = claimsData?.claims || []
 
     const activeReservations = reservations.filter(
-      (r: any) => r.reservation_status === 'CONFIRMED' || r.reservation_status === 'PENDING'
+      (r) => r.reservation_status === 'CONFIRMED' || r.reservation_status === 'PENDING'
     )
     const totalRevenue = reservations
-      .filter((r: any) => r.payment_status === 'PAID')
-      .reduce((sum: number, r: any) => sum + (parseFloat(r.total_amount) || 0), 0)
-    const pendingClaims = claims.filter((c: any) => c.status === 'PENDING' || c.status === 'OPEN')
+      .filter((r) => r.payment_status === 'PAID')
+      .reduce((sum, r) => sum + (parseFloat(String(r.total_amount)) || 0), 0)
+    const pendingClaims = claims.filter((c) => c.status === 'PENDING' || c.status === 'OPEN')
 
     return {
       totalUsers: users.length,
       activeReservations: activeReservations.length,
       totalRevenue,
-      activeTours: tours.filter((t: any) => t.status === 'PUBLISHED' || t.status === 'ACTIVE').length,
+      activeTours: tours.filter((t) => t.status === 'PUBLISHED' || t.status === 'ACTIVE').length,
       pendingClaims: pendingClaims.length,
       totalTours: tours.length,
     }
   }, [usersData, reservationsData, toursData, claimsData])
 
   const recentActivity = useMemo(() => {
-    return ((auditData as any)?.myAuditLog || []).slice(0, 8)
+    return (auditData?.myAuditLog || []).slice(0, 8)
   }, [auditData])
 
   const recentReservations = useMemo(() => {
-    const reservations = (reservationsData as any)?.tourReservations || []
+    const reservations = reservationsData?.tourReservations || []
     return [...reservations]
-      .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 5)
   }, [reservationsData])
 
@@ -162,7 +162,7 @@ export default function AdminDashboardPage() {
                 No reservations yet
               </p>
             ) : (
-              recentReservations.map((r: any) => (
+              recentReservations.map((r) => (
                 <div key={r.id} className='px-5 py-3 flex items-center justify-between'>
                   <div className='min-w-0'>
                     <p className='text-sm font-medium truncate' style={{ color: 'var(--color-text-body)' }}>
@@ -174,7 +174,7 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className='flex items-center gap-3 flex-shrink-0'>
                     <span className='text-sm font-semibold' style={{ color: 'var(--color-text-heading)' }}>
-                      ${parseFloat(r.total_amount || 0).toFixed(2)}
+                      ${parseFloat(String(r.total_amount ?? 0)).toFixed(2)}
                     </span>
                     <StatusBadge status={r.reservation_status} />
                   </div>
@@ -214,7 +214,7 @@ export default function AdminDashboardPage() {
                 No recent activity
               </p>
             ) : (
-              recentActivity.map((log: any) => (
+              recentActivity.map((log) => (
                 <div key={log.id} className='px-5 py-3'>
                   <div className='flex items-center gap-2 mb-0.5'>
                     <span

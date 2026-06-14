@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import {
-  BarChart3,
   Calendar,
   CreditCard,
   History,
@@ -17,7 +16,6 @@ import {
   Compass,
   LogOut,
   X,
-  ChevronLeft,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'

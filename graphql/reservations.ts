@@ -1,5 +1,11 @@
 import { gql } from '@apollo/client';
 
+export interface UpdateReservationStatusInput {
+  reservation_status?: string;
+  payment_status?: string;
+  cancellation_reason?: string;
+}
+
 export const GET_GUIDE_RESERVATIONS = gql`
   query GetGuideReservations($guideId: String!) {
     tourReservationsByGuide(guideId: $guideId) {

@@ -31,3 +31,19 @@ export const ADMIN_GET_ENTITY_AUDIT_LOG = gql`
     }
   }
 `
+
+export interface AuditLogEntry {
+  id: string
+  action: string
+  entity: string
+  entityId: string
+  changes: Record<string, unknown> | null
+  metadata: Record<string, unknown> | null
+  ipAddress: string | null
+  userAgent: string | null
+  createdAt: string
+}
+
+export interface AuditLogData {
+  myAuditLog: AuditLogEntry[]
+}

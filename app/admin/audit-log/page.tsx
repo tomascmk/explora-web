@@ -3,24 +3,12 @@
 import { useQuery } from '@apollo/client/react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { AdminDataTable, AdminColumn } from '@/components/admin/AdminDataTable'
-import { ADMIN_GET_AUDIT_LOG } from '@/graphql/admin/audit-log'
+import { ADMIN_GET_AUDIT_LOG, AuditLogEntry, AuditLogData } from '@/graphql/admin/audit-log'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-interface AuditLogItem {
-  id: string
-  action: string
-  entity: string
-  entityId: string
-  changes?: any
-  metadata?: any
-  ipAddress?: string
-  userAgent?: string
-  createdAt: string
-}
-
 export default function AdminAuditLogPage() {
-  const { data, loading } = useQuery(ADMIN_GET_AUDIT_LOG, {
+  const { data, loading } = useQuery<AuditLogData>(ADMIN_GET_AUDIT_LOG, {
     variables: { limit: 500, offset: 0 },
   })
 
@@ -31,7 +19,7 @@ export default function AdminAuditLogPage() {
   const [entityFilter, setEntityFilter] = useState('')
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
-  const allLogs: AuditLogItem[] = useMemo(() => (data as any)?.myAuditLog || [], [data])
+  const allLogs: AuditLogEntry[] = useMemo(() => data?.myAuditLog || [], [data])
 
   // Get unique actions and entities for filters
   const actions = useMemo(() => {
@@ -100,7 +88,7 @@ export default function AdminAuditLogPage() {
     }
   }
 
-  const columns: AdminColumn<AuditLogItem>[] = [
+  const columns: AdminColumn<AuditLogEntry>[] = [
     {
       key: 'expand',
       header: '',

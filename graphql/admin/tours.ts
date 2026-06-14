@@ -177,3 +177,90 @@ export const ADMIN_REMOVE_EVENT = gql`
     }
   }
 `
+
+export interface AdminMedia {
+  id: string
+  url: string
+  type: string
+}
+
+export interface AdminTourPricing {
+  id: string
+  price: number
+  currency: string
+  startDate?: string | null
+  endDate?: string | null
+  minParticipants: number
+  maxParticipants: number
+}
+
+export interface AdminTourCategory {
+  id: string
+  name: string
+}
+
+export interface AdminTour {
+  id: string
+  title: string
+  description: string
+  status: string
+  tourType: string
+  createdAt: string
+  updatedAt: string
+  guide: {
+    id: string
+    fullName: string | null
+    username: string | null
+    email: string
+  } | null
+  tourPricings: AdminTourPricing[]
+  categories: AdminTourCategory[]
+  media: AdminMedia[]
+}
+
+export interface AdminToursData {
+  tours: AdminTour[]
+}
+
+export interface AdminPlace {
+  id: string
+  name: string
+  description: string
+  entryPrice: number | null
+  rate: number | null
+  createdAt: string
+  updatedAt: string
+  address: {
+    id: string
+    street: string
+    city: string
+    state: string
+    country: string
+  } | null
+  media: AdminMedia[]
+}
+
+export interface AdminPlacesData {
+  places: AdminPlace[]
+}
+
+export interface AdminEvent {
+  id: string
+  title: string
+  description: string
+  location: string
+  startTime: string
+  endTime: string
+  category: string | null
+  createdAt: string
+  updatedAt: string
+  createdBy: {
+    id: string
+    fullName: string | null
+    email: string
+  } | null
+}
+
+export interface AdminEventsData {
+  events: AdminEvent[]
+}

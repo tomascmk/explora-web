@@ -5,24 +5,20 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { AdminDataTable, AdminColumn } from '@/components/admin/AdminDataTable'
 import { UserRoleBadge } from '@/components/admin/UserRoleBadge'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
-import { ADMIN_GET_ALL_USERS, ADMIN_REMOVE_USER, ADMIN_UPDATE_USER } from '@/graphql/admin/users'
+import {
+  ADMIN_GET_ALL_USERS,
+  ADMIN_REMOVE_USER,
+  ADMIN_UPDATE_USER,
+  AdminUser,
+  AdminUsersData,
+} from '@/graphql/admin/users'
 import { useAuth } from '@/contexts/AuthContext'
 import { Trash2, Shield } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-interface UserItem {
-  id: string
-  username: string
-  fullName: string
-  email: string
-  roles: string[]
-  oauthProvider?: string
-  createdAt: string
-}
-
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth()
-  const { data, loading, refetch } = useQuery(ADMIN_GET_ALL_USERS)
+  const { data, loading, refetch } = useQuery<AdminUsersData>(ADMIN_GET_ALL_USERS)
   const [updateUser] = useMutation(ADMIN_UPDATE_USER)
   const [removeUser] = useMutation(ADMIN_REMOVE_USER)
 
@@ -35,17 +31,17 @@ export default function AdminUsersPage() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   // Modals
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; user: UserItem | null }>({
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; user: AdminUser | null }>({
     open: false,
     user: null,
   })
-  const [roleModal, setRoleModal] = useState<{ open: boolean; user: UserItem | null; newRole: string }>({
+  const [roleModal, setRoleModal] = useState<{ open: boolean; user: AdminUser | null; newRole: string }>({
     open: false,
     user: null,
     newRole: '',
   })
 
-  const allUsers: UserItem[] = useMemo(() => (data as any)?.users || [], [data])
+  const allUsers: AdminUser[] = useMemo(() => data?.users || [], [data])
 
   const filteredUsers = useMemo(() => {
     let result = allUsers
@@ -67,10 +63,10 @@ export default function AdminUsersPage() {
     }
 
     // Sort
-    result = [...result].sort((a: any, b: any) => {
-      const aVal = a[sortKey] || ''
-      const bVal = b[sortKey] || ''
-      const cmp = typeof aVal === 'string' ? aVal.localeCompare(bVal) : aVal - bVal
+    result = [...result].sort((a, b) => {
+      const aVal = a[sortKey as keyof AdminUser] ?? ''
+      const bVal = b[sortKey as keyof AdminUser] ?? ''
+      const cmp = String(aVal).localeCompare(String(bVal))
       return sortDirection === 'asc' ? cmp : -cmp
     })
 
@@ -110,7 +106,7 @@ export default function AdminUsersPage() {
     }
   }
 
-  const columns: AdminColumn<UserItem>[] = [
+  const columns: AdminColumn<AdminUser>[] = [
     {
       key: 'fullName',
       header: 'Name',

@@ -144,14 +144,15 @@ export function InteractiveMap({
   }, [tours]);
 
   useEffect(() => {
-    const handleTourClick = (event: any) => {
+    const handleTourClick = (event: CustomEvent<string>) => {
       if (onTourClick) {
         onTourClick(event.detail);
       }
     };
 
-    window.addEventListener('tour-click', handleTourClick);
-    return () => window.removeEventListener('tour-click', handleTourClick);
+    window.addEventListener('tour-click', handleTourClick as EventListener);
+    return () =>
+      window.removeEventListener('tour-click', handleTourClick as EventListener);
   }, [onTourClick]);
 
   return (

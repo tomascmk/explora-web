@@ -8,36 +8,14 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import {
   ADMIN_GET_ALL_RESERVATIONS,
   ADMIN_UPDATE_RESERVATION,
+  AdminReservation,
+  AdminReservationsData,
 } from '@/graphql/admin/reservations'
 import { Ban, Eye } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-interface ReservationItem {
-  id: string
-  reservation_status: string
-  payment_status: string
-  total_amount: string
-  created_at: string
-  cancellation_reason?: string
-  paid_at?: string
-  schedule?: {
-    startTime: string
-    endTime: string
-  }
-  tour?: {
-    id: string
-    title: string
-  }
-  user?: {
-    id: string
-    username: string
-    fullName: string
-    email: string
-  }
-}
-
 export default function AdminReservationsPage() {
-  const { data, loading, refetch } = useQuery(ADMIN_GET_ALL_RESERVATIONS)
+  const { data, loading, refetch } = useQuery<AdminReservationsData>(ADMIN_GET_ALL_RESERVATIONS)
   const [updateReservation] = useMutation(ADMIN_UPDATE_RESERVATION)
 
   const [search, setSearch] = useState('')
@@ -48,17 +26,17 @@ export default function AdminReservationsPage() {
   const [sortKey, setSortKey] = useState('created_at')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
-  const [cancelModal, setCancelModal] = useState<{ open: boolean; reservation: ReservationItem | null }>({
+  const [cancelModal, setCancelModal] = useState<{ open: boolean; reservation: AdminReservation | null }>({
     open: false,
     reservation: null,
   })
-  const [detailModal, setDetailModal] = useState<{ open: boolean; reservation: ReservationItem | null }>({
+  const [detailModal, setDetailModal] = useState<{ open: boolean; reservation: AdminReservation | null }>({
     open: false,
     reservation: null,
   })
 
-  const allReservations: ReservationItem[] = useMemo(
-    () => (data as any)?.tourReservations || [],
+  const allReservations: AdminReservation[] = useMemo(
+    () => data?.tourReservations || [],
     [data]
   )
 
@@ -84,10 +62,10 @@ export default function AdminReservationsPage() {
       result = result.filter((r) => r.payment_status === paymentFilter)
     }
 
-    result = [...result].sort((a: any, b: any) => {
-      const aVal = a[sortKey] || ''
-      const bVal = b[sortKey] || ''
-      const cmp = typeof aVal === 'string' ? aVal.localeCompare(bVal) : aVal - bVal
+    result = [...result].sort((a, b) => {
+      const aVal = a[sortKey as keyof AdminReservation] ?? ''
+      const bVal = b[sortKey as keyof AdminReservation] ?? ''
+      const cmp = String(aVal).localeCompare(String(bVal))
       return sortDirection === 'asc' ? cmp : -cmp
     })
 
@@ -119,7 +97,7 @@ export default function AdminReservationsPage() {
     }
   }
 
-  const columns: AdminColumn<ReservationItem>[] = [
+  const columns: AdminColumn<AdminReservation>[] = [
     {
       key: 'id',
       header: 'ID',
@@ -170,7 +148,7 @@ export default function AdminReservationsPage() {
       sortable: true,
       render: (r) => (
         <span className='font-semibold text-sm' style={{ color: 'var(--color-text-heading)' }}>
-          ${parseFloat(r.total_amount || '0').toFixed(2)}
+          ${Number(r.total_amount || 0).toFixed(2)}
         </span>
       ),
     },
@@ -340,7 +318,7 @@ export default function AdminReservationsPage() {
                 { label: 'Tourist', value: detailModal.reservation.user?.fullName || 'N/A' },
                 { label: 'Email', value: detailModal.reservation.user?.email || 'N/A' },
                 { label: 'Tour', value: detailModal.reservation.tour?.title || 'N/A' },
-                { label: 'Amount', value: `$${parseFloat(detailModal.reservation.total_amount || '0').toFixed(2)}` },
+                { label: 'Amount', value: `$${Number(detailModal.reservation.total_amount || 0).toFixed(2)}` },
                 { label: 'Status', value: detailModal.reservation.reservation_status },
                 { label: 'Payment', value: detailModal.reservation.payment_status },
                 { label: 'Created', value: new Date(detailModal.reservation.created_at).toLocaleString() },

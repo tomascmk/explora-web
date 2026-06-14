@@ -14,20 +14,27 @@ import {
   ADMIN_REJECT_FEEDBACK_REPORT,
   ADMIN_GET_ALL_REVIEWS,
   ADMIN_REMOVE_REVIEW,
+  AdminClaim,
+  AdminClaimsData,
+  FeedbackReport,
+  FeedbackReportsData,
+  AdminReview,
+  AdminReviewsData,
 } from '@/graphql/admin/moderation'
 import { useAuth } from '@/contexts/AuthContext'
-import { Shield, Flag, Star, CheckCircle, XCircle, Trash2 } from 'lucide-react'
+import { Shield, Flag, Star, CheckCircle, XCircle, Trash2, LucideIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 type TabKey = 'claims' | 'reports' | 'reviews'
+type ModerationItem = AdminClaim | FeedbackReport | AdminReview
 
 export default function AdminModerationPage() {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<TabKey>('claims')
 
-  const { data: claimsData, loading: claimsLoading, refetch: refetchClaims } = useQuery(ADMIN_GET_ALL_CLAIMS)
-  const { data: reportsData, loading: reportsLoading, refetch: refetchReports } = useQuery(ADMIN_GET_FEEDBACK_REPORTS)
-  const { data: reviewsData, loading: reviewsLoading, refetch: refetchReviews } = useQuery(ADMIN_GET_ALL_REVIEWS)
+  const { data: claimsData, loading: claimsLoading, refetch: refetchClaims } = useQuery<AdminClaimsData>(ADMIN_GET_ALL_CLAIMS)
+  const { data: reportsData, loading: reportsLoading, refetch: refetchReports } = useQuery<FeedbackReportsData>(ADMIN_GET_FEEDBACK_REPORTS)
+  const { data: reviewsData, loading: reviewsLoading, refetch: refetchReviews } = useQuery<AdminReviewsData>(ADMIN_GET_ALL_REVIEWS)
 
   const [resolveClaim] = useMutation(ADMIN_RESOLVE_CLAIM)
   const [rejectClaim] = useMutation(ADMIN_REJECT_CLAIM)
@@ -37,27 +44,27 @@ export default function AdminModerationPage() {
 
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(25)
+  const [pageSize] = useState(25)
 
   // Resolve/reject modals
   const [resolveModal, setResolveModal] = useState<{
     open: boolean
     type: 'claim' | 'report'
-    item: any
+    item: AdminClaim | FeedbackReport | null
     action: 'resolve' | 'reject'
     text: string
     refundAmount: string
   }>({ open: false, type: 'claim', item: null, action: 'resolve', text: '', refundAmount: '' })
 
-  const [deleteReviewModal, setDeleteReviewModal] = useState<{ open: boolean; review: any }>({
+  const [deleteReviewModal, setDeleteReviewModal] = useState<{ open: boolean; review: AdminReview | null }>({
     open: false,
     review: null,
   })
 
-  const tabs: { key: TabKey; label: string; icon: any; count: number }[] = [
-    { key: 'claims', label: 'Claims', icon: Shield, count: (claimsData as any)?.claims?.length || 0 },
-    { key: 'reports', label: 'Reports', icon: Flag, count: (reportsData as any)?.feedbackReports?.length || 0 },
-    { key: 'reviews', label: 'Reviews', icon: Star, count: (reviewsData as any)?.tourReviews?.length || 0 },
+  const tabs: { key: TabKey; label: string; icon: LucideIcon; count: number }[] = [
+    { key: 'claims', label: 'Claims', icon: Shield, count: claimsData?.claims?.length || 0 },
+    { key: 'reports', label: 'Reports', icon: Flag, count: reportsData?.feedbackReports?.length || 0 },
+    { key: 'reviews', label: 'Reviews', icon: Star, count: reviewsData?.tourReviews?.length || 0 },
   ]
 
   const handleResolveAction = async () => {
@@ -121,42 +128,42 @@ export default function AdminModerationPage() {
   }
 
   // Filter data
-  const filteredClaims = useMemo(() => {
-    const claims = (claimsData as any)?.claims || []
+  const filteredClaims = useMemo<AdminClaim[]>(() => {
+    const claims = claimsData?.claims || []
     if (!search) return claims
     const q = search.toLowerCase()
     return claims.filter(
-      (c: any) =>
+      (c) =>
         c.reason?.toLowerCase().includes(q) ||
         c.claimant?.fullName?.toLowerCase().includes(q) ||
         c.tour?.title?.toLowerCase().includes(q)
     )
   }, [claimsData, search])
 
-  const filteredReports = useMemo(() => {
-    const reports = (reportsData as any)?.feedbackReports || []
+  const filteredReports = useMemo<FeedbackReport[]>(() => {
+    const reports = reportsData?.feedbackReports || []
     if (!search) return reports
     const q = search.toLowerCase()
     return reports.filter(
-      (r: any) =>
+      (r) =>
         r.reason?.toLowerCase().includes(q) ||
         r.reporter?.fullName?.toLowerCase().includes(q)
     )
   }, [reportsData, search])
 
-  const filteredReviews = useMemo(() => {
-    const reviews = (reviewsData as any)?.tourReviews || []
+  const filteredReviews = useMemo<AdminReview[]>(() => {
+    const reviews = reviewsData?.tourReviews || []
     if (!search) return reviews
     const q = search.toLowerCase()
     return reviews.filter(
-      (r: any) =>
+      (r) =>
         r.comment?.toLowerCase().includes(q) ||
         r.user?.fullName?.toLowerCase().includes(q) ||
         r.tour?.title?.toLowerCase().includes(q)
     )
   }, [reviewsData, search])
 
-  const claimColumns: AdminColumn<any>[] = [
+  const claimColumns: AdminColumn<AdminClaim>[] = [
     {
       key: 'claimant',
       header: 'Claimant',
@@ -189,7 +196,7 @@ export default function AdminModerationPage() {
       align: 'right',
       render: (c) =>
         c.refundAmount ? (
-          <span className='font-medium'>${parseFloat(c.refundAmount).toFixed(2)}</span>
+          <span className='font-medium'>${c.refundAmount.toFixed(2)}</span>
         ) : (
           <span style={{ color: 'var(--color-text-muted)' }}>-</span>
         ),
@@ -242,7 +249,7 @@ export default function AdminModerationPage() {
     },
   ]
 
-  const reportColumns: AdminColumn<any>[] = [
+  const reportColumns: AdminColumn<FeedbackReport>[] = [
     {
       key: 'reporter',
       header: 'Reporter',
@@ -258,7 +265,7 @@ export default function AdminModerationPage() {
       header: 'Reported Review',
       render: (r) => (
         <p className='text-sm max-w-xs truncate' style={{ color: 'var(--color-text-secondary)' }}>
-          "{r.review?.comment || 'No comment'}"
+          &quot;{r.review?.comment || 'No comment'}&quot;
         </p>
       ),
     },
@@ -310,7 +317,7 @@ export default function AdminModerationPage() {
     },
   ]
 
-  const reviewColumns: AdminColumn<any>[] = [
+  const reviewColumns: AdminColumn<AdminReview>[] = [
     {
       key: 'user',
       header: 'Reviewer',
@@ -372,14 +379,31 @@ export default function AdminModerationPage() {
     },
   ]
 
-  const getActiveData = () => {
+  const getActiveData = (): {
+    columns: AdminColumn<ModerationItem>[]
+    data: ModerationItem[]
+    loading: boolean
+  } => {
     switch (activeTab) {
-      case 'claims':
-        return { columns: claimColumns, data: filteredClaims, loading: claimsLoading }
       case 'reports':
-        return { columns: reportColumns, data: filteredReports, loading: reportsLoading }
+        return {
+          columns: reportColumns as AdminColumn<ModerationItem>[],
+          data: filteredReports,
+          loading: reportsLoading,
+        }
       case 'reviews':
-        return { columns: reviewColumns, data: filteredReviews, loading: reviewsLoading }
+        return {
+          columns: reviewColumns as AdminColumn<ModerationItem>[],
+          data: filteredReviews,
+          loading: reviewsLoading,
+        }
+      case 'claims':
+      default:
+        return {
+          columns: claimColumns as AdminColumn<ModerationItem>[],
+          data: filteredClaims,
+          loading: claimsLoading,
+        }
     }
   }
 
@@ -428,7 +452,7 @@ export default function AdminModerationPage() {
       <AdminDataTable
         columns={activeData.columns}
         data={paginatedData}
-        keyExtractor={(item: any) => item.id}
+        keyExtractor={(item) => item.id}
         loading={activeData.loading}
         emptyMessage={`No ${activeTab} found`}
         searchValue={search}

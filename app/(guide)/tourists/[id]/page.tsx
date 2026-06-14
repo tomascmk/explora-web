@@ -6,7 +6,6 @@ import { GET_BOOKINGS_BY_USER } from '@/graphql/bookings';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, User, Mail, Calendar, DollarSign, ShoppingBag } from 'lucide-react';
 import { format } from 'date-fns';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 
 interface UserMedia {
@@ -119,6 +118,7 @@ export default function TouristDetailPage() {
           >
             <div className="flex items-center justify-center mb-4">
               {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- avatar from arbitrary OAuth provider URLs; next/image would require enumerating all hosts
                 <img
                   src={avatarUrl}
                   alt={tourist.fullName}

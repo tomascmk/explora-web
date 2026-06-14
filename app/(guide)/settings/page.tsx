@@ -27,7 +27,6 @@ interface Balance {
 }
 
 export default function SettingsPage() {
-  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'security'>('profile')
 
   return (

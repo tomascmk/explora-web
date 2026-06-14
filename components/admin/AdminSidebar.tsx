@@ -3,10 +3,8 @@
 import { useAuth } from '@/contexts/AuthContext'
 import {
   BarChart3,
-  BookOpen,
   ClipboardList,
   Compass,
-  Gavel,
   LayoutDashboard,
   LogOut,
   ScrollText,

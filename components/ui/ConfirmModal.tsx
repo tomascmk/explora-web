@@ -1,7 +1,6 @@
 'use client'
 
 import * as Dialog from '@radix-ui/react-dialog'
-import { ReactNode } from 'react'
 
 interface ConfirmModalProps {
   isOpen: boolean

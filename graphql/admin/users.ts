@@ -62,3 +62,22 @@ export const ADMIN_REMOVE_USER = gql`
     }
   }
 `
+
+export interface AdminUser {
+  id: string
+  username: string
+  fullName: string | null
+  email: string
+  roles: string[]
+  oauthProvider: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AdminUsersData {
+  users: AdminUser[]
+}
+
+export interface AdminUpdateUserData {
+  updateUser: Pick<AdminUser, 'id' | 'username' | 'fullName' | 'email' | 'roles'>
+}

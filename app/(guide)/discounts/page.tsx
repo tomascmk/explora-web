@@ -4,8 +4,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
 import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
-import { DISCOUNT_GROUPS_BY_GUIDE, UPDATE_DISCOUNT_GROUP, DELETE_DISCOUNT_GROUP, CREATE_DISCOUNT_GROUP } from '@/graphql/discount-groups'
-import { GET_TOURS_BY_GUIDE } from '@/graphql/tours'
+import { DISCOUNT_GROUPS_BY_GUIDE, UPDATE_DISCOUNT_GROUP, DELETE_DISCOUNT_GROUP, CREATE_DISCOUNT_GROUP, type DiscountGroupInput } from '@/graphql/discount-groups'
+import { GET_TOURS_BY_GUIDE, type ToursByGuideData } from '@/graphql/tours'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -349,7 +349,7 @@ function CreateDiscountModal({
     endDate: editingDiscount?.endDate?.split('T')[0] || ''
   })
 
-  const { data: toursData } = useQuery<{ toursByGuide: any[] }>(GET_TOURS_BY_GUIDE, {
+  const { data: toursData } = useQuery<ToursByGuideData>(GET_TOURS_BY_GUIDE, {
     variables: { guideId },
     skip: !guideId
   })
@@ -394,7 +394,7 @@ function CreateDiscountModal({
       return
     }
 
-    const input: any = {
+    const input: DiscountGroupInput = {
       name: formData.name,
       description: formData.description,
       discountType: formData.discountType,
@@ -420,7 +420,7 @@ function CreateDiscountModal({
           variables: { input: { ...input, guideId } }
         })
       }
-    } catch (error) {
+    } catch {
       // Errors handled by onError callbacks
     }
   }
@@ -532,7 +532,7 @@ function CreateDiscountModal({
               {tours.length === 0 ? (
                 <p className='text-sm' style={{ color: 'var(--color-text-muted)' }}>No tours available. Create a tour first.</p>
               ) : (
-                tours.map((tour: any) => (
+                tours.map((tour) => (
                   <label key={tour.id} className='flex items-center gap-2 cursor-pointer'>
                     <input
                       type='checkbox'

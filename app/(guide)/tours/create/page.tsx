@@ -23,7 +23,6 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { ImageUpload } from '@/components/tours/ImageUpload'
-import { PageHeader } from '@/components/ui/PageHeader'
 import {
   PlaceSearchAutocomplete,
   type PlaceSummary
@@ -36,6 +35,7 @@ import {
   CREATE_TOUR_PRICING,
   CREATE_TOUR_SCHEDULE,
   UPDATE_TOUR,
+  type CreateTourData,
 } from '@/graphql/tours'
 import { getDisplayError } from '@/utils/errorMessages'
 
@@ -112,7 +112,7 @@ export default function CreateTourPage() {
   const todayStr = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
 
   // Apollo Mutations
-  const [createTour] = useMutation<any>(CREATE_TOUR)
+  const [createTour] = useMutation<CreateTourData>(CREATE_TOUR)
   const [createTourStep] = useMutation(CREATE_TOUR_STEP)
   const [createTourPricing] = useMutation(CREATE_TOUR_PRICING)
   const [createTourSchedule] = useMutation(CREATE_TOUR_SCHEDULE)
@@ -354,7 +354,7 @@ export default function CreateTourPage() {
 
       toast.success('Tour created successfully')
       router.push('/tours')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error creating tour:', error)
       toast.error(getDisplayError(error))
     } finally {

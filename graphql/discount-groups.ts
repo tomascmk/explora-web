@@ -1,5 +1,17 @@
 import { gql } from '@apollo/client';
 
+export interface DiscountGroupInput {
+  name: string;
+  description: string;
+  discountType: 'percentage' | 'fixed_amount';
+  startDate: string;
+  endDate: string;
+  tourIds: string[];
+  isActive: boolean;
+  discountPercentage?: number;
+  discountAmount?: number;
+}
+
 export const DISCOUNT_GROUPS_BY_GUIDE = gql`
   query DiscountGroupsByGuide($guideId: String!) {
     discountGroupsByGuide(guideId: $guideId) {

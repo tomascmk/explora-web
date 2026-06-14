@@ -154,3 +154,82 @@ export const ADMIN_REMOVE_REVIEW = gql`
     }
   }
 `
+
+export interface AdminClaim {
+  id: string
+  reason: string
+  status: string
+  resolution: string | null
+  refundAmount: number | null
+  category: string | null
+  createdAt: string
+  updatedAt: string
+  resolvedAt: string | null
+  claimant: {
+    id: string
+    username: string
+    fullName: string | null
+    email: string
+  } | null
+  reservation: {
+    id: string
+    total_amount: number
+    tour: { id: string; title: string } | null
+  } | null
+  tour: { id: string; title: string } | null
+  resolvedBy: { id: string; fullName: string | null } | null
+}
+
+export interface AdminClaimsData {
+  claims: AdminClaim[]
+}
+
+export interface FeedbackReport {
+  id: string
+  reason: string
+  status: string
+  adminResponse: string | null
+  createdAt: string
+  updatedAt: string
+  reporter: {
+    id: string
+    fullName: string | null
+    email: string
+  } | null
+  review: {
+    id: string
+    comment: string | null
+    tour_rating: number | null
+    guide_rating: number | null
+    tour: { id: string; title: string } | null
+    user: { id: string; fullName: string | null } | null
+  } | null
+  reviewedBy: { id: string; fullName: string | null } | null
+}
+
+export interface FeedbackReportsData {
+  feedbackReports: FeedbackReport[]
+}
+
+export interface AdminReview {
+  id: string
+  guide_rating: number | null
+  tour_rating: number | null
+  average_rating: number | null
+  comment: string | null
+  created_at: string
+  best_tour_part: string | null
+  worst_tour_part: string | null
+  best_guide_part: string | null
+  worst_guide_part: string | null
+  user: {
+    id: string
+    username: string
+    fullName: string | null
+  } | null
+  tour: { id: string; title: string } | null
+}
+
+export interface AdminReviewsData {
+  tourReviews: AdminReview[]
+}

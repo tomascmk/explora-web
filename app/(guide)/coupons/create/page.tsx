@@ -9,6 +9,17 @@ import { toast } from 'sonner';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { getDisplayError } from '@/utils/errorMessages';
 
+interface CreateCouponInput {
+  code: string;
+  type: string;
+  value: number;
+  minPurchase?: number;
+  maxDiscount?: number;
+  usageLimit?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
 export default function CreateCouponPage() {
   const router = useRouter();
   // refetchQueries keeps the /coupons list in sync without a manual refresh
@@ -48,7 +59,7 @@ export default function CreateCouponPage() {
     }
 
     try {
-      const input: any = {
+      const input: CreateCouponInput = {
         code: formData.code.toUpperCase(),
         type: formData.type,
         value: parseFloat(formData.value),
@@ -62,7 +73,7 @@ export default function CreateCouponPage() {
 
       await createCoupon({ variables: { input } });
       router.push('/coupons');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error creating coupon:', err);
       toast.error(getDisplayError(err));
     }

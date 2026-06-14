@@ -176,7 +176,7 @@ export default function AgendaPage() {
     },
   });
 
-  const schedules = data?.userSchedulesByUser || [];
+  const schedules = useMemo(() => data?.userSchedulesByUser || [], [data]);
   const events = mapToCalendarEvents(schedules);
 
   const selectedDateEvents = useMemo(() => {

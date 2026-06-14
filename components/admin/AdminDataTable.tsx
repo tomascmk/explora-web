@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { ArrowDown, ArrowUp, ArrowUpDown, Loader2 } from 'lucide-react'
 import { SearchInput } from './SearchInput'
 import { Pagination } from './Pagination'

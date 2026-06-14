@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ImageUploadProps {
@@ -108,6 +108,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
               className="relative group aspect-square rounded-lg overflow-hidden border"
               style={{ borderColor: 'var(--color-card-border)' }}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded images from arbitrary remote URLs; next/image would require enumerating all hosts */}
               <img
                 src={image}
                 alt={`Tour image ${index + 1}`}

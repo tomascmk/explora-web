@@ -56,7 +56,7 @@ export function TripAuthGate({ shareCode }: TripAuthGateProps) {
 
       {/* Auth modal */}
       <div className='fixed inset-0 z-50 flex items-center justify-center px-4'>
-        <AuthModal shareCode={shareCode} />
+        <AuthModal />
       </div>
     </div>
   )
@@ -116,7 +116,7 @@ function AuthenticatedTrip({ shareCode }: { shareCode: string }) {
 
 type AuthTab = 'login' | 'register'
 
-function AuthModal({ shareCode }: { shareCode: string }) {
+function AuthModal() {
   const [activeTab, setActiveTab] = useState<AuthTab>('login')
 
   return (
@@ -193,9 +193,9 @@ function AuthModal({ shareCode }: { shareCode: string }) {
       {/* Form content */}
       <div className='p-6'>
         {activeTab === 'login' ? (
-          <LoginForm shareCode={shareCode} />
+          <LoginForm />
         ) : (
-          <RegisterForm shareCode={shareCode} onSwitchToLogin={() => setActiveTab('login')} />
+          <RegisterForm onSwitchToLogin={() => setActiveTab('login')} />
         )}
       </div>
     </div>
@@ -204,7 +204,7 @@ function AuthModal({ shareCode }: { shareCode: string }) {
 
 // ── Login Form ──
 
-function LoginForm({ shareCode }: { shareCode: string }) {
+function LoginForm() {
   const { setUser } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -389,10 +389,8 @@ function LoginForm({ shareCode }: { shareCode: string }) {
 // ── Register Form ──
 
 function RegisterForm({
-  shareCode,
   onSwitchToLogin
 }: {
-  shareCode: string
   onSwitchToLogin: () => void
 }) {
   const { setUser } = useAuth()

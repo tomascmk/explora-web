@@ -81,3 +81,32 @@ export const ADMIN_UPDATE_RESERVATION = gql`
     }
   }
 `
+
+export interface AdminReservation {
+  id: string
+  reservation_status: string
+  payment_status: string
+  total_amount: number
+  created_at: string
+  cancellation_reason: string | null
+  paid_at: string | null
+  is_invoice_generated: boolean
+  invoice_number: string | null
+  schedule: {
+    id: string
+    startTime: string
+    endTime: string
+    maxCapacity: number
+  } | null
+  tour: { id: string; title: string } | null
+  user: {
+    id: string
+    username: string
+    fullName: string | null
+    email: string
+  } | null
+}
+
+export interface AdminReservationsData {
+  tourReservations: AdminReservation[]
+}
