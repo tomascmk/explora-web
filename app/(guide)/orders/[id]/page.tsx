@@ -4,10 +4,12 @@ import { format } from 'date-fns'
 import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
 import { GET_RESERVATION_DETAIL, UPDATE_RESERVATION_STATUS, type UpdateReservationStatusInput } from '@/graphql/reservations'
+import { GET_OR_CREATE_CONVERSATION } from '@/graphql/chat'
+import { useAuth } from '@/contexts/AuthContext'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { toast } from 'sonner'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, User, Calendar, DollarSign, MapPin, Clock } from 'lucide-react'
+import { ArrowLeft, User, Calendar, DollarSign, MapPin, Clock, MessageCircle } from 'lucide-react'
 import { getDisplayError } from '@/utils/errorMessages'
 
 interface ReservationDetail {
@@ -44,6 +46,7 @@ export default function OrderDetailPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
+  const { featureFlags } = useAuth()
 
   const [actionType, setActionType] = useState<string | null>(null)
   const [cancelReason, setCancelReason] = useState('')
@@ -68,7 +71,20 @@ export default function OrderDetailPage() {
     }
   })
 
+  const [getOrCreateConversation, { loading: openingChat }] = useMutation(GET_OR_CREATE_CONVERSATION)
+
   const reservation = data?.tourReservation
+
+  const handleOpenChat = async (touristId: string) => {
+    try {
+      const res = await getOrCreateConversation({ variables: { otherUserId: touristId } })
+      const conversationId = (res.data as { getOrCreateConversation?: { id: string } })
+        ?.getOrCreateConversation?.id
+      if (conversationId) router.push(`/chat/${conversationId}`)
+    } catch (err) {
+      toast.error(getDisplayError(err))
+    }
+  }
 
   const handleAction = async () => {
     if (!reservation || !actionType) return
@@ -199,6 +215,17 @@ export default function OrderDetailPage() {
               <InfoCard label='Username' value={reservation.user.username} />
               <InfoCard label='Email' value={reservation.user.email} />
             </div>
+            {featureFlags.chatEnabled && reservation.user.id && (
+              <button
+                onClick={() => handleOpenChat(reservation.user.id)}
+                disabled={openingChat}
+                className='mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg border font-medium transition hover:opacity-80 disabled:opacity-50'
+                style={{ borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
+              >
+                <MessageCircle className='w-4 h-4' />
+                Chatear con el cliente
+              </button>
+            )}
           </div>
 
           {/* Schedule Information */}

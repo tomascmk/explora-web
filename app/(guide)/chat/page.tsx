@@ -53,6 +53,12 @@ export default function ChatInboxPage() {
             >
               <div className='flex-1 min-w-0'>
                 <p
+                  className='truncate text-sm font-semibold'
+                  style={{ color: 'var(--color-text-heading)' }}
+                >
+                  {c.otherUserName ?? 'Usuario'}
+                </p>
+                <p
                   className='truncate text-sm'
                   style={{ color: 'var(--color-text-body)' }}
                 >

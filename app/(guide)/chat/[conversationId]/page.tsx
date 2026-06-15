@@ -7,10 +7,12 @@ import { ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useChatSocket } from '@/hooks/useChatSocket'
 import {
+  CONVERSATION,
   CONVERSATION_MESSAGES,
   MARK_CONVERSATION_READ,
   SEND_MESSAGE,
   type ChatMessage,
+  type ConversationSummary,
 } from '@/graphql/chat'
 
 export default function ChatThreadPage() {
@@ -23,6 +25,16 @@ export default function ChatThreadPage() {
   const [otherTyping, setOtherTyping] = useState(false)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const { data: convData } = useQuery<{ conversation: ConversationSummary }>(
+    CONVERSATION,
+    {
+      variables: { conversationId },
+      skip: !conversationId || !featureFlags.chatEnabled,
+      fetchPolicy: 'cache-and-network',
+    },
+  )
+  const otherUserName = convData?.conversation?.otherUserName
 
   const { data } = useQuery<{ conversationMessages: ChatMessage[] }>(
     CONVERSATION_MESSAGES,
@@ -118,13 +130,21 @@ export default function ChatThreadPage() {
 
   return (
     <div className='flex flex-col h-[calc(100vh-120px)]'>
-      <button
-        onClick={() => router.push('/chat')}
-        className='flex items-center gap-2 mb-4 text-sm transition hover:opacity-80'
-        style={{ color: 'var(--color-text-secondary)' }}
-      >
-        <ArrowLeft size={18} /> Mensajes
-      </button>
+      <div className='flex items-center gap-3 mb-4'>
+        <button
+          onClick={() => router.push('/chat')}
+          className='flex items-center gap-2 text-sm transition hover:opacity-80'
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          <ArrowLeft size={18} /> Mensajes
+        </button>
+        <h1
+          className='truncate text-base font-bold'
+          style={{ color: 'var(--color-text-heading)' }}
+        >
+          {otherUserName ?? 'Usuario'}
+        </h1>
+      </div>
 
       <div className='flex-1 overflow-y-auto flex flex-col gap-2 pr-2'>
         {messages.map((m) => {

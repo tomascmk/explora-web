@@ -11,6 +11,7 @@ export interface ChatMessage {
 export interface ConversationSummary {
   id: string
   otherUserId: string
+  otherUserName: string | null
   lastMessageAt: string | null
   lastMessagePreview: string | null
   unreadCount: number
@@ -21,9 +22,30 @@ export const MY_CONVERSATIONS = gql`
     myConversations {
       id
       otherUserId
+      otherUserName
       lastMessageAt
       lastMessagePreview
       unreadCount
+    }
+  }
+`
+
+export const CONVERSATION = gql`
+  query Conversation($conversationId: String!) {
+    conversation(conversationId: $conversationId) {
+      id
+      otherUserId
+      otherUserName
+    }
+  }
+`
+
+export const GET_OR_CREATE_CONVERSATION = gql`
+  mutation GetOrCreateConversation($otherUserId: String!) {
+    getOrCreateConversation(otherUserId: $otherUserId) {
+      id
+      touristUserId
+      guideUserId
     }
   }
 `
