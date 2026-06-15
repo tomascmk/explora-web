@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+env:
+  # GitHub deprecó el runtime Node 20 de las JS actions; las forzamos a Node 24.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   lint-typecheck-build:
     runs-on: ubuntu-latest
@@ -22,7 +26,7 @@ jobs:
           version: 10
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
