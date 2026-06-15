@@ -2,12 +2,15 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import type { FeatureFlags } from '@/graphql/feature-flags'
+import { useQuery } from '@apollo/client/react'
+import { MY_UNREAD_CHAT_COUNT } from '@/graphql/chat'
 import {
   Calendar,
   CreditCard,
   History,
   LayoutDashboard,
   Map,
+  MessageCircle,
   MessageSquare,
   Percent,
   Settings,
@@ -42,6 +45,13 @@ const navItems: NavItem[] = [
   { href: '/agenda', label: 'Agenda', icon: <Calendar size={20} /> },
   { href: '/balance', label: 'Balance', icon: <CreditCard size={20} /> },
   { href: '/feedback', label: 'Feedback', icon: <MessageSquare size={20} /> },
+  {
+    href: '/chat',
+    label: 'Messages',
+    icon: <MessageCircle size={20} />,
+    matchPath: '/chat',
+    flag: 'chatEnabled',
+  },
   { href: '/claims', label: 'Claims', icon: <ShieldAlert size={20} />, flag: 'claimsEnabled' },
   { href: '/discounts', label: 'Discounts', icon: <Percent size={20} />, flag: 'discountGroupsEnabled' },
   { href: '/coupons', label: 'Coupons', icon: <Tag size={20} />, matchPath: '/coupons' },
@@ -56,6 +66,13 @@ const bottomNavItems: NavItem[] = [
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user, logout, featureFlags } = useAuth()
   const pathname = usePathname()
+
+  // PLAN-038: no-leídos para el badge del item de chat.
+  const { data: unreadData } = useQuery<{ myUnreadChatCount: number }>(
+    MY_UNREAD_CHAT_COUNT,
+    { skip: !featureFlags.chatEnabled, pollInterval: 30_000 },
+  )
+  const unreadChat = unreadData?.myUnreadChatCount ?? 0
 
   const visibleNavItems = navItems.filter(
     (item) => !item.flag || featureFlags[item.flag],
@@ -133,6 +150,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               />
               <span className='flex-shrink-0'>{item.icon}</span>
               <span>{item.label}</span>
+              {item.href === '/chat' && unreadChat > 0 && (
+                <span
+                  className='ml-auto min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold text-white flex items-center justify-center'
+                  style={{ backgroundColor: 'var(--color-primary)' }}
+                >
+                  {unreadChat}
+                </span>
+              )}
             </Link>
           )
         })}
@@ -170,6 +195,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               <span className='flex-shrink-0'>{item.icon}</span>
               <span>{item.label}</span>
+              {item.href === '/chat' && unreadChat > 0 && (
+                <span
+                  className='ml-auto min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold text-white flex items-center justify-center'
+                  style={{ backgroundColor: 'var(--color-primary)' }}
+                >
+                  {unreadChat}
+                </span>
+              )}
             </Link>
           )
         })}
