@@ -65,7 +65,7 @@ interface Waypoint {
   placeName?: string
 }
 
-const DEFAULT_MAP_CENTER: [number, number] = [-34.6037, -58.3816]
+const FALLBACK_MAP_CENTER: [number, number] = [-34.6037, -58.3816]
 const NEARBY_RADIUS_METERS = 5000
 
 interface PlacesInRadiusResult {
@@ -165,6 +165,12 @@ export default function EditTourPage() {
     }
   }, [fetchData])
 
+  // Center on first existing step, or fallback
+  const mapCenter: [number, number] =
+    waypoints.length > 0
+      ? [waypoints[0].latitude, waypoints[0].longitude]
+      : FALLBACK_MAP_CENTER
+
   // Mutations
   const [updateTour] = useMutation(UPDATE_TOUR)
   const [createTourStep] = useMutation(CREATE_TOUR_STEP)
@@ -179,8 +185,8 @@ export default function EditTourPage() {
     {
       variables: {
         input: {
-          latitude: DEFAULT_MAP_CENTER[0],
-          longitude: DEFAULT_MAP_CENTER[1],
+          latitude: mapCenter[0],
+          longitude: mapCenter[1],
           radius: NEARBY_RADIUS_METERS
         }
       },
@@ -635,7 +641,7 @@ export default function EditTourPage() {
               onWaypointRemove={handleRemoveWaypoint}
               nearbyPlaces={nearbyPlaces}
               onPlaceClick={handleAddPlaceWaypoint}
-              center={DEFAULT_MAP_CENTER}
+              center={mapCenter}
             />
           </div>
 
