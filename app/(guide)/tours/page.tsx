@@ -1,18 +1,26 @@
 'use client'
 
-import { useQuery, useMutation } from '@apollo/client/react'
+import { useQuery, useMutation, useApolloClient } from '@apollo/client/react'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
-import { GET_TOURS_BY_GUIDE, DELETE_TOUR, CREATE_TOUR_SCHEDULE } from '@/graphql/tours'
+import {
+  GET_TOURS_BY_GUIDE,
+  GET_TOUR_BY_ID,
+  DELETE_TOUR,
+  CREATE_TOUR,
+  CREATE_TOUR_STEP,
+  CREATE_TOUR_PRICING,
+  CREATE_TOUR_SCHEDULE,
+} from '@/graphql/tours'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { FilterButton } from '@/components/ui/FilterButton'
 import { getDisplayError } from '@/utils/errorMessages'
-import { Plus, X, Calendar, Clock, MapPin } from 'lucide-react'
+import { Plus, X, Calendar, Clock, MapPin, Copy } from 'lucide-react'
 
 interface TourSchedule {
   id: string
@@ -48,6 +56,7 @@ interface GetToursByGuideVars {
 export default function ToursPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const client = useApolloClient()
   const [filter, setFilter] = useState('all')
 
   const { data, loading } = useQuery<GetToursByGuideData, GetToursByGuideVars>(GET_TOURS_BY_GUIDE, {
@@ -127,6 +136,85 @@ export default function ToursPage() {
 
   const handleEdit = (id: string) => {
     router.push(`/tours/${id}/edit`)
+  }
+
+  const [cloning, setCloning] = useState<string | null>(null)
+  const [createTourMut] = useMutation(CREATE_TOUR)
+  const [createStepMut] = useMutation(CREATE_TOUR_STEP)
+  const [createPricingMut] = useMutation(CREATE_TOUR_PRICING)
+
+  const handleClone = async (tourId: string) => {
+    if (!user?.id || cloning) return
+    setCloning(tourId)
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: tourData } = await client.query<{ tour: any }>({
+        query: GET_TOUR_BY_ID,
+        variables: { id: tourId },
+        fetchPolicy: 'network-only',
+      })
+      const source = tourData?.tour
+      if (!source) throw new Error('Tour not found')
+
+      const { data: created } = await createTourMut({
+        variables: {
+          input: {
+            title: `${source.title} (copy)`,
+            description: source.description || '',
+            guideId: user.id,
+            status: 'DRAFT',
+            tourType: source.tourType,
+          },
+        },
+      })
+      const newTourId = (created as { createTour?: { id: string } })?.createTour?.id
+      if (!newTourId) throw new Error('Failed to create tour')
+
+      // Copy steps
+      const steps = [...(source.tourSteps || [])].sort(
+        (a: { order: number }, b: { order: number }) => a.order - b.order,
+      )
+      for (const step of steps) {
+        await createStepMut({
+          variables: {
+            input: {
+              tourId: newTourId,
+              title: step.title || '',
+              description: step.description || '',
+              latitude: step.latitude,
+              longitude: step.longitude,
+              order: step.order,
+              ...(step.place?.id ? { placeId: step.place.id } : {}),
+            },
+          },
+        })
+      }
+
+      // Copy pricing
+      const pricings = source.tourPricings || []
+      for (const p of pricings) {
+        await createPricingMut({
+          variables: {
+            input: {
+              tourId: newTourId,
+              price: p.price,
+              currency: p.currency,
+              startDate: p.startDate,
+              endDate: p.endDate || undefined,
+              minParticipants: p.minParticipants || undefined,
+              maxParticipants: p.maxParticipants || undefined,
+            },
+          },
+        })
+      }
+
+      toast.success('Tour cloned as draft')
+      router.push(`/tours/${newTourId}/edit`)
+    } catch (err) {
+      toast.error(getDisplayError(err))
+    } finally {
+      setCloning(null)
+    }
   }
 
   const handleAddSession = (tourId: string, title: string) => {
@@ -266,7 +354,9 @@ export default function ToursPage() {
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
               onAddSession={handleAddSession}
+              onClone={handleClone}
               deleting={deleting && modalConfig.tourId === tour.id}
+              cloning={cloning === tour.id}
             />
           ))}
         </div>
@@ -442,13 +532,17 @@ function TourCard({
   onEdit,
   onDelete,
   onAddSession,
-  deleting
+  onClone,
+  deleting,
+  cloning,
 }: {
   tour: Tour
   onEdit: (id: string) => void
   onDelete: (id: string, title: string) => void
   onAddSession: (tourId: string, title: string) => void
+  onClone: (tourId: string) => void
   deleting: boolean
+  cloning: boolean
 }) {
   const isGuided = tour.tourType === 'GUIDED'
   const pricing = tour.tourPricings?.[0]
@@ -575,6 +669,15 @@ function TourCard({
             style={{ backgroundColor: 'var(--color-section-bg)', color: 'var(--color-text-body)' }}
           >
             Edit
+          </button>
+          <button
+            onClick={() => onClone(tour.id)}
+            disabled={cloning}
+            className='flex-1 px-4 py-2 rounded-lg transition text-sm font-medium disabled:opacity-50 enabled:hover:opacity-80 flex items-center justify-center gap-1'
+            style={{ backgroundColor: 'var(--color-section-bg)', color: 'var(--color-text-body)' }}
+          >
+            <Copy size={14} />
+            {cloning ? 'Cloning...' : 'Clone'}
           </button>
           {isGuided && (
             <button
