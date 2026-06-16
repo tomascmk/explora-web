@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@apollo/client/react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
@@ -64,12 +64,8 @@ interface Waypoint {
   placeName?: string
 }
 
-/**
- * Centro por defecto del buscador de places. Cuando agreguemos detección
- * de ciudad activa del guía, mover a un store. Por ahora Buenos Aires
- * cubre el 100% de los tours piloto.
- */
-const DEFAULT_MAP_CENTER: [number, number] = [-34.6037, -58.3816]
+/** Fallback si la geolocalización del navegador no está disponible. */
+const FALLBACK_MAP_CENTER: [number, number] = [-34.6037, -58.3816]
 const NEARBY_RADIUS_METERS = 5000
 
 interface PlacesInRadiusResult {
@@ -81,6 +77,17 @@ export default function CreateTourPage() {
   const { user } = useAuth()
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
+  const [mapCenter, setMapCenter] = useState<[number, number]>(FALLBACK_MAP_CENTER)
+
+  // Detect guide's location for map center (fallback to Buenos Aires)
+  useEffect(() => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setMapCenter([pos.coords.latitude, pos.coords.longitude]),
+      () => {}, // Silently fall back
+      { timeout: 5000 },
+    )
+  }, [])
 
   // Tour basic info
   const [tourInfo, setTourInfo] = useState({
@@ -127,8 +134,8 @@ export default function CreateTourPage() {
     {
       variables: {
         input: {
-          latitude: DEFAULT_MAP_CENTER[0],
-          longitude: DEFAULT_MAP_CENTER[1],
+          latitude: mapCenter[0],
+          longitude: mapCenter[1],
           radius: NEARBY_RADIUS_METERS
         }
       },
@@ -646,7 +653,7 @@ export default function CreateTourPage() {
               onWaypointRemove={handleRemoveWaypoint}
               nearbyPlaces={nearbyPlaces}
               onPlaceClick={handleAddPlaceWaypoint}
-              center={DEFAULT_MAP_CENTER}
+              center={mapCenter}
             />
           </div>
 

@@ -56,7 +56,7 @@ export function TourCreationMap({
   onWaypointRemove,
   nearbyPlaces = [],
   onPlaceClick,
-  center = [-34.6037, -58.3816] // Buenos Aires default
+  center = [-34.6037, -58.3816] // Fallback if no center passed
 }: TourCreationMapProps) {
   const [isMounted, setIsMounted] = useState(false)
   const [routePath, setRoutePath] = useState<[number, number][]>([])
