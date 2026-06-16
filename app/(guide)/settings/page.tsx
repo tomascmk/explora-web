@@ -3,12 +3,11 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
-import { UPDATE_USER_PROFILE, UPDATE_STRIPE_ACCOUNT } from '@/graphql/settings'
+import { UPDATE_USER_PROFILE } from '@/graphql/settings'
 import {
   GET_NOTIFICATION_PREFERENCES,
   UPDATE_NOTIFICATION_PREFERENCES
 } from '@/graphql/notifications'
-import { MY_BALANCE } from '@/graphql/balance'
 import { toast } from 'sonner'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -19,11 +18,6 @@ interface NotificationPreferences {
   emailEnabled: boolean
   pushEnabled: boolean
   smsEnabled: boolean
-}
-
-interface Balance {
-  id: string
-  stripeAccountId?: string
 }
 
 export default function SettingsPage() {
@@ -57,7 +51,6 @@ function ProfileTab() {
   const { user } = useAuth()
   const [fullName, setFullName] = useState(user?.fullName || '')
   const [username, setUsername] = useState(user?.username || '')
-  const [stripeAccountId, setStripeAccountId] = useState('')
 
   // Hydrate form from `user` when it becomes available after mount.
   // Without this, navigating to /settings while the auth check is still in
@@ -70,19 +63,10 @@ function ProfileTab() {
     }
   }, [user])
 
-  const { data: balanceData } = useQuery<{ myBalance: Balance }>(MY_BALANCE, { skip: !user })
-
   const [updateProfile, { loading: savingProfile }] = useMutation(UPDATE_USER_PROFILE, {
     onCompleted: () => toast.success('Profile updated successfully'),
     onError: (error) => toast.error(getDisplayError(error))
   })
-
-  const [updateStripe, { loading: savingStripe }] = useMutation(UPDATE_STRIPE_ACCOUNT, {
-    onCompleted: () => { toast.success('Stripe account connected successfully'); setStripeAccountId('') },
-    onError: (error) => toast.error(getDisplayError(error))
-  })
-
-  const stripeConnected = !!balanceData?.myBalance?.stripeAccountId
 
   const handleSaveProfile = async () => {
     if (!user) return
@@ -90,13 +74,6 @@ function ProfileTab() {
     if (!username.trim()) { toast.error('Username is required'); return }
     try {
       await updateProfile({ variables: { input: { id: user.id, fullName: fullName.trim(), username: username.trim() } } })
-    } catch { /* Handled by onError */ }
-  }
-
-  const handleConnectStripe = async () => {
-    if (!user || !stripeAccountId.trim()) { toast.error('Please enter a Stripe Account ID'); return }
-    try {
-      await updateStripe({ variables: { guideId: user.id, stripeAccountId: stripeAccountId.trim() } })
     } catch { /* Handled by onError */ }
   }
 
@@ -133,42 +110,14 @@ function ProfileTab() {
         </div>
       </div>
 
+      {/* PLAN-041: la cuenta de cobro (MercadoPago) se gestiona en
+          Payment Settings; el viejo Stripe account ID fue retirado. */}
       <div className='rounded-xl border p-6' style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}>
-        <h2 className='text-xl font-semibold mb-4' style={{ color: 'var(--color-text-heading)' }}>Payment Account</h2>
-        {stripeConnected ? (
-          <div>
-            <div className='flex items-center gap-2 mb-3'>
-              <div className='w-2 h-2 rounded-full' style={{ backgroundColor: 'var(--color-success)' }}></div>
-              <span className='font-medium' style={{ color: 'var(--color-success)' }}>Stripe Connected</span>
-            </div>
-            <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>
-              Account ID: {balanceData?.myBalance?.stripeAccountId?.slice(0, 12)}...
-            </p>
-            <p className='text-xs mt-2' style={{ color: 'var(--color-text-muted)' }}>
-              To change your Stripe account, go to{' '}
-              <a href='/settings/payments' style={{ color: 'var(--color-primary)' }} className='hover:underline'>Payment Settings</a>
-            </p>
-          </div>
-        ) : (
-          <div>
-            <div className='flex items-center gap-2 mb-3'>
-              <div className='w-2 h-2 rounded-full' style={{ backgroundColor: 'var(--color-text-muted)' }}></div>
-              <span style={{ color: 'var(--color-text-secondary)' }}>Not Connected</span>
-            </div>
-            <p className='text-sm mb-4' style={{ color: 'var(--color-text-muted)' }}>Connect your Stripe account to receive payouts</p>
-            <div className='flex gap-2'>
-              <input type='text' value={stripeAccountId} onChange={(e) => setStripeAccountId(e.target.value)}
-                placeholder='acct_...' className='flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none'
-                style={{ borderColor: 'var(--color-card-border)' }} />
-              <button onClick={handleConnectStripe} disabled={savingStripe || !stripeAccountId.trim()}
-                className='text-white px-6 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2 transition'
-                style={{ backgroundColor: 'var(--color-info)' }}>
-                {savingStripe && <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />}
-                Connect
-              </button>
-            </div>
-          </div>
-        )}
+        <h2 className='text-xl font-semibold mb-2' style={{ color: 'var(--color-text-heading)' }}>Payment Account</h2>
+        <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>
+          Manage your MercadoPago payout account in{' '}
+          <a href='/settings/payments' style={{ color: 'var(--color-primary)' }} className='hover:underline'>Payment Settings</a>.
+        </p>
       </div>
     </div>
   )

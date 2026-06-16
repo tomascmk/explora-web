@@ -1,42 +1,14 @@
 import { gql } from '@apollo/client';
 
-export const MY_BALANCE = gql`
-  query MyBalance {
-    myBalance {
-      id
-      availableBalance
-      pendingBalance
-      totalEarnings
-      totalPayouts
-      stripeAccountId
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-export const REQUEST_PAYOUT = gql`
-  mutation RequestPayout($amount: Float!) {
-    requestPayout(amount: $amount) {
-      id
-      amount
-      status
-      requestedAt
-      processedAt
-      notes
-    }
-  }
-`;
-
-export const MY_PAYOUT_REQUESTS = gql`
-  query MyPayoutRequests {
-    myPayoutRequests {
-      id
-      amount
-      status
-      requestedAt
-      processedAt
-      notes
+// PLAN-041: las ganancias se derivan de las reservas marketplace (fuente de
+// verdad). El ledger interno + payout manual fueron retirados.
+export const MY_EARNINGS = gql`
+  query MyEarnings {
+    myEarnings {
+      inEscrow
+      released
+      total
+      count
     }
   }
 `;

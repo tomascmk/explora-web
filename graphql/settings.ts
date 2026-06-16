@@ -10,12 +10,3 @@ export const UPDATE_USER_PROFILE = gql`
     }
   }
 `;
-
-export const UPDATE_STRIPE_ACCOUNT = gql`
-  mutation UpdateStripeAccount($guideId: String!, $stripeAccountId: String!) {
-    updateStripeAccount(guideId: $guideId, stripeAccountId: $stripeAccountId) {
-      id
-      stripeAccountId
-    }
-  }
-`;
