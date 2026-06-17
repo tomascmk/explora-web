@@ -18,9 +18,7 @@ export function renderWithProviders(
 ) {
   function Wrapper({ children }: { children: React.ReactNode }) {
     return (
-      <MockedProvider mocks={mocks} addTypename={false}>
-        {children}
-      </MockedProvider>
+      <MockedProvider mocks={mocks}>{children}</MockedProvider>
     );
   }
   return render(ui, { wrapper: Wrapper, ...options });

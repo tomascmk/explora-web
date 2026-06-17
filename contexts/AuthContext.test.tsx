@@ -3,7 +3,7 @@ import { render, screen, waitFor, act } from "@testing-library/react"
 import { useRouter } from "next/navigation"
 
 // Control the feature-flags query result.
-const useQueryMock = vi.fn(() => ({ data: undefined }))
+const useQueryMock = vi.fn((): { data: unknown } => ({ data: undefined }))
 vi.mock("@apollo/client/react", () => ({
   useQuery: () => useQueryMock(),
 }))
