@@ -38,6 +38,7 @@ import {
   type CreateTourData,
 } from '@/graphql/tours'
 import { getDisplayError } from '@/utils/errorMessages'
+import { getMinTourPrice } from '@/lib/tourPricing'
 
 const TourCreationMap = dynamic(
   () =>
@@ -97,6 +98,9 @@ export default function CreateTourPage() {
     price: '',
     currency: 'USD',
     maxParticipants: '',
+    // F-23: free-walking (gratis, sólo GUIDED) y custom (privado por código).
+    isFreeWalkingTour: false,
+    isCustom: false,
   })
 
   // Guided tour schedule info
@@ -126,6 +130,11 @@ export default function CreateTourPage() {
   const [updateTour] = useMutation(UPDATE_TOUR)
 
   const isGuided = tourInfo.tourType === 'GUIDED'
+  // F-23: free-walking sólo aplica a GUIDED; custom nunca es free-walking.
+  const isFreeWalking = isGuided && tourInfo.isFreeWalkingTour
+  // Precio obligatorio (≥ mínimo) para custom y para GUIDED pago no free-walking.
+  const requiresPaidPrice = tourInfo.isCustom || (isGuided && !isFreeWalking)
+  const minPrice = getMinTourPrice(tourInfo.currency)
 
   // Places cercanos al centro del mapa — se muestran como markers teal
   // clickables y se excluyen los que ya están en la ruta.
@@ -269,6 +278,18 @@ export default function CreateTourPage() {
       }
     }
 
+    // F-23: el precio es obligatorio (≥ mínimo) para custom tours y para GUIDED
+    // pagos que no son free-walking. La API lo re-valida; esto es el hint de UX.
+    if (requiresPaidPrice) {
+      const priceNum = parseFloat(tourInfo.price)
+      if (!tourInfo.price || Number.isNaN(priceNum) || priceNum < minPrice) {
+        toast.error(
+          `Price must be at least ${minPrice} ${tourInfo.currency} for this tour`,
+        )
+        return
+      }
+    }
+
     setSubmitting(true)
 
     try {
@@ -281,6 +302,8 @@ export default function CreateTourPage() {
             guideId: user.id,
             status: 'DRAFT',
             tourType: tourInfo.tourType,
+            isFreeWalkingTour: isFreeWalking,
+            isCustom: tourInfo.isCustom,
           },
         },
       })
@@ -308,8 +331,9 @@ export default function CreateTourPage() {
       )
       await Promise.all(stepPromises)
 
-      // 3. Create TourPricing if price was specified
-      if (tourInfo.price) {
+      // 3. Create TourPricing if price was specified. Free-walking tours never
+      // carry pricing (son gratis por definición).
+      if (tourInfo.price && !isFreeWalking) {
         await createTourPricing({
           variables: {
             input: {
@@ -359,8 +383,15 @@ export default function CreateTourPage() {
         },
       })
 
-      toast.success('Tour created successfully')
-      router.push('/tours')
+      // F-23: para custom tours mandamos al guía al editor del tour, donde
+      // genera y comparte el código de acceso.
+      if (tourInfo.isCustom) {
+        toast.success('Private tour created — generate an access code to share')
+        router.push(`/tours/${tourId}/edit`)
+      } else {
+        toast.success('Tour created successfully')
+        router.push('/tours')
+      }
     } catch (error) {
       console.error('Error creating tour:', error)
       toast.error(getDisplayError(error))
@@ -436,6 +467,61 @@ export default function CreateTourPage() {
               </div>
             </div>
 
+            {/* F-23: pricing/privacy options */}
+            <div className='space-y-3'>
+              {isGuided && (
+                <label className='flex items-start gap-3 cursor-pointer'>
+                  <input
+                    type='checkbox'
+                    checked={tourInfo.isFreeWalkingTour}
+                    onChange={(e) =>
+                      setTourInfo({
+                        ...tourInfo,
+                        isFreeWalkingTour: e.target.checked,
+                        // free-walking y custom son excluyentes
+                        isCustom: e.target.checked ? false : tourInfo.isCustom,
+                      })
+                    }
+                    className='mt-1'
+                  />
+                  <span>
+                    <span className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
+                      Free walking tour
+                    </span>
+                    <span className='block text-sm' style={{ color: 'var(--color-text-muted)' }}>
+                      No charge — travellers can tip at the end. No price is set.
+                    </span>
+                  </span>
+                </label>
+              )}
+              <label className='flex items-start gap-3 cursor-pointer'>
+                <input
+                  type='checkbox'
+                  checked={tourInfo.isCustom}
+                  onChange={(e) =>
+                    setTourInfo({
+                      ...tourInfo,
+                      isCustom: e.target.checked,
+                      // custom siempre es pago: no puede ser free-walking
+                      isFreeWalkingTour: e.target.checked
+                        ? false
+                        : tourInfo.isFreeWalkingTour,
+                    })
+                  }
+                  className='mt-1'
+                />
+                <span>
+                  <span className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
+                    Custom (private, by code)
+                  </span>
+                  <span className='block text-sm' style={{ color: 'var(--color-text-muted)' }}>
+                    Hidden from discovery. Only travellers with your access code can
+                    see and book it. Always paid (min {minPrice} {tourInfo.currency}).
+                  </span>
+                </span>
+              </label>
+            </div>
+
             <div>
               <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
                 Tour Title *
@@ -473,20 +559,26 @@ export default function CreateTourPage() {
             <div className={`grid ${isGuided ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'} gap-4`}>
               <div>
                 <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
-                  Price per Person
+                  Price per Person {requiresPaidPrice ? '*' : ''}
                 </label>
                 <input
                   type='number'
                   min='0'
                   step='0.01'
-                  value={tourInfo.price}
+                  value={isFreeWalking ? '' : tourInfo.price}
+                  disabled={isFreeWalking}
                   onChange={(e) =>
                     setTourInfo({ ...tourInfo, price: e.target.value })
                   }
-                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
+                  className='w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none disabled:opacity-50'
                   style={{ borderColor: 'var(--color-card-border)' }}
-                  placeholder='75'
+                  placeholder={isFreeWalking ? 'Free' : '75'}
                 />
+                {requiresPaidPrice && (
+                  <p className='text-xs mt-1' style={{ color: 'var(--color-text-muted)' }}>
+                    Minimum {minPrice} {tourInfo.currency}
+                  </p>
+                )}
               </div>
               <div>
                 <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
