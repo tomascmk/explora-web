@@ -37,6 +37,8 @@ interface Tour {
   description: string
   status: string
   tourType: string
+  isCustom?: boolean
+  isFreeWalkingTour?: boolean
   createdAt: string
   media?: Array<{ url: string }>
   categories?: Array<{ name: string }>
@@ -545,6 +547,8 @@ function TourCard({
   cloning: boolean
 }) {
   const isGuided = tour.tourType === 'GUIDED'
+  const isPrivate = tour.isCustom
+  const isFreeWalking = tour.isFreeWalkingTour
   const pricing = tour.tourPricings?.[0]
   const scheduleCount = tour.tourSchedules?.length || 0
   const formattedDate = new Date(tour.createdAt).toLocaleDateString('en-US', {
@@ -574,7 +578,7 @@ function TourCard({
           className='h-48 bg-cover bg-center relative'
           style={{ backgroundImage: `url(${tour.media[0].url})` }}
         >
-          <div className='absolute top-2 left-2'>
+          <div className='absolute top-2 left-2 flex gap-1'>
             <span
               className='px-2 py-1 rounded text-xs font-semibold'
               style={
@@ -585,6 +589,22 @@ function TourCard({
             >
               {isGuided ? 'Guided' : 'Self-Guided'}
             </span>
+            {isPrivate && (
+              <span
+                className='px-2 py-1 rounded text-xs font-semibold'
+                style={{ backgroundColor: 'var(--color-card-bg)', color: 'var(--color-text-heading)' }}
+              >
+                Private
+              </span>
+            )}
+            {isFreeWalking && (
+              <span
+                className='px-2 py-1 rounded text-xs font-semibold'
+                style={{ backgroundColor: 'var(--color-success-light, #DCFCE7)', color: 'var(--color-success)' }}
+              >
+                Free walk
+              </span>
+            )}
           </div>
         </div>
       ) : (
@@ -592,7 +612,7 @@ function TourCard({
           className='h-48 relative'
           style={{ background: 'linear-gradient(to right, var(--color-primary), var(--color-primary-dark))' }}
         >
-          <div className='absolute top-2 left-2'>
+          <div className='absolute top-2 left-2 flex gap-1'>
             <span
               className='px-2 py-1 rounded text-xs font-semibold'
               style={
@@ -603,6 +623,22 @@ function TourCard({
             >
               {isGuided ? 'Guided' : 'Self-Guided'}
             </span>
+            {isPrivate && (
+              <span
+                className='px-2 py-1 rounded text-xs font-semibold'
+                style={{ backgroundColor: 'var(--color-card-bg)', color: 'var(--color-text-heading)' }}
+              >
+                Private
+              </span>
+            )}
+            {isFreeWalking && (
+              <span
+                className='px-2 py-1 rounded text-xs font-semibold'
+                style={{ backgroundColor: 'var(--color-success-light, #DCFCE7)', color: 'var(--color-success)' }}
+              >
+                Free walk
+              </span>
+            )}
           </div>
         </div>
       )}

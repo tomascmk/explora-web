@@ -6,6 +6,8 @@ export interface GuideTourListItem {
   description: string;
   status: string;
   tourType: string;
+  isFreeWalkingTour: boolean;
+  isCustom: boolean;
   createdAt: string;
   guide: {
     id: string;
@@ -69,6 +71,8 @@ export interface TourByIdData {
     description: string;
     status: string;
     tourType: string;
+    isFreeWalkingTour: boolean;
+    isCustom: boolean;
     createdAt: string;
     guide: {
       id: string;
@@ -122,6 +126,8 @@ export const GET_TOURS_BY_GUIDE = gql`
       description
       status
       tourType
+      isFreeWalkingTour
+      isCustom
       createdAt
       guide {
         id
@@ -171,6 +177,8 @@ export const GET_TOUR_BY_ID = gql`
       description
       status
       tourType
+      isFreeWalkingTour
+      isCustom
       createdAt
       guide {
         id
