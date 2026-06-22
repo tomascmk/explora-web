@@ -57,3 +57,10 @@ _tmp_*
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+# Test coverage
+coverage/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
