@@ -51,3 +51,9 @@ CLAUDE.md
 
 # Temp files
 _tmp_*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
