@@ -13,7 +13,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "gql:check": "node scripts/gql-check.mjs",
+    "gql:sync": "cp ../explora-api/schema.gql graphql/schema.gql"
   },
   "dependencies": {
     "@apollo/client": "^4.0.7",

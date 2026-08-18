@@ -29,6 +29,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
+      # PLAN-071 §4 — Valida las operaciones GraphQL contra el schema real.
+      # TypeScript no ve dentro de los template literals y los tests mockean
+      # Apollo, asi que sin esto un campo inexistente pasa todos los gates.
+      - name: GraphQL contract check
+        run: pnpm gql:check
       - run: pnpm test --coverage
       - run: pnpm build
 

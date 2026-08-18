@@ -1,0 +1,2974 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AccessibilityPayload {
+  wheelchairAccessibleEntrance: Boolean
+  wheelchairAccessibleParking: Boolean
+  wheelchairAccessibleRestroom: Boolean
+  wheelchairAccessibleSeating: Boolean
+}
+
+type Achievement {
+  description: String!
+  icon: String!
+  id: String!
+  isCompleted: Boolean!
+  name: String!
+  progress: Int!
+  total: Int!
+}
+
+type Activity {
+  achievement: UnlockableAchievement
+  availableDurations: [Int!]!
+  city: String!
+  color: String!
+  country: String!
+  coverImageUrl: String
+  createdAt: DateTime!
+  description: String
+  frequencyMinutes: Int!
+  id: ID!
+  isActive: Boolean!
+  serviceEnd: String!
+  serviceStart: String!
+  stops: [ActivityStop!]!
+  title: String!
+  type: ActivityType!
+  updatedAt: DateTime!
+}
+
+type ActivityStop {
+  createdAt: DateTime!
+  id: ID!
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  order: Int!
+  stopTours: [ActivityStopTour!]!
+  tour: Tour
+  updatedAt: DateTime!
+}
+
+input ActivityStopInput {
+  id: ID
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  order: Int!
+  tourId: ID
+  tourIds: [ID!]!
+}
+
+type ActivityStopTour {
+  createdAt: DateTime!
+  id: ID!
+  order: Int!
+  tour: Tour!
+}
+
+"""Tipo de actividad turística"""
+enum ActivityType {
+  BUS_HOP_ON_HOP_OFF
+}
+
+input AddPostToTripInput {
+  order: Int
+  postId: ID!
+  tripId: ID!
+}
+
+input AddToWishlistInput {
+  entityId: String!
+  entityType: WishlistEntityType!
+  image: String
+  title: String!
+}
+
+input AddTripItemInput {
+  dayIndex: Int
+  eventId: String
+  itemType: PlannedTripItemType!
+  placeId: String
+  tourId: String
+  tripId: ID!
+}
+
+type Address {
+  city: String!
+  country: String!
+  id: ID!
+  latitude: Float!
+  longitude: Float!
+  place: Place!
+  placeId: String!
+  postal_code: String!
+  province: String!
+  street: String!
+}
+
+type Announcement {
+  createdAt: DateTime!
+  expiresAt: DateTime
+  id: ID!
+  isActive: Boolean!
+  message: String!
+  targetAudience: AnnouncementAudience!
+  title: String!
+  type: AnnouncementType!
+  updatedAt: DateTime!
+}
+
+"""Target audience for an announcement"""
+enum AnnouncementAudience {
+  ALL
+  GUIDES
+  TOURISTS
+}
+
+"""Type of announcement"""
+enum AnnouncementType {
+  INFO
+  PROMOTION
+  WARNING
+}
+
+type AuditLog {
+  action: String!
+  changes: JSON
+  createdAt: DateTime!
+  entity: String!
+  entityId: String!
+  id: ID!
+  ipAddress: String
+  metadata: JSON
+  user: User!
+  userAgent: String
+}
+
+type AuthResponse {
+  access_token: String!
+  refresh_token: String!
+  user: UserDto!
+}
+
+type Booking {
+  createdAt: DateTime!
+  event: Event
+  eventReservation: EventReservation
+  id: ID!
+  payment: Payment
+  status: BookingStatus!
+  tourReservation: TourReservation
+  updatedAt: DateTime!
+  user: User!
+}
+
+type BookingMetric {
+  count: Int!
+  period: String!
+  revenue: Float!
+}
+
+enum BookingStatus {
+  CANCELLED
+  CONFIRMED
+  PENDING
+}
+
+input BroadcastPushInput {
+  audience: AnnouncementAudience!
+  message: String!
+  title: String!
+}
+
+type BroadcastPushResult {
+  failed: Int!
+  sent: Int!
+}
+
+type BuddyConnection {
+  addressee: User!
+  createdAt: DateTime!
+  id: ID!
+  requester: User!
+  status: BuddyConnectionStatus!
+  updatedAt: DateTime!
+}
+
+enum BuddyConnectionState {
+  ACCEPTED
+  DECLINED
+  NONE
+  PENDING_INCOMING
+  PENDING_OUTGOING
+}
+
+enum BuddyConnectionStatus {
+  ACCEPTED
+  DECLINED
+  PENDING
+}
+
+type BuddyMatch {
+  connectionId: String
+  connectionState: BuddyConnectionState!
+  tripCity: String!
+  tripCountry: String!
+  tripEndDate: String!
+  tripStartDate: String!
+  user: User!
+}
+
+type BuddySearchResult {
+  connectionId: String
+  connectionState: BuddyConnectionState!
+  user: User!
+}
+
+enum BudgetLevel {
+  HIGH
+  LOW
+  MEDIUM
+}
+
+type CitySearchResult {
+  city: String!
+  country: String!
+  displayName: String!
+  latitude: Float!
+  longitude: Float!
+  province: String
+}
+
+type Claim {
+  category: String
+  claimant: User!
+  createdAt: DateTime!
+  id: ID!
+  reason: String!
+  refundAmount: Float
+  reservation: TourReservation
+  resolution: String
+  resolvedAt: DateTime
+  resolvedBy: User
+  status: ClaimStatus!
+  tour: Tour
+  updatedAt: DateTime!
+}
+
+"""Status of a claim"""
+enum ClaimStatus {
+  CANCELLED
+  IN_PROGRESS
+  OPEN
+  REJECTED
+  RESOLVED
+}
+
+type CompletedTour {
+  completedAt: DateTime!
+  id: ID!
+  tour: Tour!
+  user: User!
+}
+
+type ConnectMercadoPagoResult {
+  authorizationUrl: String!
+}
+
+type ConnectedAccount {
+  createdAt: DateTime!
+  id: ID!
+  provider: String!
+  providerUserId: String
+  scope: String
+  status: String!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+type Conversation {
+  createdAt: DateTime!
+  guideUserId: String!
+  id: ID!
+  lastMessageAt: DateTime
+  touristUserId: String!
+}
+
+type ConversationSummary {
+  id: ID!
+  lastMessageAt: DateTime
+  lastMessagePreview: String
+  otherUserId: String!
+  otherUserName: String
+  unreadCount: Int!
+}
+
+type Coupon {
+  active: Boolean!
+  code: String!
+  createdAt: DateTime!
+  endDate: DateTime
+  id: ID!
+  maxDiscount: Float
+  minPurchase: Float
+  startDate: DateTime
+  type: CouponType!
+  updatedAt: DateTime!
+  usageCount: Int!
+  usageLimit: Int
+  userGroups: [String!]
+  value: Float!
+}
+
+"""Types of coupon discounts"""
+enum CouponType {
+  FIXED_AMOUNT
+  PERCENTAGE
+}
+
+type CouponUsage {
+  coupon: Coupon!
+  discountApplied: Float!
+  id: ID!
+  usedAt: DateTime!
+}
+
+type CouponValidation {
+  discountAmount: Float!
+  finalAmount: Float!
+  message: String
+  valid: Boolean!
+}
+
+input CreateAchievementInput {
+  description: String
+  iconUrl: String
+  key: String!
+  title: String!
+}
+
+input CreateActivityInput {
+  achievementId: String
+  availableDurations: [Int!]!
+  city: String!
+  color: String!
+  country: String!
+  coverImageUrl: String
+  description: String
+  frequencyMinutes: Int!
+  isActive: Boolean! = true
+  serviceEnd: String!
+  serviceStart: String!
+  stops: [ActivityStopInput!]!
+  title: String!
+  type: ActivityType! = BUS_HOP_ON_HOP_OFF
+}
+
+input CreateAddressDto {
+  city: String!
+  country: String!
+  latitude: Float!
+  longitude: Float!
+  placeId: String
+  postal_code: String
+  province: String
+  street: String!
+}
+
+input CreateAddressInput {
+  city: String!
+  country: String!
+  latitude: Float!
+  longitude: Float!
+  placeId: String!
+  postal_code: String!
+  province: String!
+  street: String!
+}
+
+input CreateAnnouncementInput {
+  expiresAt: DateTime
+  isActive: Boolean
+  message: String!
+  targetAudience: AnnouncementAudience!
+  title: String!
+  type: AnnouncementType!
+}
+
+input CreateBookingInput {
+  eventId: String
+  status: BookingStatus! = PENDING
+  tourReservationId: String
+  userId: String!
+}
+
+input CreateClaimDto {
+  category: String
+  claimantId: String!
+  reason: String!
+  reservationId: String
+  tourId: String
+}
+
+input CreateCommentInput {
+  content: String!
+  parentCommentId: ID
+  postId: ID!
+}
+
+input CreateCouponInput {
+  code: String!
+  endDate: DateTime
+  maxDiscount: Float
+  minPurchase: Float
+  startDate: DateTime
+  type: CouponType!
+  usageLimit: Int
+  userGroups: [String!]
+  value: Float!
+}
+
+input CreateCustomTourCodeInput {
+  expiresAt: DateTime
+  maxUses: Int
+  tourId: ID!
+}
+
+input CreateDiscountGroupDto {
+  description: String
+  discountAmount: Float
+  discountPercentage: Float
+  discountType: DiscountType! = PERCENTAGE
+  endDate: String!
+  guideId: String!
+  isActive: Boolean = true
+  name: String!
+  startDate: String!
+  tourIds: [String!]
+}
+
+input CreateEventInput {
+  category: String
+  city: String
+  country: String
+  coverImageUrl: String
+  createdById: String!
+  description: String!
+  endTime: DateTime
+  isActive: Boolean
+  location: String!
+  maxParticipantsPerReservation: Int
+  participantIds: [String!]
+  price: Float
+  schedules: [EventScheduleInput!]
+  startTime: DateTime
+  title: String!
+  tourId: String
+}
+
+input CreateEventPaymentIntentInput {
+  currencyOverride: String
+  eventId: ID!
+  participants: Int!
+  scheduleId: ID!
+}
+
+input CreateEventReservationInput {
+  eventId: ID!
+  participants: Int
+  payment_status: PaymentStatus
+  reservation_status: ReservationStatus
+  scheduleId: ID!
+  totalAmount: Float
+}
+
+input CreateExpenseInput {
+  amount: Float!
+  category: ExpenseCategory
+  currency: String
+  description: String!
+  paidById: String
+  splitWithUserIds: [String!]
+  tripId: String!
+}
+
+input CreateFavoritePlaceInput {
+  placeId: ID!
+  userId: ID!
+}
+
+input CreateFavoriteTourInput {
+  tourId: String!
+  userId: String!
+}
+
+input CreateFeedbackReportDto {
+  reason: String!
+  reporterId: String!
+  reviewId: String!
+}
+
+input CreateGuideInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateLanguageDto {
+  code: String!
+  name: String!
+}
+
+input CreateMarketplaceEventCheckoutInput {
+  cardToken: String!
+  currencyOverride: String
+  eventId: String!
+  participants: Int!
+  scheduleId: String!
+}
+
+input CreateMarketplaceTourCheckoutInput {
+  cardToken: String!
+  couponCode: String
+  currencyOverride: String
+  participants: Int!
+  scheduleId: String!
+  tourId: String!
+}
+
+input CreateMediaDto {
+  placeId: String
+  tourId: String
+  tourStepId: String
+  type: MediaType!
+  url: String!
+  userId: String
+}
+
+input CreateMercadoPagoEventPreferenceInput {
+  currencyOverride: String
+  eventId: ID!
+  participants: Int!
+  scheduleId: ID!
+}
+
+input CreateMercadoPagoPreferenceInput {
+  couponCode: String
+  currencyOverride: String
+  participants: Int!
+  scheduleId: ID!
+  tourId: ID!
+}
+
+input CreateMyUserScheduleInput {
+  description: String = ""
+  endTime: DateTime
+  location: String
+  startTime: DateTime!
+  title: String!
+  tourId: ID
+  type: String
+}
+
+input CreatePaymentInput {
+  amount: Float!
+  externalTransactionId: String
+  paymentMethodId: ID
+  reservationId: ID!
+}
+
+input CreatePaymentIntentInput {
+  couponCode: String
+  currencyOverride: String
+  participants: Int!
+  scheduleId: ID!
+  tourId: ID!
+}
+
+input CreatePaymentMethodDto {
+  description: String
+  is_active: Boolean
+  name: String!
+  provider: String
+}
+
+input CreatePlaceInput {
+  accessibility: JSON
+  address: CreateAddressDto!
+  categorySlugs: [String!]
+  childFriendly: Boolean
+  description: String!
+  entryPrice: String
+  googlePlaceId: String
+  media: [CreateMediaDto!]
+  name: String!
+  openingHours: JSON
+  parking: JSON
+  paymentMethods: JSON
+  phone: String
+  priceLevel: String
+  rate: Float
+  timezone: String
+  website: String
+}
+
+input CreatePlaceReviewInput {
+  best_place_part: PlaceReviewHighlight
+  comment: String
+  placeId: String!
+  place_rating: Int!
+  userId: String!
+  worst_place_part: PlaceReviewHighlight
+}
+
+input CreatePlannedTripInput {
+  city: String!
+  country: String!
+  days: Int!
+  endDate: String!
+  items: [PlannedTripItemInput!]!
+  startDate: String!
+}
+
+input CreatePostInput {
+  city: String
+  content: String!
+  country: String
+  latitude: Float
+  location: String
+  longitude: Float
+  signature: String
+}
+
+input CreateSubscriptionPlanInput {
+  active: Boolean
+  audience: SubscriptionAudience!
+  code: String!
+  currency: String
+  description: String
+  features: [String!]
+  interval: SubscriptionInterval
+  name: String!
+  price: Float!
+  reducedCommissionPercent: Float
+  stripePriceId: String
+}
+
+input CreateTourCategoryInput {
+  name: String!
+}
+
+input CreateTourFromPlacesInput {
+  description: String!
+  difficulty: TourDifficulty
+  placeIds: [ID!]!
+  title: String!
+  travelMode: TourTravelMode
+}
+
+input CreateTourInput {
+  description: String!
+  difficulty: TourDifficulty
+  guideId: String!
+  isCustom: Boolean
+  isFreeWalkingTour: Boolean
+  status: TourStatus
+  title: String!
+  tourType: TourType
+  travelMode: TourTravelMode
+}
+
+input CreateTourPaymentMethodDto {
+  payment_method_id: ID!
+  tour_id: ID!
+}
+
+input CreateTourPricingInput {
+  currency: String!
+  endDate: DateTime
+  maxParticipants: Int!
+  minParticipants: Int!
+  price: Float!
+  startDate: DateTime!
+  tourId: String!
+}
+
+input CreateTourReservationInput {
+  cancellation_reason: String
+  couponCode: String
+  participants: Int! = 1
+  paymentMethodId: ID
+  payment_status: PaymentStatus! = PENDING
+  reservation_status: ReservationStatus! = PENDING
+  scheduleId: ID
+  total_amount: Float!
+  tourId: ID!
+  userId: ID!
+}
+
+input CreateTourReviewInput {
+  best_guide_part: GuideHighlight
+  best_tour_part: ReviewHighlight
+  comment: String
+  guide_rating: Int!
+  reservationId: ID
+  tourId: ID
+  tour_rating: Int!
+  userId: ID
+  worst_guide_part: GuideHighlight
+  worst_tour_part: ReviewHighlight
+}
+
+input CreateTourScheduleInput {
+  endTime: DateTime
+  isAvailable: Boolean!
+  maxCapacity: Int
+  specialInfo: String
+  startTime: DateTime!
+  tourId: String!
+}
+
+input CreateTourStepInput {
+  description: String
+  latitude: Float!
+  longitude: Float!
+  order: Int!
+  placeId: String
+  title: String!
+  tourId: String!
+}
+
+input CreateTripInput {
+  description: String
+  endDate: DateTime
+  isPublic: Boolean = true
+  startDate: DateTime
+  title: String!
+}
+
+input CreateUserInput {
+  email: String!
+  fullName: String!
+  password: String!
+  roles: [UserRole!]!
+  username: String!
+}
+
+input CreateUserRecordInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateUserScheduleInput {
+  description: String!
+  endTime: DateTime
+  isConfirmed: Boolean = false
+  startTime: DateTime!
+  title: String!
+  userId: String!
+}
+
+type CustomTourAccessGrant {
+  code: CustomTourCode
+  grantedAt: DateTime!
+  id: ID!
+  tour: Tour!
+  user: User!
+}
+
+type CustomTourCode {
+  code: String!
+  createdAt: DateTime!
+  createdBy: User!
+  expiresAt: DateTime
+  grants: [CustomTourAccessGrant!]
+  id: ID!
+  maxUses: Int
+  status: CustomTourCodeStatus!
+  tour: Tour!
+  updatedAt: DateTime!
+  usesRemaining: Int
+}
+
+enum CustomTourCodeStatus {
+  ACTIVE
+  EXHAUSTED
+  REVOKED
+}
+
+type CustomTourCodeValidationResult {
+  alreadyHasAccess: Boolean
+  guideName: String
+  isValid: Boolean!
+  reason: String
+  tour: Tour
+  usesRemaining: Int
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input DeleteFavoritePlaceInput {
+  placeId: ID!
+  userId: ID!
+}
+
+type DeleteResponse {
+  message: String!
+  success: Boolean!
+}
+
+type DiscountGroup {
+  createdAt: DateTime!
+  description: String
+  discountAmount: Float
+  discountPercentage: Float
+  discountType: DiscountType!
+  endDate: DateTime!
+  guide: User!
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  startDate: DateTime!
+  tours: [Tour!]!
+  updatedAt: DateTime!
+}
+
+"""Tipo de descuento: porcentaje o monto fijo"""
+enum DiscountType {
+  FIXED_AMOUNT
+  PERCENTAGE
+}
+
+type EmailTemplate {
+  bodyHtml: String!
+  createdAt: DateTime!
+  id: ID!
+  key: EmailTemplateKey!
+  subject: String!
+  updatedAt: DateTime!
+  variables: String
+}
+
+"""Identifies a system email template"""
+enum EmailTemplateKey {
+  BOOKING_CONFIRMATION
+  CLAIM
+  PAYOUT
+  REVIEW_REQUEST
+}
+
+type Entitlements {
+  features: [String!]!
+  guidePro: Boolean!
+  reducedCommissionPercent: Float
+  touristPremium: Boolean!
+}
+
+type Event {
+  category: String
+  city: String
+  country: String
+  coverImageUrl: String
+  createdAt: DateTime!
+  createdBy: User!
+  description: String!
+  endTime: DateTime
+  id: ID!
+  isActive: Boolean!
+  latitude: Float
+  location: String!
+  longitude: Float
+  maxParticipantsPerReservation: Int!
+  participants: [User!]!
+  price: Float!
+  schedules: [EventSchedule!]!
+  startTime: DateTime!
+  title: String!
+  tourId: String
+  updatedAt: DateTime!
+}
+
+type EventCode {
+  code: String!
+  createdAt: DateTime!
+  event: Event
+  id: ID!
+  maxUses: Int!
+  reservation: EventReservation!
+  status: String!
+  updatedAt: DateTime!
+  usesRemaining: Int!
+}
+
+enum EventCodeInvalidReason {
+  ALREADY_REDEEMED
+  CODE_EXHAUSTED
+  CODE_EXPIRED
+  CODE_NOT_FOUND
+  EVENT_INACTIVE
+  EVENT_PASSED
+}
+
+type EventCodeValidationResult {
+  event: Event
+  isValid: Boolean!
+  purchaserName: String
+  reason: EventCodeInvalidReason
+  schedule: EventSchedule
+  usesRemaining: Int
+}
+
+type EventReservation {
+  booking: Booking
+  cancellation_reason: String
+  created_at: DateTime!
+  event: Event!
+  expired_without_completion: Boolean!
+  id: ID!
+  invoice_number: String
+  is_invoice_generated: Boolean!
+  net_amount: Float
+  paid_at: DateTime
+  participants: Int!
+  payment_status: PaymentStatus!
+  payout_attempts: Int!
+  payout_status: String
+  platform_fee_amount: Float
+  platform_fee_percent: Float
+  provider: String
+  provider_payment_id: String
+  recipient_user_id: String
+  reservation_status: ReservationStatus!
+  schedule: EventSchedule!
+  total_amount: Float!
+  updated_at: DateTime!
+  user: User!
+}
+
+type EventSchedule {
+  availableSpots: Int
+  createdAt: DateTime!
+  endTime: DateTime
+  id: ID!
+  isAvailable: Boolean!
+  maxCapacity: Int
+  specialInfo: String
+  startTime: DateTime!
+  updatedAt: DateTime!
+}
+
+input EventScheduleInput {
+  endTime: DateTime
+  id: ID
+  isAvailable: Boolean
+  maxCapacity: Int
+  specialInfo: String
+  startTime: DateTime!
+}
+
+type ExchangeRatesOutput {
+  base: String!
+  rates: [RateEntry!]!
+  updatedAt: String
+}
+
+type Expense {
+  amount: Float!
+  category: ExpenseCategory!
+  createdAt: DateTime!
+  currency: String!
+  description: String!
+  id: ID!
+  paidBy: User!
+  splitWithUserIds: [String!]
+  trip: PlannedTrip!
+}
+
+type ExpenseBalance {
+  balance: Float!
+  totalOwed: Float!
+  totalPaid: Float!
+  userId: ID!
+  userName: String!
+}
+
+enum ExpenseCategory {
+  ACCOMMODATION
+  ENTERTAINMENT
+  FOOD
+  OTHER
+  SHOPPING
+  TRANSPORT
+}
+
+type ExpenseSummary {
+  balances: [ExpenseBalance!]!
+  currency: String!
+  totalAmount: Float!
+}
+
+type FavoritePlace {
+  createdAt: DateTime!
+  id: ID!
+  place: Place!
+  user: User!
+}
+
+type FavoriteTour {
+  createdAt: DateTime!
+  id: ID!
+  tour: Tour!
+  user: User!
+}
+
+type FeatureFlagsObject {
+  chatEnabled: Boolean!
+  claimsEnabled: Boolean!
+  discountGroupsEnabled: Boolean!
+  inPersonToursEnabled: Boolean!
+  reviewsEnabled: Boolean!
+  selfGuidedToursEnabled: Boolean!
+  tourCreationEnabled: Boolean!
+}
+
+"""Type of feed to retrieve"""
+enum FeedType {
+  FOLLOWING
+  FOR_YOU
+}
+
+type FeedbackReport {
+  adminResponse: String
+  createdAt: DateTime!
+  id: ID!
+  reason: String!
+  reporter: User!
+  review: TourReview!
+  reviewedBy: User
+  status: String!
+  updatedAt: DateTime!
+}
+
+type Follow {
+  createdAt: DateTime!
+  follower: User!
+  following: User!
+  id: ID!
+}
+
+input GenerateItineraryInput {
+  budgetLevel: BudgetLevel
+  city: String!
+  country: String!
+  days: Int!
+  endDate: String!
+  interests: [String!]!
+  latitude: Float!
+  longitude: Float!
+  pace: ItineraryPace
+  radius: Int
+  startDate: String!
+}
+
+input GeneratePlaceAudioInput {
+  language: String! = "es"
+  placeId: String!
+  voice: String
+}
+
+input GenerateTourStepAudioInput {
+  language: String! = "es"
+  tourStepId: String!
+  voice: String
+}
+
+type GeneratedDay {
+  dayIndex: Int!
+  items: [GeneratedItem!]!
+  title: String!
+}
+
+type GeneratedItem {
+  place: Place!
+  reason: String!
+}
+
+type GeneratedItinerary {
+  days: [GeneratedDay!]!
+}
+
+type Guide {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type GuideAnalytics {
+  averageRating: Float!
+  bookingsByPeriod: [BookingMetric!]!
+  conversionRate: Float!
+  revenueByPeriod: [RevenueMetric!]!
+  topTours: [TourMetric!]!
+  totalBookings: Int!
+  totalRevenue: Float!
+  trends: TrendAnalysis!
+}
+
+type GuideEarnings {
+  count: Int!
+  inEscrow: Float!
+  released: Float!
+  total: Float!
+}
+
+enum GuideHighlight {
+  ATTENTIVE
+  COMMUNICATION
+  ENTHUSIASTIC
+  FRIENDLY
+  FUNNY
+  KNOWLEDGEABLE
+  MULTILINGUAL
+  NONE
+  ORGANIZED
+  PROFESSIONAL
+}
+
+type HeatmapPoint {
+  latitude: Float!
+  longitude: Float!
+  weight: Int!
+}
+
+type Hotel {
+  address: String!
+  checkIn: String
+  checkOut: String
+  city: String
+  country: String
+  createdAt: DateTime!
+  id: ID!
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  notes: String
+  plannedTrip: PlannedTrip!
+  postalCode: String
+  updatedAt: DateTime!
+}
+
+enum ItineraryPace {
+  BALANCED
+  PACKED
+  RELAXED
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type Language {
+  code: String!
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  tours: [Tour!]
+  updatedAt: DateTime!
+  users: [User!]
+}
+
+type LanguageDto {
+  code: String!
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  tours: [Tour!]
+  updatedAt: DateTime!
+  users: [User!]
+}
+
+input LinkOAuthAccountInput {
+  oauthId: String!
+  provider: OAuthProvider!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type MarketplaceCheckoutOutput {
+  currency: String!
+  feeAmount: Float!
+  grossAmount: Float!
+  netAmount: Float!
+  providerPaymentId: String!
+  reservationId: String!
+  status: String!
+}
+
+type MarketplaceOverview {
+  commission: Float!
+  gmv: Float!
+  netInEscrow: Float!
+  netReleased: Float!
+}
+
+type MarketplacePayoutItem {
+  date: DateTime!
+  feeAmount: Float
+  gross: Float!
+  id: String!
+  kind: PayoutKind!
+  net: Float
+  payoutAttempts: Int!
+  payoutStatus: String
+  recipientUserId: String
+  reservationStatus: String!
+  title: String!
+}
+
+type Media {
+  createdAt: DateTime!
+  id: ID!
+  place: Place
+  placeId: String
+  tour: Tour
+  tourStep: TourStep
+  type: MediaType!
+  url: String!
+  user: User
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+type MercadoPagoPreferenceOutput {
+  amount: Float!
+  checkoutUrl: String!
+  currency: String!
+  preferenceId: String!
+  reservationId: ID!
+}
+
+type Message {
+  body: String
+  conversationId: String!
+  createdAt: DateTime!
+  id: ID!
+  imageUrl: String
+  senderId: String!
+}
+
+type Mutation {
+  addExpense(input: CreateExpenseInput!): Expense!
+  addItemToPlannedTrip(input: AddTripItemInput!): PlannedTripItem!
+  addPostToTrip(input: AddPostToTripInput!): TripPost!
+  addToWishlist(input: AddToWishlistInput!): WishlistItem!
+  addTripMember(tripId: ID!, userId: ID!): TripMemberDto!
+  approveFeedbackReport(adminId: String!, id: String!, response: String): FeedbackReport!
+  broadcastPush(input: BroadcastPushInput!): BroadcastPushResult!
+  cancelEventReservation(id: ID!, reason: String): EventReservation!
+  cancelMySubscription(audience: SubscriptionAudience!): UserSubscription!
+  cancelUserActivity(id: ID!): UserActivity!
+  completePlannedTripItem(itemId: ID!): PlannedTripItem!
+  completeTour(tourId: ID!): CompletedTour!
+  completeTourReservation(reservationId: ID!): TourReservation!
+  confirmEventReservationPayment(id: ID!): EventReservation!
+  connectMercadoPago: ConnectMercadoPagoResult!
+  createAchievement(input: CreateAchievementInput!): UnlockableAchievement!
+  createActivity(input: CreateActivityInput!): Activity!
+  createAddress(input: CreateAddressInput!): Address!
+  createAnnouncement(input: CreateAnnouncementInput!): Announcement!
+  createBooking(createBookingInput: CreateBookingInput!): Booking!
+  createClaim(input: CreateClaimDto!): Claim!
+  createComment(input: CreateCommentInput!): PostComment!
+  createCoupon(input: CreateCouponInput!): Coupon!
+  createCustomTourCode(input: CreateCustomTourCodeInput!): CustomTourCode!
+  createDiscountGroup(input: CreateDiscountGroupDto!): DiscountGroup!
+  createEvent(input: CreateEventInput!): Event!
+  createEventReservation(input: CreateEventReservationInput!): EventReservation!
+  createFavoritePlace(input: CreateFavoritePlaceInput!): FavoritePlace!
+  createFavoriteTour(input: CreateFavoriteTourInput!): FavoriteTour!
+  createFeedbackReport(input: CreateFeedbackReportDto!): FeedbackReport!
+  createGuide(createGuideInput: CreateGuideInput!): Guide!
+  createLanguage(createLanguageDto: CreateLanguageDto!): LanguageDto!
+  createMarketplaceEventCheckout(input: CreateMarketplaceEventCheckoutInput!): MarketplaceCheckoutOutput!
+  createMarketplaceTourCheckout(input: CreateMarketplaceTourCheckoutInput!): MarketplaceCheckoutOutput!
+  createMedia(createMediaDto: CreateMediaDto!): Media!
+  createMercadoPagoPreferenceForEvent(input: CreateMercadoPagoEventPreferenceInput!): MercadoPagoPreferenceOutput!
+  createMercadoPagoPreferenceForTour(input: CreateMercadoPagoPreferenceInput!): MercadoPagoPreferenceOutput!
+  createMyUserSchedule(input: CreateMyUserScheduleInput!): UserSchedule!
+  createPayment(input: CreatePaymentInput!): Payment!
+  createPaymentIntentForEvent(input: CreateEventPaymentIntentInput!): StripePaymentIntentOutput!
+  createPaymentIntentForTour(input: CreatePaymentIntentInput!): StripePaymentIntentOutput!
+  createPaymentMethod(createPaymentMethodInput: CreatePaymentMethodDto!): PaymentMethod!
+  createPlace(createPlaceInput: CreatePlaceInput!): Place!
+  createPlaceReview(input: CreatePlaceReviewInput!): PlaceReview!
+  createPlannedTrip(input: CreatePlannedTripInput!): PlannedTrip!
+  createPost(input: CreatePostInput!): Post!
+  createSubscriptionCheckout(planId: ID!): SubscriptionCheckout!
+  createSubscriptionPlan(createSubscriptionPlanInput: CreateSubscriptionPlanInput!): SubscriptionPlan!
+  createTour(createTourInput: CreateTourInput!): Tour!
+  createTourCategory(input: CreateTourCategoryInput!): TourCategory!
+  createTourFromPlaces(input: CreateTourFromPlacesInput!): Tour!
+  createTourPaymentMethod(createTourPaymentMethodDto: CreateTourPaymentMethodDto!): TourPaymentMethod!
+  createTourPricing(input: CreateTourPricingInput!): TourPricing!
+  createTourReservation(input: CreateTourReservationInput!): TourReservation!
+  createTourReview(input: CreateTourReviewInput!): TourReview!
+  createTourSchedule(input: CreateTourScheduleInput!): TourSchedule!
+  createTourStep(input: CreateTourStepInput!): TourStep!
+  createTrip(input: CreateTripInput!): Trip!
+  createUploadUrl(contentType: String!, kind: UploadKind!): PresignedUpload!
+  createUser(createUserInput: CreateUserInput!): UserDto!
+  createUserRecord(createUserRecordInput: CreateUserRecordInput!): UserRecord!
+  createUserSchedule(input: CreateUserScheduleInput!): UserSchedule!
+  deactivateCoupon(id: ID!): Coupon!
+  deleteAchievement(id: ID!): Boolean!
+  deleteActivity(id: ID!): Boolean!
+  deleteBooking(id: String!): DeleteResponse!
+  deleteClaim(id: String!): DeleteResponse!
+  deleteDiscountGroup(id: String!): DeleteResponse!
+  deleteFavoritePlace(placeId: String!): DeleteResponse!
+  deleteFavoritePlaceById(input: DeleteFavoritePlaceInput!): DeleteResponse!
+  deleteFavoriteTour(id: String!): DeleteResponse!
+  deleteFeedbackReport(id: String!): DeleteResponse!
+  deleteHotelForTrip(tripId: ID!): Boolean!
+  deletePost(id: ID!): DeleteResponse!
+  deleteTourPricing(id: String!): Boolean!
+  deleteTrip(id: String!): DeleteResponse!
+  disconnectMercadoPago: ConnectedAccount
+  finalizePlannedTrip(tripId: ID!): PlannedTrip!
+  focusUserActivity(id: ID!): UserActivity!
+  followUser(followingId: ID!): Follow!
+  generateItinerary(input: GenerateItineraryInput!): GeneratedItinerary!
+
+  """
+  Genera (o recupera del caché) el audio TTS de la descripción de un Place.
+  """
+  generatePlaceAudio(input: GeneratePlaceAudioInput!): PlaceAudio!
+
+  """Genera (o recupera del caché) la audioguía IA de una parada del tour."""
+  generateTourStepAudio(input: GenerateTourStepAudioInput!): TourStepAudio!
+  getOrCreateConversation(otherUserId: String!): Conversation!
+  likePost(postId: ID!): Post!
+  linkOAuthAccount(input: LinkOAuthAccountInput!): User!
+  login(loginInput: LoginInput!): AuthResponse!
+  markAllNotificationsAsRead: Boolean!
+  markConversationRead(conversationId: String!): Boolean!
+  markNotificationAsRead(id: ID!): Notification!
+  markStopTourCompleted(tourId: ID!, userActivityId: ID!): UserActivity!
+  pauseUserActivity(id: ID!): UserActivity!
+  redeemCustomTourCode(input: RedeemCustomTourCodeInput!): RedeemCustomTourCodeResult!
+  redeemEventCode(code: String!): RedeemEventCodeResult!
+  redeemTourCode(input: RedeemCodeInput!): RedeemCodeResult!
+  refreshToken(refreshToken: String!): AuthResponse!
+  register(registerInput: RegisterInput!): AuthResponse!
+  rejectClaim(id: String!, reason: String!, rejectedById: String!): Claim!
+  rejectFeedbackReport(adminId: String!, id: String!, response: String!): FeedbackReport!
+  removeAddress(id: String!): DeleteResponse!
+  removeAnnouncement(id: String!): Boolean!
+  removeEvent(id: ID!): DeleteResponse!
+  removeExpense(expenseId: ID!): Boolean!
+  removeFromWishlist(entityId: String!, entityType: WishlistEntityType!): Boolean!
+  removeGuide(id: Int!): Guide!
+  removeItemFromPlannedTrip(itemId: ID!): Boolean!
+  removeLanguage(id: String!): DeleteResponse!
+  removeMedia(id: String!): DeleteResponse!
+  removePayment(id: String!): DeleteResponse!
+  removePaymentMethod(id: String!): DeleteResponse!
+  removePlace(id: ID!): DeleteResponse!
+  removePlaceReview(id: String!): DeleteResponse!
+  removePostFromTrip(tripPostId: String!): DeleteResponse!
+  removeSubscriptionPlan(id: ID!): SubscriptionPlan!
+  removeTour(id: String!): DeleteResponse!
+  removeTourCategory(id: String!): DeleteResponse!
+  removeTourPaymentMethod(id: String!): DeleteResponse!
+  removeTourReservation(id: ID!): TourReservation!
+  removeTourReview(id: ID!): DeleteResponse!
+  removeTourSchedule(id: String!): Boolean!
+  removeTourStep(id: String!): DeleteResponse!
+  removeTripMember(tripId: ID!, userId: ID!): Boolean!
+  removeUser(id: String!): User!
+  removeUserRecord(id: Int!): UserRecord!
+  removeUserSchedule(id: String!): Boolean!
+
+  """Elimina todas las zonas de una ciudad. Devuelve cantidad eliminada."""
+  removeZonesByCity(city: String!, country: String!): Int!
+  reorderTripPosts(input: ReorderTripPostsInput!): [TripPost!]!
+  repostPost(postId: ID!): Post!
+  resolveClaim(id: String!, refundAmount: Float, resolution: String!, resolvedById: String!): Claim!
+  respondBuddyRequest(accept: Boolean!, connectionId: ID!): BuddyConnection!
+  retryPayout(kind: PayoutKind!, reservationId: String!): String!
+  revokeAllRefreshTokens: Boolean!
+  revokeCustomTourCode(codeId: ID!): CustomTourCode!
+  savePost(postId: ID!): Post!
+  seedPermissions: [PermissionEntity!]!
+  sendBuddyRequest(addresseeId: ID!): BuddyConnection!
+  sendMessage(input: SendMessageInput!): Message!
+  setBuddyDiscoverable(value: Boolean!): Boolean!
+  setEventActive(id: ID!, isActive: Boolean!): Event!
+  setHotelForTrip(input: SetHotelInput!): Hotel!
+  setTourStatus(id: String!, status: TourStatus!): Tour!
+  setUserRoles(roles: [UserRole!]!, userId: ID!): User!
+  startTourReservation(reservationId: ID!): TourReservation!
+  startUserActivity(input: StartUserActivityInput!): UserActivity!
+  unfollowUser(followingId: ID!): DeleteResponse!
+  unlinkOAuthAccount(input: UnlinkOAuthAccountInput!): User!
+  updateAchievement(id: ID!, input: UpdateAchievementInput!): UnlockableAchievement!
+  updateActivity(id: ID!, input: UpdateActivityInput!): Activity!
+  updateAddress(input: UpdateAddressInput!): Address!
+  updateAnnouncement(input: UpdateAnnouncementInput!): Announcement!
+  updateBooking(updateBookingInput: UpdateBookingInput!): Booking!
+  updateClaim(id: String!, input: UpdateClaimDto!): Claim!
+  updateCoupon(id: ID!, input: UpdateCouponInput!): Coupon!
+  updateDiscountGroup(id: String!, input: UpdateDiscountGroupDto!): DiscountGroup!
+  updateEmailTemplate(input: UpdateEmailTemplateInput!): EmailTemplate!
+  updateEvent(input: UpdateEventInput!): Event!
+  updateFavoritePlace(input: UpdateFavoritePlaceInput!): FavoritePlace!
+  updateFavoriteTour(input: UpdateFavoriteTourInput!): FavoriteTour!
+  updateFeedbackReport(id: String!, input: UpdateFeedbackReportDto!): FeedbackReport!
+  updateGuide(updateGuideInput: UpdateGuideInput!): Guide!
+  updateLanguage(id: String!, updateLanguageDto: UpdateLanguageDto!): LanguageDto!
+  updateMedia(id: String!, updateMediaDto: UpdateMediaDto!): Media!
+  updateNotificationPreferences(input: UpdateNotificationPreferencesInput!): NotificationPreference!
+  updatePayment(id: String!, input: UpdatePaymentInput!): Payment!
+  updatePaymentMethod(updatePaymentMethodInput: UpdatePaymentMethodDto!): PaymentMethod!
+  updatePlace(updatePlaceInput: UpdatePlaceInput!): Place!
+  updatePlaceReview(input: UpdatePlaceReviewInput!): PlaceReview!
+  updatePlatformSettings(input: UpdatePlatformSettingsInput!): PlatformSettings!
+  updatePost(input: UpdatePostInput!): Post!
+  updateSubscriptionPlan(updateSubscriptionPlanInput: UpdateSubscriptionPlanInput!): SubscriptionPlan!
+  updateTour(updateTourInput: UpdateTourInput!): Tour!
+  updateTourCategory(input: UpdateTourCategoryInput!): TourCategory!
+  updateTourPaymentMethod(updateTourPaymentMethodDto: UpdateTourPaymentMethodDto!): TourPaymentMethod!
+  updateTourPricing(input: UpdateTourPricingInput!): TourPricing!
+  updateTourReservation(id: ID!, input: UpdateTourReservationInput!): TourReservation!
+  updateTourReview(input: UpdateTourReviewInput!): TourReview!
+  updateTourSchedule(input: UpdateTourScheduleInput!): TourSchedule!
+  updateTourStep(input: UpdateTourStepInput!): TourStep!
+  updateTrip(id: String!, input: UpdateTripInput!): Trip!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  updateUserActivityDuration(durationHours: Int!, id: ID!): UserActivity!
+  updateUserRecord(updateUserRecordInput: UpdateUserRecordInput!): UserRecord!
+  updateUserSchedule(input: UpdateUserScheduleInput!): UserSchedule!
+  upsertZone(input: UpsertZoneInput!): Zone!
+  visitPlace(placeId: ID!): VisitedPlace!
+}
+
+type Notification {
+  body: String!
+  channels: [NotificationChannel!]!
+  createdAt: DateTime!
+  data: JSON
+  id: ID!
+  read: Boolean!
+  title: String!
+  type: NotificationType!
+  user: User!
+}
+
+"""Notification delivery channels"""
+enum NotificationChannel {
+  EMAIL
+  IN_APP
+  PUSH
+  SMS
+}
+
+type NotificationPreference {
+  categories: [String!]!
+  createdAt: DateTime!
+  emailEnabled: Boolean!
+  id: ID!
+  phoneNumber: String
+  pushEnabled: Boolean!
+  pushToken: String
+  smsEnabled: Boolean!
+  updatedAt: DateTime!
+  user: User!
+}
+
+"""Types of notifications"""
+enum NotificationType {
+  BOOKING_CANCELLED
+  BOOKING_CONFIRMED
+  CODE_REDEEMED
+  NEW_MESSAGE
+  PAYMENT_FAILED
+  PAYMENT_RECEIVED
+  PAYOUT
+  SYSTEM_ALERT
+  TOUR_REMINDER
+  TOUR_RESERVED
+  TOUR_REVIEW
+}
+
+"""OAuth provider types"""
+enum OAuthProvider {
+  APPLE
+  FACEBOOK
+  GOOGLE
+}
+
+type OpeningHoursPayload {
+  periods: [OpeningHoursPeriod!]
+  weekdayDescriptions: [String!]
+}
+
+type OpeningHoursPeriod {
+  close: OpeningHoursPeriodPoint
+  open: OpeningHoursPeriodPoint!
+}
+
+type OpeningHoursPeriodPoint {
+  day: Int!
+  hour: Int!
+  minute: Int!
+}
+
+input PaginationInput {
+  limit: Int = 50
+  offset: Int = 0
+}
+
+type ParkingPayload {
+  freeGarageParking: Boolean
+  freeParkingLot: Boolean
+  freeStreetParking: Boolean
+  paidGarageParking: Boolean
+  paidParkingLot: Boolean
+  paidStreetParking: Boolean
+  valetParking: Boolean
+}
+
+type Payment {
+  amount: Float!
+  created_at: DateTime!
+  external_transaction_id: String
+  id: ID!
+  payment_method: PaymentMethod
+  reservation: TourReservation!
+  status: PaymentStatus!
+}
+
+type PaymentConfigStatusObject {
+  mercadoPagoConfigured: Boolean!
+  mode: String!
+  stripeConfigured: Boolean!
+}
+
+type PaymentMethod {
+  description: String
+  id: ID!
+  is_active: Boolean!
+  name: String!
+  provider: String
+  tour_payment_methods: [TourPaymentMethod!]
+}
+
+type PaymentPayload {
+  acceptsCashOnly: Boolean
+  acceptsCreditCards: Boolean
+  acceptsDebitCards: Boolean
+  acceptsNfc: Boolean
+}
+
+enum PaymentStatus {
+  CANCELLED
+  COMPLETED
+  DECLINED
+  FAILED
+  PENDING
+  PROCESSING
+  REFUNDED
+}
+
+enum PayoutKind {
+  EVENT
+  TOUR
+}
+
+type PermissionEntity {
+  createdAt: DateTime!
+  description: String!
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type Place {
+  accessibility: AccessibilityPayload
+  address: Address
+  categories: [PlaceCategory!]
+  childFriendly: Boolean
+  createdAt: DateTime!
+  description: String!
+  entryPrice: String
+  googlePlaceId: String
+  id: ID!
+
+  """Indicates if this place is marked as favorite by the current user"""
+  isFavorite: Boolean
+  isOpenNow: Boolean
+  media: [Media!]
+  name: String!
+  openingHours: OpeningHoursPayload
+  parking: ParkingPayload
+  paymentMethods: PaymentPayload
+  phone: String
+  priceLevel: String
+  rate: Float!
+  timezone: String
+  updatedAt: DateTime!
+  website: String
+}
+
+type PlaceAudio {
+  """URL pública del archivo (resuelta en runtime)."""
+  audioUrl: String
+  byteSize: Int
+  durationSec: Float
+  generatedAt: DateTime!
+  id: ID!
+  language: String!
+  placeId: String!
+  storageKey: String!
+  updatedAt: DateTime!
+  voice: String!
+}
+
+type PlaceCategory {
+  icon: String
+  id: ID!
+  nameEn: String!
+  nameEs: String!
+  nameFr: String!
+  namePt: String!
+  slug: String!
+}
+
+input PlaceInRadiusInput {
+  latitude: Float!
+  longitude: Float!
+  radius: Float!
+}
+
+type PlaceReview {
+  best_place_part: PlaceReviewHighlight
+  comment: String
+  created_at: DateTime!
+  id: ID!
+  place: Place!
+  place_rating: Int!
+  user: User!
+  worst_place_part: PlaceReviewHighlight
+}
+
+enum PlaceReviewHighlight {
+  ACCESSIBILITY
+  AMBIENCE
+  CLEANLINESS
+  FOOD_QUALITY
+  LOCATION
+  PRICE
+  SAFETY
+  SERVICE
+}
+
+input PlacesFilterInput {
+  categorySlugs: [String!]
+  childFriendly: Boolean
+  openNow: Boolean
+  priceLevels: [String!]
+  wheelchairAccessible: Boolean
+}
+
+type PlannedTrip {
+  allItemsCompleted: Boolean!
+  city: String!
+  country: String!
+  createdAt: DateTime!
+  days: Int!
+  endDate: String!
+  hotel: Hotel
+  id: ID!
+  items: [PlannedTripItem!]
+  members: [TripMemberDto!]!
+  startDate: String!
+  status: PlannedTripStatus!
+  updatedAt: DateTime!
+  user: User!
+}
+
+type PlannedTripItem {
+  addedAt: DateTime!
+  dayIndex: Int
+  event: Event
+  id: ID!
+  isCompleted: Boolean!
+  itemType: PlannedTripItemType!
+  place: Place
+  tour: Tour
+  trip: PlannedTrip!
+}
+
+input PlannedTripItemInput {
+  dayIndex: Int
+  eventId: String
+  itemType: PlannedTripItemType!
+  placeId: String
+  tourId: String
+}
+
+enum PlannedTripItemType {
+  EVENT
+  PLACE
+  TOUR
+}
+
+enum PlannedTripStatus {
+  ACTIVE
+  COMPLETED
+}
+
+type PlatformSettings {
+  chatEnabled: Boolean!
+  claimsEnabled: Boolean!
+  defaultCurrency: String!
+  defaultMinTourPrice: Float!
+  discountGroupsEnabled: Boolean!
+  eventEscrowMaxDaysAhead: Int!
+  exchangeRatesSnapshot: JSON
+  id: String!
+  inPersonToursEnabled: Boolean!
+  minTourPricePerCurrency: JSON!
+  platformFeePercent: Float!
+  platformName: String
+  reviewsEnabled: Boolean!
+  selfGuidedToursEnabled: Boolean!
+  supportEmail: String
+  tourCreationEnabled: Boolean!
+  updatedAt: DateTime!
+}
+
+type Post {
+  author: User!
+  city: String
+  comments: [PostComment!]!
+  commentsCount: Float!
+  content: String!
+  country: String
+  createdAt: DateTime!
+  id: ID!
+  isLiked: Boolean!
+  isReposted: Boolean!
+  isSaved: Boolean!
+  latitude: Float
+  likes: [PostLike!]!
+  likesCount: Float!
+  location: String
+  longitude: Float
+  originalPost: Post
+  repostsCount: Float!
+  signature: String
+  trip: Trip
+  updatedAt: DateTime!
+}
+
+type PostComment {
+  content: String!
+  createdAt: DateTime!
+  id: ID!
+  parentComment: PostComment
+  post: Post!
+  replies: [PostComment!]!
+  repliesCount: Float!
+  updatedAt: DateTime!
+  user: User!
+}
+
+type PostLike {
+  createdAt: DateTime!
+  id: ID!
+  post: Post!
+  user: User!
+}
+
+type PresignedUpload {
+  key: String!
+  publicUrl: String!
+  uploadUrl: String!
+}
+
+type Query {
+  achievementById(id: ID!): UnlockableAchievement!
+  achievements(pagination: PaginationInput): [UnlockableAchievement!]!
+  activeAnnouncements: [Announcement!]!
+  activeEvents: [Event!]!
+  activities(city: String, country: String, pagination: PaginationInput): [Activity!]!
+  activitiesForFeed(city: String!, country: String!): [Activity!]!
+  activityById(id: ID!): Activity!
+  address(id: String!): Address!
+  addressByPlace(id: String!): Address!
+  addresses: [Address!]!
+  adminAnnouncements: [Announcement!]!
+  adminAuditLog(action: String, limit: Int = 50, offset: Int = 0, userId: String): [AuditLog!]!
+  adminEvents(pagination: PaginationInput): [Event!]!
+  availableCoupons: [Coupon!]!
+  cityEvents(endDate: String!, latitude: Float!, longitude: Float!, startDate: String!): [Event!]!
+  cityPlaces(latitude: Float!, longitude: Float!): [Place!]!
+  cityTours(endDate: String, latitude: Float!, longitude: Float!, startDate: String): [Tour!]!
+  claim(id: String!): Claim!
+  claims(guideId: String, status: ClaimStatus): [Claim!]!
+  claimsByGuide(guideId: String!): [Claim!]!
+  connectedAccountByUser(userId: String!): ConnectedAccount
+  connectedAccountsByUserIds(userIds: [String!]!): [ConnectedAccount!]!
+  conversation(conversationId: String!): ConversationSummary!
+  conversationMessages(conversationId: String!, limit: Int, offset: Int): [Message!]!
+  customTourCodesForTour(tourId: ID!): [CustomTourCode!]!
+  discountGroup(id: String!): DiscountGroup!
+  discountGroups: [DiscountGroup!]!
+  discountGroupsByGuide(guideId: String!): [DiscountGroup!]!
+  emailTemplates: [EmailTemplate!]!
+  entityAuditLog(entity: String!, entityId: ID!): [AuditLog!]!
+  event(id: ID!): Event!
+  eventReservation(id: ID!): EventReservation!
+  eventReservationsByEvent(eventId: ID!): [EventReservation!]!
+  events(pagination: PaginationInput): [Event!]!
+  eventsByCity(city: String!, country: String): [Event!]!
+  exchangeRates: ExchangeRatesOutput!
+  featureFlags: FeatureFlagsObject!
+  feedbackReport(id: String!): FeedbackReport!
+  feedbackReports(status: String): [FeedbackReport!]!
+  feedbackReportsByGuide(guideId: String!): [FeedbackReport!]!
+  findAllLanguages: [LanguageDto!]!
+  findAllMedia: [Media!]!
+  findAllPayments: [Payment!]!
+  findAllTourCategories: [TourCategory!]!
+  findAllTourPricings: [TourPricing!]!
+  findAllTourSchedules: [TourSchedule!]!
+  findAllTourSteps: [TourStep!]!
+  findAllUserSchedules: [UserSchedule!]!
+  findOneLanguage(id: String!): LanguageDto!
+  findOneMedia(id: String!): Media!
+  findOneTourCategory(id: String!): TourCategory!
+  findOneTourStep(id: String!): TourStep!
+  findPayment(id: String!): Payment!
+  findTourPricing(id: String!): TourPricing!
+  findTourSchedule(id: String!): TourSchedule!
+  findUserSchedule(id: String!): UserSchedule!
+  followers(userId: ID!): [User!]!
+  followersCount(userId: ID!): Int!
+  following(userId: ID!): [User!]!
+  followingCount(userId: ID!): Int!
+  getBookingsByUser(userId: String!): [Booking!]!
+  getFavoritePlaces: [FavoritePlace!]!
+  getFavoritePlacesByUser: [FavoritePlace!]!
+  getFavoriteTours: [FavoriteTour!]!
+  getFavoriteToursByUser: [FavoriteTour!]!
+  getMyReviews: [TourReview!]!
+  getPlacesInRadius(placeInRadiusInput: PlaceInRadiusInput!, userId: ID): [Place!]!
+  getPlacesInRadiusOptimized(filters: PlacesFilterInput, placeInRadiusInput: PlaceInRadiusInput!, userId: ID): [Place!]!
+  guide(id: Int!): Guide!
+  guides: [Guide!]!
+  hotelByTripId(tripId: ID!): Hotel
+  incomingBuddyRequests: [BuddyConnection!]!
+  isFollowing(userId: ID!): Boolean!
+  isInWishlist(entityId: String!, entityType: WishlistEntityType!): Boolean!
+  marketplaceOverview: MarketplaceOverview!
+  marketplacePayouts(payoutStatus: String): [MarketplacePayoutItem!]!
+  me: User!
+  meBuddyDiscoverable: Boolean!
+  myAchievements(completedOnly: Boolean = false): [Achievement!]!
+  myActivePlannedTrip: PlannedTrip
+  myActiveUserActivities: [UserActivity!]!
+  myAuditLog(limit: Int, offset: Int): [AuditLog!]!
+  myBuddies: [BuddyConnection!]!
+  myCompletedTours: [CompletedTour!]!
+  myConnectedAccount: ConnectedAccount
+  myConversations: [ConversationSummary!]!
+  myCouponRedemptions: [CouponUsage!]!
+  myCoupons: [Coupon!]!
+  myEarnings: GuideEarnings!
+  myEntitlements: Entitlements!
+  myEventCodeForReservation(reservationId: String!): EventCode
+  myEventReservations: [EventReservation!]!
+  myGuideAnalytics(endDate: DateTime, startDate: DateTime): GuideAnalytics!
+  myNotificationPreferences: NotificationPreference!
+  myNotifications(limit: Int, offset: Int): [Notification!]!
+  myPlannedTrips: [PlannedTrip!]!
+  myPurchasedEventCodes: [EventCode!]!
+  myPurchasedTourCodes: [TourCode!]!
+  mySubscriptions: [UserSubscription!]!
+  myTrips: [Trip!]!
+  myUnlockedAchievements: [UserAchievement!]!
+  myUnreadChatCount: Int!
+  myUserActivity(id: ID!): UserActivity!
+  myUserAnalytics: UserAnalytics!
+  myVisitedPlaces: [VisitedPlace!]!
+  myWishlist: [WishlistItem!]!
+  nearbyTours(filters: ToursFilterInput, latitude: Float!, longitude: Float!, radius: Float!): [Tour!]!
+  paymentConfigStatus: PaymentConfigStatusObject!
+  paymentMethod(id: String!): PaymentMethod!
+  paymentMethods: [PaymentMethod!]!
+  pendingFeedbackReports: [FeedbackReport!]!
+  permissions: [PermissionEntity!]!
+  place(id: ID!, userId: ID): Place!
+
+  """
+  Devuelve audio TTS cacheado si existe; null si todavía no fue generado.
+  """
+  placeAudio(language: String! = "es", placeId: String!, voice: String): PlaceAudio
+  placeCategories: [PlaceCategory!]!
+  placeReview(id: String!): PlaceReview!
+  placeReviews: [PlaceReview!]!
+  placeReviewsByPlace(placeId: ID!): [PlaceReview!]!
+  placeVisitHeatmap(days: Int = 90): [HeatmapPoint!]!
+  places(pagination: PaginationInput, userId: ID): [Place!]!
+  plannedTripById(id: ID!): PlannedTrip!
+  platformSettings: PlatformSettings!
+  post(id: ID!): Post!
+  postComments(postId: ID!): [PostComment!]!
+  posts(feedType: FeedType!, limit: Int!, offset: Int!, userCity: String, userCountry: String): [Post!]!
+  publicTrips(limit: Int = 20, offset: Int = 0): [Trip!]!
+  savedPosts(limit: Int!, offset: Int!): [Post!]!
+  searchBuddies(query: String!): [BuddySearchResult!]!
+  searchCities(query: String!): [CitySearchResult!]!
+  searchEvents(limit: Float = 20, query: String!): [Event!]!
+  searchPlaces(limit: Int = 20, query: String!, userId: ID): [Place!]!
+  searchTours(filters: ToursFilterInput, limit: Float = 20, query: String!): [Tour!]!
+  searchUsers(limit: Int = 20, query: String!): [User!]!
+  subscriptionPlan(code: String!): SubscriptionPlan!
+  subscriptionPlans(audience: SubscriptionAudience): [SubscriptionPlan!]!
+  topGuides(limit: Int = 20): [TopGuideEntry!]!
+  tour(id: String!): Tour!
+  tourCodeForReservation(reservationId: ID!): TourCode
+  tourPaymentMethod(id: String!): TourPaymentMethod!
+  tourPaymentMethodByTour(tour_id: String!): [TourPaymentMethod!]!
+  tourPaymentMethods: [TourPaymentMethod!]!
+  tourReservation(id: ID!): TourReservation!
+  tourReservations: [TourReservation!]!
+  tourReservationsByGuide(guideId: String!): [TourReservation!]!
+  tourReview(id: ID!): TourReview!
+  tourReviewByGuide(id: ID!): [TourReview!]!
+  tourReviewByTour(id: ID!): [TourReview!]!
+  tourReviews: [TourReview!]!
+
+  """Devuelve la audioguía cacheada de un step si existe."""
+  tourStepAudio(language: String! = "es", tourStepId: String!, voice: String): TourStepAudio
+  tours(pagination: PaginationInput): [Tour!]!
+  toursByGuide(guideId: String!): [Tour!]!
+  travelBuddies: [BuddyMatch!]!
+  tripByShareCode(shareCode: String!): Trip!
+  tripExpenseSummary(tripId: ID!): ExpenseSummary!
+  tripExpenses(tripId: ID!): [Expense!]!
+  unreadNotificationsCount: Int!
+  user(id: String!): User!
+  userByEmail(email: String!): User!
+  userPosts(limit: Int!, offset: Int!, userId: ID!): [Post!]!
+  userRecord(id: Int!): UserRecord!
+  userRecords: [UserRecord!]!
+  userSchedulesByUser(userId: String!): [UserSchedule!]!
+  users(pagination: PaginationInput): [User!]!
+  validateCoupon(input: ValidateCouponInput!): CouponValidation!
+  validateCustomTourCode(input: RedeemCustomTourCodeInput!): CustomTourCodeValidationResult!
+  validateEventCode(code: String!): EventCodeValidationResult!
+  validateTourCode(code: String!): TourCodeValidationResult!
+  zonesByCity(city: String!, country: String!): [Zone!]!
+}
+
+type RateEntry {
+  currency: String!
+  rate: Float!
+}
+
+input RedeemCodeInput {
+  code: String!
+}
+
+type RedeemCodeResult {
+  addedToActiveTrip: Boolean!
+  reservation: TourReservation!
+  schedule: TourSchedule
+  scheduleEventCreated: Boolean!
+  success: Boolean!
+  tour: Tour!
+}
+
+input RedeemCustomTourCodeInput {
+  code: String!
+}
+
+type RedeemCustomTourCodeResult {
+  success: Boolean!
+  tour: Tour!
+}
+
+type RedeemEventCodeResult {
+  event: Event!
+  reservation: EventReservation!
+  schedule: EventSchedule!
+  success: Boolean!
+}
+
+input RegisterInput {
+  confirmPassword: String!
+  email: String!
+  fullName: String!
+  password: String!
+  username: String!
+}
+
+input ReorderTripPostsInput {
+  orderedTripPostIds: [String!]!
+  tripId: ID!
+}
+
+enum ReservationStatus {
+  CANCELLED
+  COMPLETED
+  CONFIRMED
+  IN_PROGRESS
+  PENDING
+}
+
+type RevenueMetric {
+  amount: Float!
+  period: String!
+}
+
+enum ReviewHighlight {
+  ACCESSIBILITY
+  AMABILITY
+  CULTURAL_VALUE
+  ENTERTAINMENT
+  FOOD
+  GUIDE_KNOWLEDGE
+  INTERESTING
+  NONE
+  ORGANIZATION
+  PLACES
+  SCENERY
+  VALUE
+}
+
+input SendMessageInput {
+  body: String
+  conversationId: String!
+  imageUrl: String
+}
+
+input SetHotelInput {
+  address: String!
+  checkIn: String
+  checkOut: String
+  city: String
+  country: String
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  notes: String
+  postalCode: String
+  tripId: ID!
+}
+
+input StartUserActivityInput {
+  activityId: ID!
+  durationHours: Int!
+}
+
+type StripePaymentIntentOutput {
+  amount: Float!
+  clientSecret: String!
+  currency: String!
+  paymentIntentId: String!
+  publishableKey: String!
+  reservationId: ID!
+}
+
+type Subscription {
+  notificationReceived: Notification!
+}
+
+enum SubscriptionAudience {
+  GUIDE
+  TOURIST
+}
+
+type SubscriptionCheckout {
+  url: String!
+}
+
+enum SubscriptionInterval {
+  MONTHLY
+  YEARLY
+}
+
+type SubscriptionPlan {
+  active: Boolean!
+  audience: SubscriptionAudience!
+  code: String!
+  createdAt: DateTime!
+  currency: String!
+  description: String
+  features: [String!]!
+  id: ID!
+  interval: SubscriptionInterval!
+  name: String!
+  price: Float!
+  reducedCommissionPercent: Float
+  stripePriceId: String
+  updatedAt: DateTime!
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+  PAST_DUE
+}
+
+type TopGuideEntry {
+  averageRating: Float!
+  fullName: String!
+  id: ID!
+  profileImage: String
+  reviewCount: Int!
+  tourCount: Int!
+  username: String
+}
+
+type Tour {
+  averageRating: Float
+  categories: [TourCategory!]
+  createdAt: DateTime!
+  description: String!
+  difficulty: TourDifficulty!
+  guide: User!
+  id: ID!
+  isCustom: Boolean!
+  isFreeWalkingTour: Boolean!
+  languages: [Language!]
+  media: [Media!]
+  status: TourStatus!
+  title: String!
+  tourPricings: [TourPricing!]
+  tourSchedules: [TourSchedule!]
+  tourSteps: [TourStep!]
+  tourType: TourType!
+  tour_payment_methods: [TourPaymentMethod!]
+  travelMode: TourTravelMode!
+  updatedAt: DateTime!
+}
+
+type TourCategory {
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type TourCode {
+  code: String!
+  createdAt: DateTime!
+  expiresAt: DateTime
+  id: ID!
+  maxUses: Int!
+  purchasedBy: User!
+  redemptions: [TourCodeRedemption!]
+  schedule: TourSchedule
+  sourceReservation: TourReservation!
+  status: TourCodeStatus!
+  tour: Tour!
+  updatedAt: DateTime!
+  usesRemaining: Int!
+}
+
+type TourCodeRedemption {
+  code: TourCode!
+  id: ID!
+  redeemedAt: DateTime!
+  redeemedBy: User!
+  reservation: TourReservation!
+}
+
+enum TourCodeStatus {
+  ACTIVE
+  EXHAUSTED
+  EXPIRED
+  REVOKED
+}
+
+type TourCodeValidationResult {
+  isValid: Boolean!
+  purchaserName: String
+  reason: String
+  schedule: TourSchedule
+  tour: Tour
+  usesRemaining: Int
+}
+
+enum TourDifficulty {
+  EASY
+  HARD
+  MODERATE
+}
+
+type TourMetric {
+  bookings: Int!
+  revenue: Float!
+  tourId: String!
+  tourTitle: String!
+}
+
+type TourPaymentMethod {
+  id: ID!
+  payment_method: PaymentMethod!
+  tour: Tour!
+}
+
+enum TourPriceFilter {
+  FREE
+  PAID
+}
+
+type TourPricing {
+  createdAt: DateTime!
+  currency: String!
+  endDate: DateTime
+  id: ID!
+  maxParticipants: Int!
+  minParticipants: Int!
+  price: Float!
+  startDate: DateTime!
+  tour: Tour!
+  updatedAt: DateTime!
+}
+
+type TourReservation {
+  cancellation_reason: String
+  completed_at: DateTime
+  created_at: DateTime!
+  expired_without_completion: Boolean!
+  id: ID!
+  invoice_number: String
+  is_invoice_generated: Boolean!
+  net_amount: Float
+  paid_at: DateTime
+  participants: Int!
+  payment_method: PaymentMethod
+  payment_status: PaymentStatus!
+  payout_attempts: Int!
+  payout_status: String
+  platform_fee_amount: Float
+  platform_fee_percent: Float
+  provider: String
+  provider_payment_id: String
+  recipient_user_id: String
+  reservation_status: ReservationStatus!
+  schedule: TourSchedule!
+  started_at: DateTime
+  total_amount: Float!
+  tour: Tour!
+  tourCode: TourCode
+  user: User!
+}
+
+type TourReview {
+  average_rating: Float!
+  best_guide_part: GuideHighlight
+  best_step: TourStep
+  best_tour_part: ReviewHighlight
+  comment: String
+  created_at: DateTime!
+  guide_rating: Int!
+  id: ID!
+  reservation: TourReservation
+  tour: Tour!
+  tour_rating: Int!
+  user: User!
+  worst_guide_part: GuideHighlight
+  worst_step: TourStep
+  worst_tour_part: ReviewHighlight
+}
+
+type TourSchedule {
+  availableSpots: Int
+  createdAt: DateTime!
+  endTime: DateTime
+  id: ID!
+  isAvailable: Boolean!
+  maxCapacity: Int
+  reservations: [TourReservation!]
+  specialInfo: String
+  startTime: DateTime!
+  tour: Tour!
+  updatedAt: DateTime!
+}
+
+enum TourStatus {
+  ACTIVE
+  ARCHIVED
+  DRAFT
+}
+
+type TourStep {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  latitude: Float!
+  longitude: Float!
+  order: Float!
+  place: Place
+  title: String!
+  tour: Tour!
+  updatedAt: DateTime!
+}
+
+type TourStepAudio {
+  """URL pública del archivo (resuelta en runtime)."""
+  audioUrl: String
+  byteSize: Int
+  durationSec: Float
+  generatedAt: DateTime!
+  id: ID!
+  language: String!
+  storageKey: String!
+  tourStepId: String!
+  updatedAt: DateTime!
+  voice: String!
+}
+
+enum TourTravelMode {
+  CYCLING
+  DRIVING
+  WALKING
+}
+
+enum TourType {
+  GUIDED
+  SELF_GUIDED
+}
+
+input ToursFilterInput {
+  categoryIds: [ID!]
+  difficulties: [TourDifficulty!]
+  priceFilter: TourPriceFilter
+  travelModes: [TourTravelMode!]
+  types: [TourType!]
+}
+
+type TrendAnalysis {
+  bookingGrowth: Float!
+  ratingTrend: Float!
+  revenueGrowth: Float!
+}
+
+type Trip {
+  createdAt: DateTime!
+  description: String
+  endDate: DateTime
+  id: ID!
+  isPublic: Boolean!
+  shareCode: String
+  startDate: DateTime
+  title: String!
+  tripPosts: [TripPost!]
+  updatedAt: DateTime!
+  user: User!
+}
+
+type TripMemberDto {
+  role: TripMemberRole!
+  user: User!
+}
+
+enum TripMemberRole {
+  MEMBER
+  OWNER
+}
+
+type TripPost {
+  createdAt: DateTime!
+  id: ID!
+  order: Int!
+  post: Post!
+  trip: Trip!
+}
+
+input UnlinkOAuthAccountInput {
+  provider: OAuthProvider!
+}
+
+type UnlockableAchievement {
+  createdAt: DateTime!
+  description: String
+  iconUrl: String
+  id: ID!
+  key: String!
+  title: String!
+  updatedAt: DateTime!
+  userAchievements: [UserAchievement!]
+}
+
+input UpdateAchievementInput {
+  description: String
+  iconUrl: String
+  title: String
+}
+
+input UpdateActivityInput {
+  achievementId: String
+  availableDurations: [Int!]
+  city: String
+  color: String
+  country: String
+  coverImageUrl: String
+  description: String
+  frequencyMinutes: Int
+  isActive: Boolean
+  serviceEnd: String
+  serviceStart: String
+  stops: [ActivityStopInput!]
+  title: String
+  type: ActivityType
+}
+
+input UpdateAddressInput {
+  city: String
+  country: String
+  id: ID!
+  latitude: Float
+  longitude: Float
+  placeId: String
+  postal_code: String
+  province: String
+  street: String
+}
+
+input UpdateAnnouncementInput {
+  expiresAt: DateTime
+  id: String!
+  isActive: Boolean
+  message: String
+  targetAudience: AnnouncementAudience
+  title: String
+  type: AnnouncementType
+}
+
+input UpdateBookingInput {
+  eventId: String
+  id: String!
+  status: BookingStatus
+  tourReservationId: String
+}
+
+input UpdateClaimDto {
+  category: String
+  claimantId: String
+  reason: String
+  refundAmount: Float
+  reservationId: String
+  resolution: String
+  resolvedById: String
+  status: ClaimStatus
+  tourId: String
+}
+
+input UpdateCouponInput {
+  active: Boolean
+  endDate: DateTime
+  startDate: DateTime
+  usageLimit: Int
+  value: Float
+}
+
+input UpdateDiscountGroupDto {
+  description: String
+  discountAmount: Float
+  discountPercentage: Float
+  discountType: DiscountType = PERCENTAGE
+  endDate: String
+  guideId: String
+  id: String!
+  isActive: Boolean = true
+  name: String
+  startDate: String
+  tourIds: [String!]
+}
+
+input UpdateEmailTemplateInput {
+  bodyHtml: String!
+  key: EmailTemplateKey!
+  subject: String!
+  variables: String
+}
+
+input UpdateEventInput {
+  category: String
+  city: String
+  country: String
+  coverImageUrl: String
+  createdById: String
+  description: String
+  endTime: DateTime
+  id: ID!
+  isActive: Boolean
+  location: String
+  maxParticipantsPerReservation: Int
+  participantIds: [String!]
+  price: Float
+  schedules: [EventScheduleInput!]
+  startTime: DateTime
+  title: String
+  tourId: String
+}
+
+input UpdateFavoritePlaceInput {
+  id: ID!
+  placeId: ID
+  userId: ID
+}
+
+input UpdateFavoriteTourInput {
+  id: ID!
+  tourId: String
+  userId: String
+}
+
+input UpdateFeedbackReportDto {
+  adminResponse: String
+  reason: String
+  reporterId: String
+  reviewId: String
+  reviewedById: String
+  status: String
+}
+
+input UpdateGuideInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateLanguageDto {
+  code: String
+  id: String!
+  name: String
+}
+
+input UpdateMediaDto {
+  id: String!
+  placeId: String
+  tourId: String
+  tourStepId: String
+  type: MediaType
+  url: String
+  userId: String
+}
+
+input UpdateNotificationPreferencesInput {
+  categories: [String!]
+  emailEnabled: Boolean
+  phoneNumber: String
+  pushEnabled: Boolean
+  pushToken: String
+  smsEnabled: Boolean
+}
+
+input UpdatePaymentInput {
+  amount: Float
+  externalTransactionId: String
+  id: ID!
+  paymentMethodId: ID
+  reservationId: ID
+  status: PaymentStatus
+}
+
+input UpdatePaymentMethodDto {
+  description: String
+  id: ID!
+  is_active: Boolean
+  name: String
+  provider: String
+}
+
+input UpdatePlaceInput {
+  accessibility: JSON
+  address: CreateAddressDto
+  categorySlugs: [String!]
+  childFriendly: Boolean
+  description: String
+  entryPrice: String
+  googlePlaceId: String
+  id: Int!
+  media: [CreateMediaDto!]
+  name: String
+  openingHours: JSON
+  parking: JSON
+  paymentMethods: JSON
+  phone: String
+  priceLevel: String
+  rate: Float
+  timezone: String
+  website: String
+}
+
+input UpdatePlaceReviewInput {
+  best_place_part: PlaceReviewHighlight
+  comment: String
+  id: ID!
+  placeId: String
+  place_rating: Int
+  userId: String
+  worst_place_part: PlaceReviewHighlight
+}
+
+input UpdatePlatformSettingsInput {
+  chatEnabled: Boolean
+  claimsEnabled: Boolean
+  defaultCurrency: String
+  defaultMinTourPrice: Float
+  discountGroupsEnabled: Boolean
+  eventEscrowMaxDaysAhead: Int
+  inPersonToursEnabled: Boolean
+  minTourPricePerCurrency: JSON
+  platformFeePercent: Float
+  platformName: String
+  reviewsEnabled: Boolean
+  selfGuidedToursEnabled: Boolean
+  supportEmail: String
+  tourCreationEnabled: Boolean
+}
+
+input UpdatePostInput {
+  content: String
+  id: ID!
+  location: String
+  signature: String
+}
+
+input UpdateSubscriptionPlanInput {
+  active: Boolean
+  audience: SubscriptionAudience
+  code: String
+  currency: String
+  description: String
+  features: [String!]
+  id: ID!
+  interval: SubscriptionInterval
+  name: String
+  price: Float
+  reducedCommissionPercent: Float
+  stripePriceId: String
+}
+
+input UpdateTourCategoryInput {
+  id: String!
+  name: String
+}
+
+input UpdateTourInput {
+  description: String
+  difficulty: TourDifficulty
+  guideId: ID
+  id: ID!
+  isCustom: Boolean
+  isFreeWalkingTour: Boolean
+  status: TourStatus
+  title: String
+  tourType: TourType
+  travelMode: TourTravelMode
+}
+
+input UpdateTourPaymentMethodDto {
+  id: ID!
+  payment_method_id: ID
+  tour_id: ID
+}
+
+input UpdateTourPricingInput {
+  currency: String
+  endDate: DateTime
+  id: ID!
+  maxParticipants: Int
+  minParticipants: Int
+  price: Float
+  startDate: DateTime
+  tourId: String
+}
+
+input UpdateTourReservationInput {
+  cancellation_reason: String
+  couponCode: String
+  id: ID
+  participants: Int = 1
+  paymentMethodId: ID
+  payment_status: PaymentStatus
+  reservation_status: ReservationStatus
+  scheduleId: ID
+  total_amount: Float
+  tourId: ID
+  userId: ID
+}
+
+input UpdateTourReviewInput {
+  best_guide_part: GuideHighlight
+  best_tour_part: ReviewHighlight
+  comment: String
+  guide_rating: Int
+  id: ID!
+  reservationId: ID
+  tourId: ID
+  tour_rating: Int
+  userId: ID
+  worst_guide_part: GuideHighlight
+  worst_tour_part: ReviewHighlight
+}
+
+input UpdateTourScheduleInput {
+  endTime: DateTime
+  id: ID!
+  isAvailable: Boolean
+  maxCapacity: Int
+  specialInfo: String
+  startTime: DateTime
+  tourId: String
+}
+
+input UpdateTourStepInput {
+  description: String
+  id: ID!
+  latitude: Float
+  longitude: Float
+  order: Int
+  placeId: String
+  title: String
+  tourId: ID
+}
+
+input UpdateTripInput {
+  description: String
+  endDate: DateTime
+  id: ID!
+  isPublic: Boolean = true
+  startDate: DateTime
+  title: String
+}
+
+input UpdateUserInput {
+  email: String
+  fullName: String
+  id: String!
+  password: String
+  username: String
+}
+
+input UpdateUserRecordInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateUserScheduleInput {
+  description: String
+  endTime: DateTime
+  id: ID!
+  isConfirmed: Boolean
+  location: String
+  startTime: DateTime
+  title: String
+  tourId: ID
+  type: String
+}
+
+enum UploadKind {
+  CHAT_IMAGE
+  MEDIA
+  TRIP_DOCUMENT
+}
+
+input UpsertZoneInput {
+  boundary: JSON
+  city: String!
+  country: String!
+  dataSource: String!
+  metadata: JSON
+  name: String!
+  safetyScore: Float!
+}
+
+type User {
+  createdAt: DateTime!
+  discoverableAsBuddy: Boolean!
+  email: String!
+  eventsCreated: [Event!]!
+  eventsParticipated: [Event!]!
+  fullName: String!
+  id: ID!
+  languages: [Language!]
+  media: [Media!]
+  oauthProvider: String
+  roles: [UserRole!]!
+  updatedAt: DateTime!
+  username: String!
+}
+
+type UserAchievement {
+  achievement: UnlockableAchievement!
+  id: ID!
+  unlockedAt: DateTime!
+  user: User!
+}
+
+type UserActivity {
+  activity: Activity!
+  cancelledAt: DateTime
+  completedAt: DateTime
+  completedTourIds: [ID!]!
+  createdAt: DateTime!
+  durationHours: Int!
+  expiresAt: DateTime!
+  focusedAt: DateTime
+  id: ID!
+  isExpired: Boolean!
+  isFocused: Boolean!
+  startedAt: DateTime!
+  status: UserActivityStatus!
+  updatedAt: DateTime!
+}
+
+enum UserActivityStatus {
+  ACTIVE
+  CANCELLED
+  COMPLETED
+  EXPIRED
+  FOCUSED
+}
+
+type UserAnalytics {
+  achievementsCount: Int!
+  favoritePlaces: Int!
+  favoriteTours: Int!
+  placesVisited: Int!
+  plannedTripsCount: Int!
+  totalSpent: Float!
+  toursCompleted: Int!
+}
+
+type UserDto {
+  createdAt: DateTime!
+  email: String!
+  fullName: String
+  id: ID!
+  roles: [String!]!
+  updatedAt: DateTime!
+  username: String!
+}
+
+type UserRecord {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+enum UserRole {
+  ADMIN
+  GUIDE
+  SUPER_ADMIN
+  SUPPORT
+  TOURIST
+}
+
+type UserSchedule {
+  booking: Booking
+  createdAt: DateTime!
+  description: String!
+  endTime: DateTime
+  id: ID!
+  isConfirmed: Boolean!
+  location: String
+  startTime: DateTime!
+  title: String!
+  tour: Tour
+  type: String
+  updatedAt: DateTime!
+  user: User!
+}
+
+type UserSubscription {
+  cancelAtPeriodEnd: Boolean!
+  currentPeriodEnd: DateTime
+  id: ID!
+  plan: SubscriptionPlan!
+  planId: String!
+  startedAt: DateTime!
+  status: SubscriptionStatus!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+input ValidateCouponInput {
+  amount: Float!
+  code: String!
+  tourId: String!
+}
+
+enum VisitSource {
+  PROXIMITY
+  TOUR
+}
+
+type VisitedPlace {
+  id: ID!
+  place: Place!
+  source: VisitSource!
+  user: User!
+  visitedAt: DateTime!
+}
+
+enum WishlistEntityType {
+  PLACE
+  TOUR
+}
+
+type WishlistItem {
+  createdAt: DateTime!
+  entityId: String!
+  entityType: WishlistEntityType!
+  id: ID!
+  image: String
+  title: String!
+  user: User!
+}
+
+type Zone {
+  boundaryGeoJson: JSON
+  category: ZoneCategory!
+  city: String!
+  country: String!
+  createdAt: DateTime!
+  dataSource: String!
+  id: ID!
+  metadata: JSON
+  name: String!
+  safetyScore: Float!
+  updatedAt: DateTime!
+}
+
+"""Categoría de seguridad de una zona"""
+enum ZoneCategory {
+  EXCELLENT
+  GOOD
+  POOR
+  REGULAR
+  VERY_GOOD
+}
