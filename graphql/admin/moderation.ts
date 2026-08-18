@@ -1,8 +1,12 @@
 import { gql } from '@apollo/client'
 
 // Claims
+// PLAN-071 §1.1 — `claims(status:)` espera el enum `ClaimStatus`, no String.
+// Con `String` la operación fallaba en validación (antes del control de
+// permisos), así que /admin y /admin/moderation rompían para todos.
+// Valores: OPEN | IN_PROGRESS | RESOLVED | REJECTED | CANCELLED.
 export const ADMIN_GET_ALL_CLAIMS = gql`
-  query GetAllClaims($status: String) {
+  query GetAllClaims($status: ClaimStatus) {
     claims(status: $status) {
       id
       reason

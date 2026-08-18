@@ -18,6 +18,11 @@ export async function POST(request: NextRequest) {
             }
           }
         `,
+        // PLAN-071 §2A — `RegisterInput` no declara `roles`, asi que mandarlo
+        // hacia rechazar la mutation entera y el registro estaba caido para
+        // todos. La API asigna TOURIST siempre (AuthService.register ->
+        // createTourist); el rol no es negociable desde el cliente. Los roles
+        // se gestionan con la mutation admin-guarded `setUserRoles`.
         variables: {
           input: {
             username: body.username,
@@ -25,7 +30,6 @@ export async function POST(request: NextRequest) {
             fullName: body.fullName,
             password: body.password,
             confirmPassword: body.confirmPassword,
-            roles: body.roles,
           },
         },
       }),

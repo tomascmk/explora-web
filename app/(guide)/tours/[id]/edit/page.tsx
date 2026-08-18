@@ -22,9 +22,9 @@ import {
 } from '@/components/tours/PlaceSearchAutocomplete'
 import { SortableWaypointItem } from '@/components/tours/SortableWaypointItem'
 import { CustomTourCodesManager } from '@/components/tours/CustomTourCodesManager'
+import { TourScheduleManager } from '@/components/tours/TourScheduleManager'
 import { getMinTourPrice } from '@/lib/tourPricing'
 import { toast } from 'sonner'
-import { format } from 'date-fns'
 import {
   DndContext,
   closestCenter,
@@ -89,6 +89,9 @@ interface TourScheduleItem {
   isAvailable: boolean
   maxCapacity?: number
   specialInfo?: string
+  // PLAN-071 §3b — se usa para avisar antes de intentar borrar un horario con
+  // reservas; la regla real la aplica el servidor.
+  reservations?: { id: string }[]
 }
 
 export default function EditTourPage() {
@@ -129,7 +132,11 @@ export default function EditTourPage() {
   const minPrice = getMinTourPrice(tourInfo.currency)
 
   // Fetch tour data
-  const { data: fetchData, loading: fetchLoading } = useQuery<TourByIdData>(GET_TOUR_BY_ID, {
+  const {
+    data: fetchData,
+    loading: fetchLoading,
+    refetch,
+  } = useQuery<TourByIdData>(GET_TOUR_BY_ID, {
     variables: { id },
     skip: !id,
   })
@@ -637,49 +644,15 @@ export default function EditTourPage() {
               )}
             </div>
 
-            {/* Existing Schedules (guided only) */}
-            {isGuided && existingSchedules.length > 0 && (
-              <div className='border-t pt-4 mt-4' style={{ borderColor: 'var(--color-card-border)' }}>
-                <h3 className='text-lg font-medium mb-3' style={{ color: 'var(--color-text-heading)' }}>Scheduled Sessions</h3>
-                <div className='space-y-2'>
-                  {existingSchedules.map((schedule) => (
-                    <div
-                      key={schedule.id}
-                      className='flex items-center justify-between rounded-lg p-3 text-sm'
-                      style={{ backgroundColor: 'var(--color-primary-light)' }}
-                    >
-                      <div>
-                        <span className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
-                          {format(new Date(schedule.startTime), 'MMM dd, yyyy HH:mm')}
-                        </span>
-                        {schedule.endTime && (
-                          <span style={{ color: 'var(--color-text-body)' }}>
-                            {' '}- {format(new Date(schedule.endTime), 'HH:mm')}
-                          </span>
-                        )}
-                        {schedule.specialInfo && (
-                          <span className='ml-2' style={{ color: 'var(--color-text-muted)' }}>
-                            ({schedule.specialInfo})
-                          </span>
-                        )}
-                      </div>
-                      <span
-                        className='text-xs px-2 py-1 rounded-full'
-                        style={
-                          schedule.isAvailable
-                            ? { backgroundColor: 'var(--color-success-light)', color: 'var(--color-success)' }
-                            : { backgroundColor: 'var(--color-section-bg)', color: 'var(--color-text-secondary)' }
-                        }
-                      >
-                        {schedule.isAvailable ? 'Available' : 'Unavailable'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <p className='text-xs mt-2' style={{ color: 'var(--color-text-muted)' }}>
-                  You can add more sessions from the Tours list page.
-                </p>
-              </div>
+            {/* PLAN-071 §3b — Antes esto era solo lectura y decia "You can add
+                more sessions from the Tours list page", capacidad que no
+                existia. Ahora es un ABM real sobre TourSchedule. */}
+            {isGuided && (
+              <TourScheduleManager
+                tourId={id}
+                schedules={existingSchedules}
+                onChanged={() => void refetch()}
+              />
             )}
 
             <button
@@ -851,7 +824,7 @@ export default function EditTourPage() {
                   {existingSchedules.length} scheduled session{existingSchedules.length > 1 ? 's' : ''}
                 </p>
                 <p className='text-xs' style={{ color: 'var(--color-primary)' }}>
-                  Manage sessions from the Tours list page.
+                  Manage them in the Basics step.
                 </p>
               </div>
             )}

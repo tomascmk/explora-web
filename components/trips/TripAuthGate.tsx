@@ -434,7 +434,6 @@ function RegisterForm({
           fullName: formData.fullName,
           password: formData.password,
           confirmPassword: formData.confirmPassword,
-          roles: 'TOURIST',
         }),
       })
 
