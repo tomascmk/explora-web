@@ -2,10 +2,8 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
 
 export default function RegisterPage() {
-  const { setUser } = useAuth()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -15,6 +13,7 @@ export default function RegisterPage() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [registered, setRegistered] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -46,7 +45,6 @@ export default function RegisterPage() {
           fullName: formData.fullName,
           password: formData.password,
           confirmPassword: formData.confirmPassword,
-          roles: 'GUIDE',
         }),
       })
 
@@ -56,10 +54,12 @@ export default function RegisterPage() {
         throw new Error(result.error || 'Registration failed')
       }
 
-      setUser(result.user)
-
-      // Hard navigation to ensure AuthProvider re-mounts with fresh state
-      window.location.href = '/dashboard'
+      // PLAN-071 §2A — No se navega a /dashboard: la API crea la cuenta como
+      // TOURIST (register() -> createTourist) y el middleware exige
+      // GUIDE/ADMIN/SUPER_ADMIN, asi que el usuario rebotaria al login sin
+      // explicacion. Hasta que exista el flujo de solicitud de guia
+      // (PLAN-071 §2C), se muestra el estado real de la cuenta.
+      setRegistered(true)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to register. Please try again.'
       setError(message)
@@ -116,11 +116,32 @@ export default function RegisterPage() {
         >
           <div className='text-center mb-8'>
             <h1 className='text-3xl font-bold mb-2' style={{ color: 'var(--color-text-heading)' }}>
-              Become a Guide
+              Create your account
             </h1>
-            <p style={{ color: 'var(--color-text-secondary)' }}>Join our community of local experts</p>
+            <p style={{ color: 'var(--color-text-secondary)' }}>
+              Want to guide with us? Create your account first — our team enables
+              guide access manually.
+            </p>
           </div>
 
+          {registered ? (
+            <div className='text-center space-y-4' data-testid='register-success'>
+              <p style={{ color: 'var(--color-text-body)' }}>
+                Your account was created. Guide access is not automatic: our team
+                reviews and enables it, and we will contact you by email.
+              </p>
+              <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>
+                Until then you can sign in, but the guide portal stays locked.
+              </p>
+              <Link
+                href='/login'
+                className='inline-block w-full text-white py-3 rounded-lg font-semibold transition-all'
+                style={{ backgroundColor: 'var(--color-primary)' }}
+              >
+                Go to Sign In
+              </Link>
+            </div>
+          ) : (
           <form onSubmit={handleSubmit} className='space-y-4'>
             {error && (
               <div
@@ -236,9 +257,10 @@ export default function RegisterPage() {
               onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
               onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
             >
-              {loading ? 'Creating account...' : 'Create Guide Account'}
+              {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
+          )}
 
           <div className='mt-6 text-center text-sm' style={{ color: 'var(--color-text-secondary)' }}>
             Already have an account?{' '}

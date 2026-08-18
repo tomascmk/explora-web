@@ -260,6 +260,20 @@ describe("TripAuthGate", () => {
         expect.objectContaining({ method: "POST" }),
       ),
     )
+
+    // PLAN-071 §2A — El payload NO debe incluir `roles`: `RegisterInput` no lo
+    // declara y mandarlo hacia fallar la mutation entera, dejando el registro
+    // caido. La API asigna TOURIST por diseno.
+    const registerCall = fetchMock.mock.calls.find(
+      (c: unknown[]) => c[0] === "/api/auth/register",
+    ) as [string, { body: string }]
+    const sentBody = JSON.parse(registerCall[1].body) as Record<string, unknown>
+    expect(sentBody).not.toHaveProperty("roles")
+    expect(sentBody).toMatchObject({
+      username: "john",
+      email: "j@d.com",
+      fullName: "John Doe",
+    })
     await waitFor(() => expect(authState.setUser).toHaveBeenCalledWith({ id: "9" }))
   })
 
