@@ -126,7 +126,6 @@ export const ADMIN_GET_ALL_PLACES = gql`
         id
         street
         city
-        state
         country
       }
       media {
@@ -169,8 +168,9 @@ export const ADMIN_GET_ALL_EVENTS = gql`
   }
 `
 
+// PLAN-071 §1.3 — `removeEvent(id:)` espera `ID!`, no `String!`.
 export const ADMIN_REMOVE_EVENT = gql`
-  mutation AdminRemoveEvent($id: String!) {
+  mutation AdminRemoveEvent($id: ID!) {
     removeEvent(id: $id) {
       success
       message
@@ -234,7 +234,6 @@ export interface AdminPlace {
     id: string
     street: string
     city: string
-    state: string
     country: string
   } | null
   media: AdminMedia[]
