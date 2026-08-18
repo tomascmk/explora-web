@@ -155,6 +155,11 @@ export const GET_TOURS_BY_GUIDE = gql`
         isAvailable
         maxCapacity
         specialInfo
+        # PLAN-071 §3b — para avisar en la UI antes de intentar borrar un
+        # horario con reservas. La regla real vive en el servidor.
+        reservations {
+          id
+        }
       }
       media {
         id
@@ -328,5 +333,28 @@ export const CREATE_TOUR_SCHEDULE = gql`
       maxCapacity
       specialInfo
     }
+  }
+`;
+
+// PLAN-071 §3b — Gestion de disponibilidad. Ojo con los tipos: la API es
+// inconsistente entre estas dos. `UpdateTourScheduleInput.id` es ID!, pero
+// `removeTourSchedule(id:)` toma String!. Copiar el patron equivocado
+// reintroduciria la clase de bug que arreglo PLAN-071 §1.
+export const UPDATE_TOUR_SCHEDULE = gql`
+  mutation UpdateTourSchedule($input: UpdateTourScheduleInput!) {
+    updateTourSchedule(input: $input) {
+      id
+      startTime
+      endTime
+      isAvailable
+      maxCapacity
+      specialInfo
+    }
+  }
+`;
+
+export const REMOVE_TOUR_SCHEDULE = gql`
+  mutation RemoveTourSchedule($id: String!) {
+    removeTourSchedule(id: $id)
   }
 `;
