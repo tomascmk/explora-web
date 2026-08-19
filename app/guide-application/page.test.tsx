@@ -35,6 +35,17 @@ vi.mock('@/graphql/guideApplications', () => ({
   REQUEST_GUIDE_ACCESS: { __which: 'request' },
 }))
 
+// PLAN-071 §2C — la página tiene un gate de auth adelante: el contenido que
+// usa Apollo no se monta hasta estar autenticado (así el prerender de Next no
+// intenta ejecutar useQuery sin ApolloProvider).
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({ isAuthenticated: true, loading: false, user: { id: 'u1' } }),
+}))
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}))
+
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => (
     <a href={href}>{children}</a>

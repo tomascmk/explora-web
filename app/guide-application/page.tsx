@@ -3,6 +3,9 @@
 import { useMutation, useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import {
   GET_LANGUAGES,
   GuideApplication,
@@ -18,7 +21,14 @@ import {
  * Esta pantalla es el camino real: se solicita, un admin aprueba, y recién ahí
  * el usuario entra al portal.
  */
-export default function GuideApplicationPage() {
+/**
+ * El contenido va aparte a propósito. `getApolloClient()` devuelve null en el
+ * servidor, así que durante el prerender de Next NO hay ApolloProvider y
+ * cualquier `useQuery` explota (el build fallaba con un Invariant de Apollo).
+ * El wrapper de abajo corta antes de montar esto, igual que hace el layout del
+ * portal en `app/(guide)/layout.tsx`.
+ */
+function GuideApplicationForm() {
   const { data, loading, refetch } = useQuery<{
     myGuideApplication: GuideApplication | null
   }>(MY_GUIDE_APPLICATION, { fetchPolicy: 'network-only' })
@@ -213,4 +223,31 @@ export default function GuideApplicationPage() {
       </form>
     </div>
   )
+}
+
+/**
+ * Gate de autenticación. La ruta está en `publicPrefixes` del middleware —
+ * tiene que estarlo, porque quien solicita ser guía es un TOURIST que todavía
+ * no tiene el rol que el portal exige — así que el redirect a login lo hace
+ * esta pantalla, no el middleware.
+ */
+export default function GuideApplicationPage() {
+  const { isAuthenticated, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login?redirect=/guide-application')
+    }
+  }, [isAuthenticated, loading, router])
+
+  if (loading || !isAuthenticated) {
+    return (
+      <p className='p-8 text-sm' style={{ color: 'var(--color-text-secondary)' }}>
+        Cargando…
+      </p>
+    )
+  }
+
+  return <GuideApplicationForm />
 }
