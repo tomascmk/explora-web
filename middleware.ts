@@ -9,6 +9,10 @@ const JWT_SECRET = new TextEncoder().encode(
 const publicPrefixes = [
   "/login",
   "/register",
+  // PLAN-071 §2C — la solicitud para ser guía la hace un TOURIST, que por
+  // definición todavía no tiene el rol que exige el portal. Si no estuviera
+  // acá, el middleware lo rebotaría justo en la pantalla que necesita.
+  "/guide-application",
   "/guides",
   "/tourists",
   "/trip",

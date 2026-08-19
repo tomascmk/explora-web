@@ -119,26 +119,36 @@ export default function RegisterPage() {
               Create your account
             </h1>
             <p style={{ color: 'var(--color-text-secondary)' }}>
-              Want to guide with us? Create your account first — our team enables
-              guide access manually.
+              ¿Querés guiar con nosotros? Creá tu cuenta y después enviás la
+              solicitud: un miembro del equipo la revisa.
             </p>
           </div>
 
           {registered ? (
             <div className='text-center space-y-4' data-testid='register-success'>
               <p style={{ color: 'var(--color-text-body)' }}>
-                Your account was created. Guide access is not automatic: our team
-                reviews and enables it, and we will contact you by email.
+                Listo, tu cuenta está creada.
               </p>
+              {/* PLAN-071 §2C — antes esto era un callejón sin salida: mandaba
+                  al login, pero el portal exige rol de guía y el usuario recién
+                  creado es turista. Ahora se encadena con la solicitud. */}
               <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>
-                Until then you can sign in, but the guide portal stays locked.
+                Para guiar necesitás enviar una solicitud. La revisa nuestro
+                equipo y te habilita el portal.
               </p>
               <Link
-                href='/login'
+                href='/guide-application'
                 className='inline-block w-full text-white py-3 rounded-lg font-semibold transition-all'
                 style={{ backgroundColor: 'var(--color-primary)' }}
               >
-                Go to Sign In
+                Solicitar acceso de guía
+              </Link>
+              <Link
+                href='/'
+                className='block text-sm hover:underline'
+                style={{ color: 'var(--color-text-secondary)' }}
+              >
+                Ahora no
               </Link>
             </div>
           ) : (
