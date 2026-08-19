@@ -77,7 +77,11 @@ describe("RegisterPage", () => {
       expect(screen.getByTestId("register-success")).toBeInTheDocument(),
     )
     expect(assign).not.toHaveBeenCalled()
-    expect(screen.getByText(/enables it/i)).toBeInTheDocument()
+    // PLAN-071 §2C — el estado de éxito ya no es un callejón sin salida:
+    // encadena con la solicitud de guía.
+    expect(
+      screen.getByRole('link', { name: /Solicitar acceso de guía/i }),
+    ).toHaveAttribute('href', '/guide-application')
   })
 
   it("no promete una cuenta de guia automatica", () => {

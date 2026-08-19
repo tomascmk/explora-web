@@ -544,7 +544,6 @@ input CreateMediaDto {
   tourStepId: String
   type: MediaType!
   url: String!
-  userId: String
 }
 
 input CreateMercadoPagoEventPreferenceInput {
@@ -754,20 +753,6 @@ input CreateUserInput {
   password: String!
   roles: [UserRole!]!
   username: String!
-}
-
-input CreateUserRecordInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
-}
-
-input CreateUserScheduleInput {
-  description: String!
-  endTime: DateTime
-  isConfirmed: Boolean = false
-  startTime: DateTime!
-  title: String!
-  userId: String!
 }
 
 type CustomTourAccessGrant {
@@ -1118,6 +1103,28 @@ type GuideAnalytics {
   trends: TrendAnalysis!
 }
 
+type GuideApplication {
+  city: String!
+  country: String!
+  createdAt: DateTime!
+  id: ID!
+  languages: [Language!]
+  motivation: String!
+  reviewNote: String
+  reviewedAt: DateTime
+  reviewedBy: User
+  status: GuideApplicationStatus!
+  updatedAt: DateTime!
+  user: User!
+}
+
+"""Estado de una solicitud para ser guía (PLAN-071 §2C)."""
+enum GuideApplicationStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
 type GuideEarnings {
   count: Int!
   inEscrow: Float!
@@ -1328,8 +1335,6 @@ type Mutation {
   createTrip(input: CreateTripInput!): Trip!
   createUploadUrl(contentType: String!, kind: UploadKind!): PresignedUpload!
   createUser(createUserInput: CreateUserInput!): UserDto!
-  createUserRecord(createUserRecordInput: CreateUserRecordInput!): UserRecord!
-  createUserSchedule(input: CreateUserScheduleInput!): UserSchedule!
   deactivateCoupon(id: ID!): Coupon!
   deleteAchievement(id: ID!): Boolean!
   deleteActivity(id: ID!): Boolean!
@@ -1397,16 +1402,17 @@ type Mutation {
   removeTourStep(id: String!): DeleteResponse!
   removeTripMember(tripId: ID!, userId: ID!): Boolean!
   removeUser(id: String!): User!
-  removeUserRecord(id: Int!): UserRecord!
   removeUserSchedule(id: String!): Boolean!
 
   """Elimina todas las zonas de una ciudad. Devuelve cantidad eliminada."""
   removeZonesByCity(city: String!, country: String!): Int!
   reorderTripPosts(input: ReorderTripPostsInput!): [TripPost!]!
   repostPost(postId: ID!): Post!
+  requestGuideAccess(input: RequestGuideAccessInput!): GuideApplication!
   resolveClaim(id: String!, refundAmount: Float, resolution: String!, resolvedById: String!): Claim!
   respondBuddyRequest(accept: Boolean!, connectionId: ID!): BuddyConnection!
   retryPayout(kind: PayoutKind!, reservationId: String!): String!
+  reviewGuideApplication(input: ReviewGuideApplicationInput!): GuideApplication!
   revokeAllRefreshTokens: Boolean!
   revokeCustomTourCode(codeId: ID!): CustomTourCode!
   savePost(postId: ID!): Post!
@@ -1457,7 +1463,6 @@ type Mutation {
   updateTrip(id: String!, input: UpdateTripInput!): Trip!
   updateUser(updateUserInput: UpdateUserInput!): User!
   updateUserActivityDuration(durationHours: Int!, id: ID!): UserActivity!
-  updateUserRecord(updateUserRecordInput: UpdateUserRecordInput!): UserRecord!
   updateUserSchedule(input: UpdateUserScheduleInput!): UserSchedule!
   upsertZone(input: UpsertZoneInput!): Zone!
   visitPlace(placeId: ID!): VisitedPlace!
@@ -1879,6 +1884,7 @@ type Query {
   getPlacesInRadius(placeInRadiusInput: PlaceInRadiusInput!, userId: ID): [Place!]!
   getPlacesInRadiusOptimized(filters: PlacesFilterInput, placeInRadiusInput: PlaceInRadiusInput!, userId: ID): [Place!]!
   guide(id: Int!): Guide!
+  guideApplications(status: GuideApplicationStatus): [GuideApplication!]!
   guides: [Guide!]!
   hotelByTripId(tripId: ID!): Hotel
   incomingBuddyRequests: [BuddyConnection!]!
@@ -1903,6 +1909,7 @@ type Query {
   myEventCodeForReservation(reservationId: String!): EventCode
   myEventReservations: [EventReservation!]!
   myGuideAnalytics(endDate: DateTime, startDate: DateTime): GuideAnalytics!
+  myGuideApplication: GuideApplication
   myNotificationPreferences: NotificationPreference!
   myNotifications(limit: Int, offset: Int): [Notification!]!
   myPlannedTrips: [PlannedTrip!]!
@@ -1975,8 +1982,6 @@ type Query {
   user(id: String!): User!
   userByEmail(email: String!): User!
   userPosts(limit: Int!, offset: Int!, userId: ID!): [Post!]!
-  userRecord(id: Int!): UserRecord!
-  userRecords: [UserRecord!]!
   userSchedulesByUser(userId: String!): [UserSchedule!]!
   users(pagination: PaginationInput): [User!]!
   validateCoupon(input: ValidateCouponInput!): CouponValidation!
@@ -2033,6 +2038,13 @@ input ReorderTripPostsInput {
   tripId: ID!
 }
 
+input RequestGuideAccessInput {
+  city: String!
+  country: String!
+  languageIds: [ID!]!
+  motivation: String!
+}
+
 enum ReservationStatus {
   CANCELLED
   COMPLETED
@@ -2044,6 +2056,12 @@ enum ReservationStatus {
 type RevenueMetric {
   amount: Float!
   period: String!
+}
+
+input ReviewGuideApplicationInput {
+  applicationId: ID!
+  approve: Boolean!
+  note: String
 }
 
 enum ReviewHighlight {
@@ -2573,7 +2591,6 @@ input UpdateMediaDto {
   tourStepId: String
   type: MediaType
   url: String
-  userId: String
 }
 
 input UpdateNotificationPreferencesInput {
@@ -2773,12 +2790,6 @@ input UpdateUserInput {
   username: String
 }
 
-input UpdateUserRecordInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
-}
-
 input UpdateUserScheduleInput {
   description: String
   endTime: DateTime
@@ -2810,7 +2821,7 @@ input UpsertZoneInput {
 type User {
   createdAt: DateTime!
   discoverableAsBuddy: Boolean!
-  email: String!
+  email: String
   eventsCreated: [Event!]!
   eventsParticipated: [Event!]!
   fullName: String!
@@ -2818,7 +2829,7 @@ type User {
   languages: [Language!]
   media: [Media!]
   oauthProvider: String
-  roles: [UserRole!]!
+  roles: [UserRole!]
   updatedAt: DateTime!
   username: String!
 }
@@ -2873,11 +2884,6 @@ type UserDto {
   roles: [String!]!
   updatedAt: DateTime!
   username: String!
-}
-
-type UserRecord {
-  """Example field (placeholder)"""
-  exampleField: Int!
 }
 
 enum UserRole {
