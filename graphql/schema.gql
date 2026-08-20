@@ -310,17 +310,28 @@ type Coupon {
   active: Boolean!
   code: String!
   createdAt: DateTime!
+  currency: String
   endDate: DateTime
+  guideId: ID
   id: ID!
   maxDiscount: Float
   minPurchase: Float
+  scope: CouponScope!
   startDate: DateTime
+  tourId: ID
   type: CouponType!
   updatedAt: DateTime!
   usageCount: Int!
   usageLimit: Int
   userGroups: [String!]
   value: Float!
+}
+
+"""Alcance sobre el que aplica un cupón"""
+enum CouponScope {
+  GUIDE
+  PLATFORM
+  TOUR
 }
 
 """Types of coupon discounts"""
@@ -421,10 +432,14 @@ input CreateCommentInput {
 
 input CreateCouponInput {
   code: String!
+  currency: String
   endDate: DateTime
+  guideId: ID
   maxDiscount: Float
   minPurchase: Float
+  scope: CouponScope!
   startDate: DateTime
+  tourId: ID
   type: CouponType!
   usageLimit: Int
   userGroups: [String!]
@@ -456,6 +471,7 @@ input CreateEventInput {
   country: String
   coverImageUrl: String
   createdById: String!
+  currency: String
   description: String!
   endTime: DateTime
   isActive: Boolean
@@ -470,7 +486,6 @@ input CreateEventInput {
 }
 
 input CreateEventPaymentIntentInput {
-  currencyOverride: String
   eventId: ID!
   participants: Int!
   scheduleId: ID!
@@ -523,7 +538,6 @@ input CreateLanguageDto {
 
 input CreateMarketplaceEventCheckoutInput {
   cardToken: String!
-  currencyOverride: String
   eventId: String!
   participants: Int!
   scheduleId: String!
@@ -532,7 +546,6 @@ input CreateMarketplaceEventCheckoutInput {
 input CreateMarketplaceTourCheckoutInput {
   cardToken: String!
   couponCode: String
-  currencyOverride: String
   participants: Int!
   scheduleId: String!
   tourId: String!
@@ -547,7 +560,6 @@ input CreateMediaDto {
 }
 
 input CreateMercadoPagoEventPreferenceInput {
-  currencyOverride: String
   eventId: ID!
   participants: Int!
   scheduleId: ID!
@@ -555,7 +567,6 @@ input CreateMercadoPagoEventPreferenceInput {
 
 input CreateMercadoPagoPreferenceInput {
   couponCode: String
-  currencyOverride: String
   participants: Int!
   scheduleId: ID!
   tourId: ID!
@@ -580,7 +591,6 @@ input CreatePaymentInput {
 
 input CreatePaymentIntentInput {
   couponCode: String
-  currencyOverride: String
   participants: Int!
   scheduleId: ID!
   tourId: ID!
@@ -861,6 +871,7 @@ type Event {
   coverImageUrl: String
   createdAt: DateTime!
   createdBy: User!
+  currency: String!
   description: String!
   endTime: DateTime
   id: ID!
@@ -2504,8 +2515,12 @@ input UpdateClaimDto {
 
 input UpdateCouponInput {
   active: Boolean
+  currency: String
   endDate: DateTime
+  guideId: ID
+  scope: CouponScope
   startDate: DateTime
+  tourId: ID
   usageLimit: Int
   value: Float
 }
@@ -2537,6 +2552,7 @@ input UpdateEventInput {
   country: String
   coverImageUrl: String
   createdById: String
+  currency: String
   description: String
   endTime: DateTime
   id: ID!
