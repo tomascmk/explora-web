@@ -1517,6 +1517,7 @@ enum NotificationType {
   BOOKING_CANCELLED
   BOOKING_CONFIRMED
   CODE_REDEEMED
+  NEW_EVENT_NEARBY
   NEW_MESSAGE
   PAYMENT_FAILED
   PAYMENT_RECEIVED
@@ -1568,6 +1569,7 @@ type ParkingPayload {
 type Payment {
   amount: Float!
   created_at: DateTime!
+  currency: String!
   external_transaction_id: String
   id: ID!
   payment_method: PaymentMethod
@@ -2303,6 +2305,7 @@ type TourReservation {
   provider: String
   provider_payment_id: String
   recipient_user_id: String
+  reminder_sent_at: DateTime
   reservation_status: ReservationStatus!
   schedule: TourSchedule!
   started_at: DateTime
