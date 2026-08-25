@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileHeader } from '@/components/layout/MobileHeader'
 import { GuideBanner } from '@/components/GuideBanner'
+import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 import { useRouter } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 
@@ -11,6 +12,9 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
   const { user, isAuthenticated, loading } = useAuth()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  // PLAN-090 — El centro de notificaciones se monta una sola vez acá, y lo abren
+  // tanto la campana del header mobile como el item de la sidebar.
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -50,12 +54,16 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onNotificationsClick={() => setNotificationsOpen(true)}
       />
 
       {/* Main content area */}
       <div className='flex-1 flex flex-col min-w-0 overflow-hidden'>
         {/* Mobile header with hamburger */}
-        <MobileHeader onMenuClick={() => setSidebarOpen(true)} />
+        <MobileHeader
+          onMenuClick={() => setSidebarOpen(true)}
+          onNotificationsClick={() => setNotificationsOpen(true)}
+        />
 
         {/* Scrollable content */}
         <main
@@ -66,6 +74,11 @@ export default function GuideLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+
+      <NotificationCenter
+        isOpen={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+      />
     </div>
   )
 }

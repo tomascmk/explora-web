@@ -1,47 +1,30 @@
 'use client';
 
-import { useQuery } from '@apollo/client/react';
-import { GET_UNREAD_COUNT } from '@/graphql/notifications';
 import { Bell } from 'lucide-react';
-import { useEffect } from 'react';
-import { getSocket } from '@/lib/websocket';
-
-interface UnreadCountData {
-  unreadNotificationsCount: number;
-}
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 
 interface NotificationBellProps {
   onClick: () => void;
 }
 
+/**
+ * Campana para barras superiores (hoy, el header mobile del portal del guía).
+ *
+ * El contador sale de `useUnreadNotifications`, compartido con el item de la
+ * sidebar (PLAN-090): dos consultas separadas mostrarían números distintos en la
+ * misma pantalla.
+ */
 export function NotificationBell({ onClick }: NotificationBellProps) {
-  const { data, refetch } = useQuery<UnreadCountData>(GET_UNREAD_COUNT, {
-    pollInterval: 30000, // Poll every 30 seconds as fallback
-  });
-
-  useEffect(() => {
-    const socket = getSocket();
-    
-    if (socket) {
-      socket.on('notification', () => {
-        refetch();
-      });
-
-      return () => {
-        socket.off('notification');
-      };
-    }
-  }, [refetch]);
-
-  const unreadCount = data?.unreadNotificationsCount || 0;
+  const { unreadCount } = useUnreadNotifications();
 
   return (
     <button
       onClick={onClick}
+      aria-label="Notifications"
       className="relative p-2 rounded-lg transition-colors"
       style={{ color: 'var(--color-text-body)' }}
       onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-heading)'; e.currentTarget.style.backgroundColor = 'var(--color-section-bg)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-body)'; e.currentTarget.style.backgroundColor = ''; }}
+      onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-body)'; e.currentTarget.style.backgroundColor = 'transparent'; }}
     >
       <Bell className="w-6 h-6" />
       {unreadCount > 0 && (
