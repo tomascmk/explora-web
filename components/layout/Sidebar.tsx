@@ -4,7 +4,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import type { FeatureFlags } from '@/graphql/feature-flags'
 import { useQuery } from '@apollo/client/react'
 import { MY_UNREAD_CHAT_COUNT } from '@/graphql/chat'
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications'
 import {
+  Bell,
   Calendar,
   CreditCard,
   History,
@@ -28,6 +30,11 @@ import { ReactNode } from 'react'
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
+  /**
+   * PLAN-090 — Abre el panel de notificaciones. Es un boton y no un `Link`
+   * porque el centro de notificaciones es un panel, no una pantalla.
+   */
+  onNotificationsClick: () => void
 }
 
 interface NavItem {
@@ -63,7 +70,7 @@ const bottomNavItems: NavItem[] = [
   { href: '/settings', label: 'Settings', icon: <Settings size={20} />, matchPath: '/settings' },
 ]
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, onNotificationsClick }: SidebarProps) {
   const { user, logout, featureFlags } = useAuth()
   const pathname = usePathname()
 
@@ -73,6 +80,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     { skip: !featureFlags.chatEnabled, pollInterval: 30_000 },
   )
   const unreadChat = unreadData?.myUnreadChatCount ?? 0
+  const { unreadCount: unreadNotifications } = useUnreadNotifications()
 
   const visibleNavItems = navItems.filter(
     (item) => !item.flag || featureFlags[item.flag],
@@ -161,6 +169,40 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </Link>
           )
         })}
+
+        {/* PLAN-090 — Notificaciones. Antes no habia forma de verlas desde el
+            portal: `NotificationBell` y `NotificationCenter` existian pero no
+            los montaba nadie, y `/settings/notifications` es solo preferencias. */}
+        <button
+          type='button'
+          onClick={() => {
+            onClose()
+            onNotificationsClick()
+          }}
+          className='relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:translate-x-0.5'
+          style={{ color: 'var(--color-sidebar-text)', backgroundColor: 'transparent' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-sidebar-hover)'
+            e.currentTarget.style.color = '#E2E8F0'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.color = 'var(--color-sidebar-text)'
+          }}
+        >
+          <span className='flex-shrink-0'>
+            <Bell size={20} />
+          </span>
+          <span>Notifications</span>
+          {unreadNotifications > 0 && (
+            <span
+              className='ml-auto min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold text-white flex items-center justify-center'
+              style={{ backgroundColor: 'var(--color-danger)' }}
+            >
+              {unreadNotifications > 99 ? '99+' : unreadNotifications}
+            </span>
+          )}
+        </button>
       </nav>
 
       {/* Bottom section */}

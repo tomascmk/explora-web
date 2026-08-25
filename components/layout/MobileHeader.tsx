@@ -1,12 +1,15 @@
 'use client'
 
-import { Menu, Bell } from 'lucide-react'
+import { Menu } from 'lucide-react'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 interface MobileHeaderProps {
   onMenuClick: () => void
+  /** PLAN-090 — Abre el centro de notificaciones. */
+  onNotificationsClick: () => void
 }
 
-export function MobileHeader({ onMenuClick }: MobileHeaderProps) {
+export function MobileHeader({ onMenuClick, onNotificationsClick }: MobileHeaderProps) {
   return (
     <header
       className='lg:hidden flex items-center justify-between h-14 px-4 border-b flex-shrink-0'
@@ -44,18 +47,9 @@ export function MobileHeader({ onMenuClick }: MobileHeaderProps) {
         </span>
       </div>
 
-      <button
-        className='p-2 -mr-2 rounded-lg transition-colors relative'
-        style={{ color: 'var(--color-text-secondary)' }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--color-section-bg)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'transparent'
-        }}
-      >
-        <Bell size={20} />
-      </button>
+      {/* PLAN-090 — Antes esto era una campana decorativa: sin onClick y sin
+          contador. Ahora es la real, que abre el centro de notificaciones. */}
+      <NotificationBell onClick={onNotificationsClick} />
     </header>
   )
 }

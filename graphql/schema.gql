@@ -1381,12 +1381,14 @@ type Mutation {
   markConversationRead(conversationId: String!): Boolean!
   markNotificationAsRead(id: ID!): Notification!
   markStopTourCompleted(tourId: ID!, userActivityId: ID!): UserActivity!
+  notifyProximity(input: NotifyProximityInput!): ProximityNotifyResult!
   pauseUserActivity(id: ID!): UserActivity!
   redeemCustomTourCode(input: RedeemCustomTourCodeInput!): RedeemCustomTourCodeResult!
   redeemEventCode(code: String!): RedeemEventCodeResult!
   redeemTourCode(input: RedeemCodeInput!): RedeemCodeResult!
   refreshToken(refreshToken: String!): AuthResponse!
   register(registerInput: RegisterInput!): AuthResponse!
+  registerDevice(input: RegisterDeviceInput!): UserDevice!
   rejectClaim(id: String!, reason: String!, rejectedById: String!): Claim!
   rejectFeedbackReport(adminId: String!, id: String!, response: String!): FeedbackReport!
   removeAddress(id: String!): DeleteResponse!
@@ -1439,6 +1441,7 @@ type Mutation {
   startUserActivity(input: StartUserActivityInput!): UserActivity!
   unfollowUser(followingId: ID!): DeleteResponse!
   unlinkOAuthAccount(input: UnlinkOAuthAccountInput!): User!
+  unregisterDevice(token: String!): Boolean!
   updateAchievement(id: ID!, input: UpdateAchievementInput!): UnlockableAchievement!
   updateActivity(id: ID!, input: UpdateActivityInput!): Activity!
   updateAddress(input: UpdateAddressInput!): Address!
@@ -1506,7 +1509,6 @@ type NotificationPreference {
   id: ID!
   phoneNumber: String
   pushEnabled: Boolean!
-  pushToken: String
   smsEnabled: Boolean!
   updatedAt: DateTime!
   user: User!
@@ -1522,10 +1524,20 @@ enum NotificationType {
   PAYMENT_FAILED
   PAYMENT_RECEIVED
   PAYOUT
+  PLACE_NEARBY
   SYSTEM_ALERT
+  TOUR_COUPON_AVAILABLE
+  TOUR_NEARBY
+  TOUR_PRICE_DROP
   TOUR_REMINDER
   TOUR_RESERVED
   TOUR_REVIEW
+}
+
+input NotifyProximityInput {
+  placeId: ID
+  tourId: ID
+  tripId: ID!
 }
 
 """OAuth provider types"""
@@ -1827,6 +1839,11 @@ type PresignedUpload {
   uploadUrl: String!
 }
 
+type ProximityNotifyResult {
+  keepTracking: Boolean!
+  notified: Boolean!
+}
+
 type Query {
   achievementById(id: ID!): UnlockableAchievement!
   achievements(pagination: PaginationInput): [UnlockableAchievement!]!
@@ -2036,6 +2053,11 @@ type RedeemEventCodeResult {
   reservation: EventReservation!
   schedule: EventSchedule!
   success: Boolean!
+}
+
+input RegisterDeviceInput {
+  platform: String!
+  token: String!
 }
 
 input RegisterInput {
@@ -2617,7 +2639,6 @@ input UpdateNotificationPreferencesInput {
   emailEnabled: Boolean
   phoneNumber: String
   pushEnabled: Boolean
-  pushToken: String
   smsEnabled: Boolean
 }
 
@@ -2893,6 +2914,13 @@ type UserAnalytics {
   plannedTripsCount: Int!
   totalSpent: Float!
   toursCompleted: Int!
+}
+
+type UserDevice {
+  createdAt: DateTime!
+  id: ID!
+  lastSeenAt: DateTime!
+  platform: String!
 }
 
 type UserDto {

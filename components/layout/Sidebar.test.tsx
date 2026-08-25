@@ -36,7 +36,7 @@ describe("Sidebar", () => {
   });
 
   it("renders core navigation items", () => {
-    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} />, {
+    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} onNotificationsClick={vi.fn()} />, {
       mocks: [unreadMock],
     });
     expect(screen.getAllByText("Dashboard").length).toBeGreaterThan(0);
@@ -45,7 +45,7 @@ describe("Sidebar", () => {
   });
 
   it("shows flag-gated items when their flags are on", () => {
-    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} />, {
+    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} onNotificationsClick={vi.fn()} />, {
       mocks: [unreadMock],
     });
     expect(screen.getAllByText("Messages").length).toBeGreaterThan(0);
@@ -59,20 +59,20 @@ describe("Sidebar", () => {
       logout,
       featureFlags: { ...FLAGS_ALL_ON, chatEnabled: false, claimsEnabled: false },
     });
-    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} />);
+    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} onNotificationsClick={vi.fn()} />);
     expect(screen.queryByText("Messages")).not.toBeInTheDocument();
     expect(screen.queryByText("Claims")).not.toBeInTheDocument();
   });
 
   it("renders the unread chat badge from the query", async () => {
-    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} />, {
+    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} onNotificationsClick={vi.fn()} />, {
       mocks: [unreadMock],
     });
     expect(await screen.findAllByText("4")).not.toHaveLength(0);
   });
 
   it("calls logout when the logout button is clicked", async () => {
-    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} />, {
+    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} onNotificationsClick={vi.fn()} />, {
       mocks: [unreadMock],
     });
     await userEvent.click(screen.getByText("Logout"));
@@ -80,7 +80,7 @@ describe("Sidebar", () => {
   });
 
   it("renders the user info block with the fullName initial", () => {
-    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} />, {
+    renderWithProviders(<Sidebar isOpen={false} onClose={vi.fn()} onNotificationsClick={vi.fn()} />, {
       mocks: [unreadMock],
     });
     expect(screen.getByText("Guide One")).toBeInTheDocument();
@@ -89,11 +89,30 @@ describe("Sidebar", () => {
   it("closes the mobile overlay on backdrop click when open", async () => {
     const onClose = vi.fn();
     const { container } = renderWithProviders(
-      <Sidebar isOpen onClose={onClose} />,
+      <Sidebar isOpen onClose={onClose} onNotificationsClick={vi.fn()} />,
       { mocks: [unreadMock] },
     );
     const backdrop = container.querySelector(".sidebar-overlay")!;
     await userEvent.click(backdrop);
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  // PLAN-090 — Antes no habia forma de ver las notificaciones desde el portal:
+  // NotificationBell y NotificationCenter existian pero no los montaba nadie, y
+  // /settings/notifications es solo preferencias.
+  it("opens the notification center from the sidebar", async () => {
+    const onNotificationsClick = vi.fn();
+    renderWithProviders(
+      <Sidebar
+        isOpen={false}
+        onClose={vi.fn()}
+        onNotificationsClick={onNotificationsClick}
+      />,
+      { mocks: [] },
+    );
+
+    await userEvent.click(await screen.findByText("Notifications"));
+
+    expect(onNotificationsClick).toHaveBeenCalled();
   });
 });
