@@ -8,7 +8,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 export default function AdminAuditLogPage() {
-  const { data, loading } = useQuery<AuditLogData>(ADMIN_GET_AUDIT_LOG, {
+  const { data, loading, error } = useQuery<AuditLogData>(ADMIN_GET_AUDIT_LOG, {
     variables: { limit: 500, offset: 0 },
   })
 
@@ -19,7 +19,10 @@ export default function AdminAuditLogPage() {
   const [entityFilter, setEntityFilter] = useState('')
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
-  const allLogs: AuditLogEntry[] = useMemo(() => data?.myAuditLog || [], [data])
+  const allLogs: AuditLogEntry[] = useMemo(
+    () => data?.adminAuditLog || [],
+    [data]
+  )
 
   // Get unique actions and entities for filters
   const actions = useMemo(() => {
@@ -42,7 +45,11 @@ export default function AdminAuditLogPage() {
           l.action?.toLowerCase().includes(q) ||
           l.entity?.toLowerCase().includes(q) ||
           l.entityId?.toLowerCase().includes(q) ||
-          l.ipAddress?.toLowerCase().includes(q)
+          l.ipAddress?.toLowerCase().includes(q) ||
+          // PLAN-100: buscar por quién lo hizo es el motivo principal para
+          // abrir un audit log del sistema.
+          l.user?.fullName?.toLowerCase().includes(q) ||
+          l.user?.email?.toLowerCase().includes(q)
       )
     }
 
@@ -120,6 +127,24 @@ export default function AdminAuditLogPage() {
       ),
     },
     {
+      // PLAN-100: sin esta columna el registro no sirve para lo que existe —
+      // saber QUIÉN hizo cada cosa.
+      key: 'user',
+      header: 'User',
+      render: (l) => (
+        <div className='flex flex-col'>
+          <span className='text-xs' style={{ color: 'var(--color-text-primary)' }}>
+            {l.user?.fullName || 'Unknown'}
+          </span>
+          {l.user?.email ? (
+            <span className='text-[11px]' style={{ color: 'var(--color-text-muted)' }}>
+              {l.user.email}
+            </span>
+          ) : null}
+        </div>
+      ),
+    },
+    {
       key: 'action',
       header: 'Action',
       render: (l) => {
@@ -162,6 +187,25 @@ export default function AdminAuditLogPage() {
       ),
     },
   ]
+
+  // `adminAuditLog` exige ADMIN o SUPER_ADMIN, pero el layout deja entrar
+  // también a SUPPORT. Sin esto, soporte vería un error crudo de GraphQL.
+  if (error) {
+    return (
+      <>
+        <PageHeader title='Audit Log' />
+        <div
+          className='rounded-lg p-6 text-sm'
+          style={{
+            background: 'var(--color-surface-alt)',
+            color: 'var(--color-text-secondary)',
+          }}
+        >
+          This log is available to administrators only.
+        </div>
+      </>
+    )
+  }
 
   return (
     <>
