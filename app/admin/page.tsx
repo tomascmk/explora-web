@@ -55,8 +55,11 @@ export default function AdminDashboardPage() {
     }
   }, [usersData, reservationsData, toursData, claimsData])
 
+  // PLAN-100: antes leía `myAuditLog` — las acciones del propio admin. En un
+  // panel de administración "actividad reciente" tiene que ser la de todos, o
+  // no informa nada sobre lo que está pasando en el sistema.
   const recentActivity = useMemo(() => {
-    return (auditData?.myAuditLog || []).slice(0, 8)
+    return (auditData?.adminAuditLog || []).slice(0, 8)
   }, [auditData])
 
   const recentReservations = useMemo(() => {
@@ -231,6 +234,7 @@ export default function AdminDashboardPage() {
                     </span>
                   </div>
                   <p className='text-xs' style={{ color: 'var(--color-text-muted)' }}>
+                    {log.user?.fullName || 'Unknown'} ·{' '}
                     {new Date(log.createdAt).toLocaleString()}
                   </p>
                 </div>
