@@ -7,6 +7,7 @@ export const GET_MY_COUPONS = gql`
       code
       type
       value
+      currency
       minPurchase
       maxDiscount
       usageLimit

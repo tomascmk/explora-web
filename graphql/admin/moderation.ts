@@ -26,6 +26,7 @@ export const ADMIN_GET_ALL_CLAIMS = gql`
       reservation {
         id
         total_amount
+        currency
         tour {
           id
           title
@@ -178,6 +179,7 @@ export interface AdminClaim {
   reservation: {
     id: string
     total_amount: number
+    currency?: string | null
     tour: { id: string; title: string } | null
   } | null
   tour: { id: string; title: string } | null

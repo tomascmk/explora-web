@@ -13,6 +13,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { ShoppingCart, Clock, CheckCircle, DollarSign } from 'lucide-react'
+import { formatMoney } from '@/lib/formatMoney';
 
 interface Order {
   id: string
@@ -33,6 +34,7 @@ interface Order {
     maxCapacity?: number
   }
   total_amount: number
+  currency?: string | null
   payment_status: string
   reservation_status: string
   created_at: string
@@ -326,7 +328,7 @@ export default function OrdersPage() {
                       className='py-3 px-4 text-sm text-right font-medium'
                       style={{ color: 'var(--color-text-heading)' }}
                     >
-                      ${order.total_amount?.toFixed(2)}
+                      {formatMoney(Number(order.total_amount ?? 0), order.currency)}
                     </td>
                     <td className='py-3 px-4 text-center'>
                       <StatusBadge status={order.payment_status} />

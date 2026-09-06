@@ -37,8 +37,8 @@ vi.mock("leaflet.markercluster/dist/MarkerCluster.css", () => ({}));
 vi.mock("leaflet.markercluster/dist/MarkerCluster.Default.css", () => ({}));
 
 const tours = [
-  { id: "1", title: "City Walk", latitude: 40.7, longitude: -74, price: 30, rating: 4.5 },
-  { id: "2", title: "Food Tour", latitude: 40.71, longitude: -74.01, price: 20 },
+  { id: "1", title: "City Walk", latitude: 40.7, longitude: -74, price: 30, currency: "EUR", rating: 4.5 },
+  { id: "2", title: "Food Tour", latitude: 40.71, longitude: -74.01, price: 20, currency: "ARS" },
 ];
 
 beforeEach(() => {
@@ -92,5 +92,53 @@ describe("InteractiveMap", () => {
     render(<InteractiveMap tours={[]} center={[10, 20]} zoom={5} />);
     expect(mapInstance.setView).toHaveBeenCalledWith([10, 20], 5);
     expect(L.map).toHaveBeenCalled();
+  });
+});
+
+/**
+ * PLAN-122 — El popup decía `Precio: $undefined`.
+ *
+ * `Tour` no tiene `price` en el esquema: la página del mapa lo declaraba en su
+ * interfaz local, la query nunca lo pedía, y `useQuery<{ toursByGuide: Tour[] }>`
+ * se lo creía. El precio vive en `tourPricings`. Encima el `$` era fijo, así que
+ * un tour en euros se anunciaba en dólares.
+ */
+describe("InteractiveMap — la moneda del popup", () => {
+  const popupFor = async (tour: Record<string, unknown>) => {
+    const L = (await import("leaflet")).default;
+    cleanup();
+    vi.clearAllMocks();
+    render(<InteractiveMap tours={[tour as never]} />);
+    void L;
+    return markerInstance.bindPopup.mock.calls[0][0] as string;
+  };
+
+  it("no anuncia un tour en euros con el signo de dólar", async () => {
+    const popup = await popupFor({
+      id: "1",
+      title: "City Walk",
+      latitude: 40.7,
+      longitude: -74,
+      price: 30,
+      currency: "EUR",
+    });
+
+    expect(popup).toContain("30");
+    expect(popup).not.toContain("$");
+  });
+
+  it("nunca escribe `undefined` como precio", async () => {
+    // El caso real: sin `tourPricings` el precio llega en 0, no indefinido.
+    const popup = await popupFor({
+      id: "2",
+      title: "Sin precio",
+      latitude: 40.7,
+      longitude: -74,
+      price: 0,
+      currency: null,
+    });
+
+    expect(popup).not.toContain("undefined");
+    expect(popup).toContain("Precio: 0");
   });
 });

@@ -10,6 +10,7 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { toast } from 'sonner'
+import { formatMoney } from '@/lib/formatMoney';
 
 interface DiscountGroup {
   id: string
@@ -250,7 +251,7 @@ function DiscountCard({
           <p className='text-2xl font-bold mt-1' style={{ color: 'var(--color-primary)' }}>
             {discount.discountType === 'percentage'
               ? `${discount.discountPercentage}% OFF`
-              : `$${discount.discountAmount} OFF`}
+              : `${formatMoney(Number(discount.discountAmount ?? 0), null)} OFF`}
           </p>
         </div>
         <button

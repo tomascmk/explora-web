@@ -20,6 +20,7 @@ export const CLAIMS_BY_GUIDE = gql`
       reservation {
         id
         total_amount
+        currency
         tour {
           id
           title

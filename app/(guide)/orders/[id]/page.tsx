@@ -11,12 +11,14 @@ import { toast } from 'sonner'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, User, Calendar, DollarSign, MapPin, Clock, MessageCircle } from 'lucide-react'
 import { getDisplayError } from '@/utils/errorMessages'
+import { formatMoney } from '@/lib/formatMoney';
 
 interface ReservationDetail {
   id: string
   reservation_status: string
   payment_status: string
   total_amount: number
+  currency?: string | null
   created_at: string
   cancellation_reason?: string
   paid_at?: string
@@ -320,7 +322,7 @@ export default function OrderDetailPage() {
             <div className='space-y-4'>
               <div className='text-center py-4 rounded-lg' style={{ backgroundColor: 'var(--color-section-bg)' }}>
                 <p className='text-sm mb-1' style={{ color: 'var(--color-text-muted)' }}>Total Amount</p>
-                <p className='text-3xl font-bold' style={{ color: 'var(--color-success)' }}>${reservation.total_amount?.toFixed(2)}</p>
+                <p className='text-3xl font-bold' style={{ color: 'var(--color-success)' }}>{formatMoney(Number(reservation.total_amount ?? 0), reservation.currency)}</p>
               </div>
               <div className='space-y-2'>
                 <div className='flex justify-between text-sm'>

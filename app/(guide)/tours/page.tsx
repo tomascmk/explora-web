@@ -21,6 +21,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { FilterButton } from '@/components/ui/FilterButton'
 import { getDisplayError } from '@/utils/errorMessages'
 import { Plus, X, Calendar, Clock, MapPin, Copy } from 'lucide-react'
+import { formatMoney } from '@/lib/formatMoney';
 
 interface TourSchedule {
   id: string
@@ -671,7 +672,7 @@ function TourCard({
           </div>
           {pricing && (
             <div className='font-semibold' style={{ color: 'var(--color-primary)' }}>
-              {pricing.currency} ${pricing.price}
+              {formatMoney(pricing.price, pricing.currency)}
             </div>
           )}
           <div className='text-xs' style={{ color: 'var(--color-text-muted)' }}>{formattedDate}</div>

@@ -14,12 +14,15 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { getDisplayError } from '@/utils/errorMessages';
 import { useState } from 'react';
+import { formatMoney } from '@/lib/formatMoney';
 
 interface Coupon {
   id: string;
   code: string;
   type: string;
   value: number;
+  /** Nullable en el esquema: sin moneda, el cupón aplica a cualquiera. */
+  currency?: string | null;
   minPurchase: number;
   maxDiscount: number;
   usageLimit: number;
@@ -174,7 +177,9 @@ export default function CouponsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm" style={{ color: 'var(--color-text-body)' }}>
-                        {coupon.type === 'PERCENTAGE' ? `${coupon.value}%` : `$${coupon.value}`}
+                        {coupon.type === 'PERCENTAGE'
+                          ? `${coupon.value}%`
+                          : formatMoney(coupon.value, coupon.currency)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

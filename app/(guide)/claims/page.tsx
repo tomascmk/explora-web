@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { FilterButton } from '@/components/ui/FilterButton'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { toast } from 'sonner'
+import { formatMoney } from '@/lib/formatMoney';
 
 interface Claim {
   id: string
@@ -28,6 +29,7 @@ interface Claim {
   reservation: {
     id: string
     total_amount: number
+    currency?: string | null
     tour: {
       id: string
       title: string
@@ -288,7 +290,7 @@ function ClaimCard({
           <p className='text-xs font-medium uppercase mb-1' style={{ color: 'var(--color-text-muted)' }}>Tour</p>
           <p className='text-sm font-medium' style={{ color: 'var(--color-text-heading)' }}>{claim.reservation.tour.title}</p>
           <p className='text-xs' style={{ color: 'var(--color-text-muted)' }}>
-            Reservation amount: ${claim.reservation.total_amount}
+            Reservation amount: {formatMoney(Number(claim.reservation.total_amount ?? 0), claim.reservation.currency)}
           </p>
         </div>
       </div>
@@ -311,7 +313,7 @@ function ClaimCard({
       {claim.refundAmount != null && claim.refundAmount > 0 && (
         <div className='flex items-center gap-2 mt-2'>
           <span className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Refund issued:</span>
-          <span className='text-sm font-bold' style={{ color: 'var(--color-success)' }}>${claim.refundAmount.toFixed(2)}</span>
+          <span className='text-sm font-bold' style={{ color: 'var(--color-success)' }}>{formatMoney(claim.refundAmount, claim.reservation.currency)}</span>
         </div>
       )}
     </div>
@@ -334,6 +336,7 @@ function ResolutionModal({
   const [refundAmount, setRefundAmount] = useState('')
 
   const maxRefund = claim.reservation.total_amount
+  const currency = claim.reservation.currency
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -341,7 +344,7 @@ function ResolutionModal({
     if (includeRefund && refundAmount) {
       const amount = parseFloat(refundAmount)
       if (amount > maxRefund) {
-        toast.error(`Refund cannot exceed reservation amount ($${maxRefund})`)
+        toast.error(`Refund cannot exceed reservation amount (${formatMoney(maxRefund, currency)})`)
         return
       }
       onResolve(claim.id, resolution, amount)
@@ -395,7 +398,7 @@ function ResolutionModal({
           {includeRefund && (
             <div>
               <label className='block text-sm font-medium mb-2' style={{ color: 'var(--color-text-body)' }}>
-                Refund Amount (max ${maxRefund})
+                Refund Amount (max {formatMoney(maxRefund, currency)})
               </label>
               <div className='relative'>
                 <span className='absolute left-3 top-1/2 -translate-y-1/2' style={{ color: 'var(--color-text-muted)' }}>$</span>
@@ -418,7 +421,7 @@ function ResolutionModal({
                 className='text-xs mt-1 hover:underline'
                 style={{ color: 'var(--color-primary)' }}
               >
-                Full refund (${maxRefund})
+                Full refund ({formatMoney(maxRefund, currency)})
               </button>
             </div>
           )}

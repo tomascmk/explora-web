@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, User, Mail, Calendar, DollarSign, ShoppingBag } from 'lucide-react';
 import { format } from 'date-fns';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { formatMoney, sumByCurrency } from '@/lib/formatMoney';
 
 interface UserMedia {
   id: string;
@@ -32,6 +33,7 @@ interface Booking {
   payment: {
     id: string;
     amount: number;
+    currency: string | null;
     status: string;
   } | null;
   tourReservation: {
@@ -68,7 +70,15 @@ export default function TouristDetailPage() {
 
   // Compute stats from bookings
   const totalBookings = bookings.length;
-  const totalSpent = bookings.reduce((sum, b) => sum + (b.payment?.amount || 0), 0);
+  // PLAN-122: antes esto era un `reduce` que sumaba montos de monedas
+  // distintas y los rotulaba con `$`. Un turista con un tour de 45.000 pesos y
+  // otro de 300 euros daba 45.300, que no significa nada en ninguna moneda.
+  const spentByCurrency = sumByCurrency(
+    bookings.map((b) => ({
+      amount: b.payment?.amount ?? 0,
+      currency: b.payment?.currency,
+    })),
+  );
 
   if (isLoading) {
     return (
@@ -167,7 +177,15 @@ export default function TouristDetailPage() {
                   <DollarSign className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
                   <span style={{ color: 'var(--color-text-body)' }}>Total Spent</span>
                 </div>
-                <span className="font-semibold" style={{ color: 'var(--color-text-heading)' }}>${totalSpent.toFixed(2)}</span>
+                <span className="font-semibold text-right" style={{ color: 'var(--color-text-heading)' }}>
+                  {spentByCurrency.length === 0
+                    ? formatMoney(0, null)
+                    : spentByCurrency.map((entry) => (
+                        <span key={entry.currency} className="block">
+                          {formatMoney(entry.amount, entry.currency)}
+                        </span>
+                      ))}
+                </span>
               </div>
             </div>
           </div>
@@ -223,7 +241,7 @@ export default function TouristDetailPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm" style={{ color: 'var(--color-text-heading)' }}>
                             {booking.payment?.amount != null
-                              ? `$${booking.payment.amount.toFixed(2)}`
+                              ? formatMoney(booking.payment.amount, booking.payment.currency)
                               : 'N/A'}
                           </div>
                         </td>

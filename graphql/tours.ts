@@ -145,6 +145,7 @@ export const GET_TOURS_BY_GUIDE = gql`
         id
         price
         currency
+        createdAt
         minParticipants
         maxParticipants
       }

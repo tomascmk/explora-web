@@ -41,6 +41,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { getDisplayError } from '@/utils/errorMessages'
+import { formatMoney } from '@/lib/formatMoney';
 
 const TourCreationMap = dynamic(
   () =>
@@ -799,7 +800,7 @@ export default function EditTourPage() {
                 <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>Price</p>
                 <p className='font-medium' style={{ color: 'var(--color-text-heading)' }}>
                   {tourInfo.price
-                    ? `${tourInfo.currency} $${tourInfo.price} per person`
+                    ? `${formatMoney(Number(tourInfo.price), tourInfo.currency)} per person`
                     : 'Free'}
                 </p>
               </div>

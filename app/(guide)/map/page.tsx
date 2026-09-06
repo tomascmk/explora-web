@@ -13,11 +13,22 @@ const InteractiveMap = dynamic(
   { ssr: false }
 );
 
+/**
+ * PLAN-122 — `Tour` no tiene `price` ni `rating` en el esquema.
+ *
+ * Esta interfaz los declaraba igual y `useQuery<{ toursByGuide: Tour[] }>` se lo
+ * creía, así que TypeScript no veía nada: la query nunca los pedía y el popup
+ * del mapa venía mostrando `Precio: $undefined`. El precio vive en
+ * `tourPricings`, que la query sí trae.
+ */
 interface Tour {
   id: string;
   title: string;
-  price: number;
-  rating: number;
+  tourPricings?: Array<{
+    price: number;
+    currency: string;
+    createdAt?: string;
+  }> | null;
   tourSteps: Array<{
     latitude: number;
     longitude: number;
@@ -34,14 +45,22 @@ export default function MapPage() {
   });
 
   // Transform tours to include first step coordinates
-  const tours = (data?.toursByGuide || []).map(tour => ({
-    id: tour.id,
-    title: tour.title,
-    latitude: tour.tourSteps?.[0]?.latitude || 0,
-    longitude: tour.tourSteps?.[0]?.longitude || 0,
-    price: tour.price,
-    rating: tour.rating
-  })).filter(tour => tour.latitude && tour.longitude);
+  const tours = (data?.toursByGuide || []).map(tour => {
+    // El mismo criterio que usa el cobro (`TourQuoteService` en la API): el
+    // pricing más antiguo. `tourPricings` es un OneToMany sin ORDER BY.
+    const pricing = [...(tour.tourPricings ?? [])].sort(
+      (a, b) =>
+        new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()
+    )[0];
+    return {
+      id: tour.id,
+      title: tour.title,
+      latitude: tour.tourSteps?.[0]?.latitude || 0,
+      longitude: tour.tourSteps?.[0]?.longitude || 0,
+      price: Number(pricing?.price ?? 0),
+      currency: pricing?.currency ?? null
+    };
+  }).filter(tour => tour.latitude && tour.longitude);
 
   const handleTourClick = (tourId: string) => {
     router.push(`/tours/${tourId}/edit`);

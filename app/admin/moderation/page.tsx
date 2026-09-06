@@ -24,6 +24,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { Shield, Flag, Star, CheckCircle, XCircle, Trash2, LucideIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { formatMoney } from '@/lib/formatMoney';
 
 type TabKey = 'claims' | 'reports' | 'reviews'
 type ModerationItem = AdminClaim | FeedbackReport | AdminReview
@@ -196,7 +197,7 @@ export default function AdminModerationPage() {
       align: 'right',
       render: (c) =>
         c.refundAmount ? (
-          <span className='font-medium'>${c.refundAmount.toFixed(2)}</span>
+          <span className='font-medium'>{formatMoney(c.refundAmount, c.reservation?.currency)}</span>
         ) : (
           <span style={{ color: 'var(--color-text-muted)' }}>-</span>
         ),
