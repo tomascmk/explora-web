@@ -287,25 +287,6 @@ export default function GuidesLanding() {
         </div>
       </section>
 
-      {/* Success Stories */}
-      <section className='py-20 px-4' style={{ backgroundColor: 'var(--color-page-bg)' }}>
-        <div className='max-w-7xl mx-auto'>
-          <div className='text-center mb-16'>
-            <p className='text-sm font-semibold uppercase tracking-wider mb-2' style={{ color: 'var(--color-primary)' }}>
-              Testimonials
-            </p>
-            <h2 className='text-3xl sm:text-4xl font-bold' style={{ color: 'var(--color-text-heading)' }}>
-              Guide Success Stories
-            </h2>
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            <SuccessStory name='Carlos Martinez' city='Barcelona' earnings='$4,500/month' tours={120} rating={4.9} quote='Explora changed my life. I quit my 9-5 and now I make more money doing what I love.' />
-            <SuccessStory name='Yuki Tanaka' city='Tokyo' earnings='$3,800/month' tours={95} rating={5.0} quote='The platform is so easy to use. I created 10 tours in my first week and got bookings immediately.' />
-            <SuccessStory name='Sophie Dubois' city='Paris' earnings='$5,200/month' tours={150} rating={4.95} quote='Best decision ever. My food tours are fully booked months in advance. The automatic payouts are a game-changer.' />
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
       <section className='bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white py-20'>
         <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center'>
@@ -362,57 +343,6 @@ function GuideFeature({
       <div className='text-5xl mb-5'>{icon}</div>
       <h3 className='text-xl font-semibold mb-3' style={{ color: 'var(--color-text-heading)' }}>{title}</h3>
       <p style={{ color: 'var(--color-text-secondary)' }}>{description}</p>
-    </div>
-  )
-}
-
-function SuccessStory({
-  name,
-  city,
-  earnings,
-  tours,
-  rating,
-  quote
-}: {
-  name: string
-  city: string
-  earnings: string
-  tours: number
-  rating: number
-  quote: string
-}) {
-  return (
-    <div
-      className='p-6 rounded-xl border transition-shadow hover:shadow-md'
-      style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
-    >
-      <div className='flex items-center mb-4'>
-        <div
-          className='w-16 h-16 rounded-full flex items-center justify-center mr-4'
-          style={{ backgroundColor: 'var(--color-primary-light)' }}
-        >
-          <span className='text-2xl'>👤</span>
-        </div>
-        <div>
-          <h3 className='font-semibold text-lg' style={{ color: 'var(--color-text-heading)' }}>{name}</h3>
-          <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>{city}</p>
-        </div>
-      </div>
-      <div className='grid grid-cols-3 gap-2 mb-4'>
-        <div className='text-center'>
-          <p className='text-xs' style={{ color: 'var(--color-text-muted)' }}>Earnings</p>
-          <p className='font-semibold' style={{ color: 'var(--color-primary)' }}>{earnings}</p>
-        </div>
-        <div className='text-center'>
-          <p className='text-xs' style={{ color: 'var(--color-text-muted)' }}>Tours</p>
-          <p className='font-semibold' style={{ color: 'var(--color-text-heading)' }}>{tours}</p>
-        </div>
-        <div className='text-center'>
-          <p className='text-xs' style={{ color: 'var(--color-text-muted)' }}>Rating</p>
-          <p className='font-semibold' style={{ color: 'var(--color-text-heading)' }}>⭐ {rating}</p>
-        </div>
-      </div>
-      <p className='text-sm italic' style={{ color: 'var(--color-text-secondary)' }}>&quot;{quote}&quot;</p>
     </div>
   )
 }

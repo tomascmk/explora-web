@@ -99,29 +99,6 @@ export default function MainLanding() {
                   Become a Guide →
                 </Link>
               </div>
-
-              {/* Social Proof */}
-              <div className='flex items-center gap-8 pt-8'>
-                <div className='flex -space-x-3'>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div
-                      key={i}
-                      className='w-11 h-11 rounded-full border-3 border-slate-900 shadow-lg'
-                      style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-hover))' }}
-                    ></div>
-                  ))}
-                </div>
-                <div>
-                  <div className='flex items-center gap-1 mb-1'>
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <span key={i} className='text-lg' style={{ color: 'var(--color-warning)' }}>★</span>
-                    ))}
-                  </div>
-                  <p className='text-sm text-slate-400'>
-                    Loved by <span className='font-bold text-white'>50,000+</span> travelers
-                  </p>
-                </div>
-              </div>
             </div>
 
             {/* Hero Visual */}
@@ -140,13 +117,6 @@ export default function MainLanding() {
                     <div className='text-8xl'>🌍</div>
                     <p className='text-white text-2xl font-bold'>Your Adventure Awaits</p>
                   </div>
-                </div>
-                {/* Floating Cards */}
-                <div className='absolute top-10 right-10 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-xl transform rotate-6 hover:rotate-0 transition-transform duration-300'>
-                  <p className='text-sm font-semibold' style={{ color: 'var(--color-text-heading)' }}>⭐ 4.9/5 Rating</p>
-                </div>
-                <div className='absolute bottom-10 left-10 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-xl transform -rotate-6 hover:rotate-0 transition-transform duration-300'>
-                  <p className='text-sm font-semibold' style={{ color: 'var(--color-text-heading)' }}>🎯 1000+ Tours</p>
                 </div>
               </div>
             </div>
@@ -201,25 +171,6 @@ export default function MainLanding() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className='py-24 px-4' style={{ backgroundColor: 'var(--color-card-bg)' }}>
-        <div className='max-w-7xl mx-auto'>
-          <div className='text-center mb-16'>
-            <p className='text-sm font-semibold uppercase tracking-wider mb-2' style={{ color: 'var(--color-primary)' }}>
-              Reviews
-            </p>
-            <h2 className='text-4xl sm:text-5xl font-bold' style={{ color: 'var(--color-text-heading)' }}>
-              What Our Users Say
-            </h2>
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            <TestimonialCard name='Sarah Johnson' role='Tourist' content='The self-guided food tour in Tokyo was incredible! The audio guide was so detailed and the route was perfect.' rating={5} />
-            <TestimonialCard name='Miguel Rodriguez' role='Tour Guide' content='Explora helped me turn my passion for history into a thriving business. The platform is easy to use and the support is amazing.' rating={5} />
-            <TestimonialCard name='Emily Chen' role='Tourist' content='Booked an in-person tour in Paris and our guide was phenomenal. Would definitely use Explora again!' rating={5} />
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className='relative py-24 px-4 overflow-hidden bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900'>
         <div className='absolute inset-0 overflow-hidden'>
@@ -228,18 +179,6 @@ export default function MainLanding() {
         </div>
 
         <div className='max-w-5xl mx-auto text-center relative z-10'>
-          <div className='inline-block mb-6'>
-            <span
-              className='text-sm font-semibold px-4 py-1.5 rounded-full'
-              style={{
-                backgroundColor: 'rgba(20, 184, 166, 0.15)',
-                color: 'var(--color-primary)',
-              }}
-            >
-              🚀 Join 50,000+ Travelers
-            </span>
-          </div>
-
           <h2 className='text-4xl sm:text-5xl font-bold text-white mb-8 leading-tight'>
             Your Next Adventure
             <br />
@@ -265,22 +204,6 @@ export default function MainLanding() {
             >
               Explore Tours →
             </Link>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className='mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto'>
-            <div className='text-center'>
-              <p className='text-4xl font-bold text-white mb-2'>1000+</p>
-              <p className='text-slate-400 text-sm'>Tours Worldwide</p>
-            </div>
-            <div className='text-center'>
-              <p className='text-4xl font-bold text-white mb-2'>50K+</p>
-              <p className='text-slate-400 text-sm'>Happy Travelers</p>
-            </div>
-            <div className='text-center'>
-              <p className='text-4xl font-bold text-white mb-2'>4.9★</p>
-              <p className='text-slate-400 text-sm'>Average Rating</p>
-            </div>
           </div>
         </div>
       </section>
@@ -396,36 +319,6 @@ function FeatureCard({
       <div className='text-4xl mb-4'>{icon}</div>
       <h3 className='text-lg font-semibold mb-2' style={{ color: 'var(--color-text-heading)' }}>{title}</h3>
       <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>{description}</p>
-    </div>
-  )
-}
-
-function TestimonialCard({
-  name,
-  role,
-  content,
-  rating
-}: {
-  name: string
-  role: string
-  content: string
-  rating: number
-}) {
-  return (
-    <div
-      className='p-6 rounded-xl border transition-shadow hover:shadow-md'
-      style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
-    >
-      <div className='flex mb-3'>
-        {[...Array(rating)].map((_, i) => (
-          <span key={i} className='text-xl' style={{ color: 'var(--color-warning)' }}>★</span>
-        ))}
-      </div>
-      <p className='mb-4' style={{ color: 'var(--color-text-body)' }}>&quot;{content}&quot;</p>
-      <div className='pt-4' style={{ borderTop: '1px solid var(--color-card-border)' }}>
-        <p className='font-semibold' style={{ color: 'var(--color-text-heading)' }}>{name}</p>
-        <p className='text-sm' style={{ color: 'var(--color-primary)' }}>{role}</p>
-      </div>
     </div>
   )
 }
