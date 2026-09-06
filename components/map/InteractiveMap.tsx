@@ -6,6 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
+import { formatMoney } from '@/lib/formatMoney';
 
 interface Tour {
   id: string;
@@ -13,6 +14,7 @@ interface Tour {
   latitude: number;
   longitude: number;
   price: number;
+  currency?: string | null;
   rating?: number;
 }
 
@@ -108,7 +110,7 @@ export function InteractiveMap({
       const popupContent = `
         <div style="min-width: 200px;">
           <h3 style="font-weight: bold; margin-bottom: 8px;">${tour.title}</h3>
-          <p style="margin-bottom: 4px;">Precio: $${tour.price}</p>
+          <p style="margin-bottom: 4px;">Precio: ${formatMoney(tour.price, tour.currency)}</p>
           ${tour.rating ? `<p style="margin-bottom: 8px;">⭐ ${tour.rating}/5</p>` : ''}
           <button
             onclick="window.dispatchEvent(new CustomEvent('tour-click', { detail: '${tour.id}' }))"

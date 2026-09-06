@@ -22,6 +22,7 @@ import {
 } from '@/graphql/admin/tours'
 import { Compass, MapPin, Calendar, Trash2, CheckCircle, XCircle, LucideIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { formatMoney } from '@/lib/formatMoney';
 
 type TabKey = 'tours' | 'places' | 'events'
 type AdminContentItem = AdminTour | AdminPlace | AdminEvent
@@ -159,7 +160,7 @@ export default function AdminToursPage() {
         const pricing = t.tourPricings?.[0]
         return pricing ? (
           <span className='text-sm font-medium'>
-            ${pricing.price} {pricing.currency}
+            {formatMoney(pricing.price, pricing.currency)}
           </span>
         ) : (
           <span className='text-xs' style={{ color: 'var(--color-text-muted)' }}>No pricing</span>

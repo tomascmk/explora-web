@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useMemo } from 'react'
+import { formatMoney } from '@/lib/formatMoney';
 
 export default function AdminDashboardPage() {
   const { data: usersData, loading: usersLoading } = useQuery<AdminUsersData>(ADMIN_GET_ALL_USERS)
@@ -177,7 +178,7 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className='flex items-center gap-3 flex-shrink-0'>
                     <span className='text-sm font-semibold' style={{ color: 'var(--color-text-heading)' }}>
-                      ${parseFloat(String(r.total_amount ?? 0)).toFixed(2)}
+                      {formatMoney(parseFloat(String(r.total_amount ?? 0)), r.currency)}
                     </span>
                     <StatusBadge status={r.reservation_status} />
                   </div>

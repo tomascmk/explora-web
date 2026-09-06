@@ -9,6 +9,7 @@ export const GET_BOOKINGS_BY_USER = gql`
       payment {
         id
         amount
+        currency
         status
       }
       tourReservation {

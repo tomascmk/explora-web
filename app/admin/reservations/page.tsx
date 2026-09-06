@@ -13,6 +13,7 @@ import {
 } from '@/graphql/admin/reservations'
 import { Ban, Eye } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { formatMoney } from '@/lib/formatMoney';
 
 export default function AdminReservationsPage() {
   const { data, loading, refetch } = useQuery<AdminReservationsData>(ADMIN_GET_ALL_RESERVATIONS)
@@ -148,7 +149,7 @@ export default function AdminReservationsPage() {
       sortable: true,
       render: (r) => (
         <span className='font-semibold text-sm' style={{ color: 'var(--color-text-heading)' }}>
-          ${Number(r.total_amount || 0).toFixed(2)}
+          {formatMoney(Number(r.total_amount || 0), r.currency)}
         </span>
       ),
     },
@@ -318,7 +319,13 @@ export default function AdminReservationsPage() {
                 { label: 'Tourist', value: detailModal.reservation.user?.fullName || 'N/A' },
                 { label: 'Email', value: detailModal.reservation.user?.email || 'N/A' },
                 { label: 'Tour', value: detailModal.reservation.tour?.title || 'N/A' },
-                { label: 'Amount', value: `$${Number(detailModal.reservation.total_amount || 0).toFixed(2)}` },
+                {
+                  label: 'Amount',
+                  value: formatMoney(
+                    Number(detailModal.reservation.total_amount || 0),
+                    detailModal.reservation.currency,
+                  ),
+                },
                 { label: 'Status', value: detailModal.reservation.reservation_status },
                 { label: 'Payment', value: detailModal.reservation.payment_status },
                 { label: 'Created', value: new Date(detailModal.reservation.created_at).toLocaleString() },

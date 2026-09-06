@@ -13,6 +13,7 @@ export const GET_GUIDE_RESERVATIONS = gql`
       reservation_status
       payment_status
       total_amount
+      currency
       created_at
       cancellation_reason
       schedule {
@@ -42,6 +43,7 @@ export const GET_RESERVATION_DETAIL = gql`
       reservation_status
       payment_status
       total_amount
+      currency
       created_at
       cancellation_reason
       paid_at

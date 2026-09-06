@@ -7,6 +7,7 @@ export const ADMIN_GET_ALL_RESERVATIONS = gql`
       reservation_status
       payment_status
       total_amount
+      currency
       created_at
       cancellation_reason
       paid_at
@@ -39,6 +40,7 @@ export const ADMIN_GET_RESERVATION = gql`
       reservation_status
       payment_status
       total_amount
+      currency
       created_at
       cancellation_reason
       paid_at
@@ -87,6 +89,7 @@ export interface AdminReservation {
   reservation_status: string
   payment_status: string
   total_amount: number
+  currency?: string | null
   created_at: string
   cancellation_reason: string | null
   paid_at: string | null

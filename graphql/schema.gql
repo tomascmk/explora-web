@@ -494,10 +494,7 @@ input CreateEventPaymentIntentInput {
 input CreateEventReservationInput {
   eventId: ID!
   participants: Int
-  payment_status: PaymentStatus
-  reservation_status: ReservationStatus
   scheduleId: ID!
-  totalAmount: Float
 }
 
 input CreateExpenseInput {
@@ -709,10 +706,7 @@ input CreateTourReservationInput {
   couponCode: String
   participants: Int! = 1
   paymentMethodId: ID
-  payment_status: PaymentStatus! = PENDING
-  reservation_status: ReservationStatus! = PENDING
   scheduleId: ID
-  total_amount: Float!
   tourId: ID!
   userId: ID!
 }
@@ -763,6 +757,11 @@ input CreateUserInput {
   password: String!
   roles: [UserRole!]!
   username: String!
+}
+
+type CurrencyAmount {
+  amount: Float!
+  currency: String!
 }
 
 type CustomTourAccessGrant {
@@ -923,6 +922,7 @@ type EventReservation {
   booking: Booking
   cancellation_reason: String
   created_at: DateTime!
+  currency: String!
   event: Event!
   expired_without_completion: Boolean!
   id: ID!
@@ -1435,6 +1435,7 @@ type Mutation {
   setBuddyDiscoverable(value: Boolean!): Boolean!
   setEventActive(id: ID!, isActive: Boolean!): Event!
   setHotelForTrip(input: SetHotelInput!): Hotel!
+  setMyLocale(locale: String!): User!
   setTourStatus(id: String!, status: TourStatus!): Tour!
   setUserRoles(roles: [UserRole!]!, userId: ID!): User!
   startTourReservation(reservationId: ID!): TourReservation!
@@ -2311,6 +2312,7 @@ type TourReservation {
   cancellation_reason: String
   completed_at: DateTime
   created_at: DateTime!
+  currency: String!
   expired_without_completion: Boolean!
   id: ID!
   invoice_number: String
@@ -2867,6 +2869,7 @@ type User {
   fullName: String!
   id: ID!
   languages: [Language!]
+  locale: String!
   media: [Media!]
   oauthProvider: String
   roles: [UserRole!]
@@ -2912,7 +2915,7 @@ type UserAnalytics {
   favoriteTours: Int!
   placesVisited: Int!
   plannedTripsCount: Int!
-  totalSpent: Float!
+  spentByCurrency: [CurrencyAmount!]!
   toursCompleted: Int!
 }
 
