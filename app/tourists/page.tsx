@@ -69,25 +69,6 @@ export default function TouristsLanding() {
                   Download App
                 </button>
               </div>
-              <div className='flex items-center gap-6'>
-                <div className='flex -space-x-2'>
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className='w-10 h-10 rounded-full border-2 border-slate-900'
-                      style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-hover))' }}
-                    ></div>
-                  ))}
-                </div>
-                <div>
-                  <p className='text-sm font-semibold text-white'>
-                    50,000+ Happy Travelers
-                  </p>
-                  <p className='text-xs text-slate-400'>
-                    ⭐⭐⭐⭐⭐ 4.9/5 Average Rating
-                  </p>
-                </div>
-              </div>
             </div>
             <div className='relative h-96 rounded-2xl overflow-hidden'>
               <div className='absolute inset-0 bg-gradient-to-br from-teal-500/40 to-slate-900/60'></div>
@@ -95,33 +76,6 @@ export default function TouristsLanding() {
                 Happy Travelers
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Destinations */}
-      <section className='py-20 px-4' style={{ backgroundColor: 'var(--color-card-bg)' }}>
-        <div className='max-w-7xl mx-auto'>
-          <div className='text-center mb-16'>
-            <p className='text-sm font-semibold uppercase tracking-wider mb-2' style={{ color: 'var(--color-primary)' }}>
-              Top Destinations
-            </p>
-            <h2 className='text-3xl sm:text-4xl font-bold mb-4' style={{ color: 'var(--color-text-heading)' }}>
-              Popular Destinations
-            </h2>
-            <p className='text-lg' style={{ color: 'var(--color-text-secondary)' }}>
-              Explore the most loved tours worldwide
-            </p>
-          </div>
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
-            <DestinationCard city='Paris' country='France' tours={234} image='🗼' priceFrom={25} />
-            <DestinationCard city='Tokyo' country='Japan' tours={189} image='🗾' priceFrom={30} />
-            <DestinationCard city='Barcelona' country='Spain' tours={156} image='🏰' priceFrom={20} />
-            <DestinationCard city='New York' country='USA' tours={298} image='🗽' priceFrom={35} />
-            <DestinationCard city='Rome' country='Italy' tours={167} image='🏛️' priceFrom={28} />
-            <DestinationCard city='London' country='UK' tours={245} image='🎡' priceFrom={32} />
-            <DestinationCard city='Sydney' country='Australia' tours={123} image='🦘' priceFrom={40} />
-            <DestinationCard city='Dubai' country='UAE' tours={98} image='🏜️' priceFrom={45} />
           </div>
         </div>
       </section>
@@ -248,25 +202,6 @@ export default function TouristsLanding() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className='py-20 px-4' style={{ backgroundColor: 'var(--color-page-bg)' }}>
-        <div className='max-w-7xl mx-auto'>
-          <div className='text-center mb-16'>
-            <p className='text-sm font-semibold uppercase tracking-wider mb-2' style={{ color: 'var(--color-primary)' }}>
-              Reviews
-            </p>
-            <h2 className='text-3xl sm:text-4xl font-bold' style={{ color: 'var(--color-text-heading)' }}>
-              What Travelers Say
-            </h2>
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            <TravelTestimonial name='Emma Wilson' location='London, UK' tourName='Food Tour in Tokyo' rating={5} content='The best tour I have ever taken! Our guide was so knowledgeable and took us to places we would never have found on our own.' />
-            <TravelTestimonial name='David Chen' location='San Francisco, USA' tourName='Historic Paris Walk' rating={5} content='The audio guide was perfect for my solo trip. I could pause and explore at my own pace. Highly recommend!' />
-            <TravelTestimonial name='Maria Garcia' location='Madrid, Spain' tourName='Art Tour in New York' rating={5} content='Exceeded all my expectations. The guide was passionate and made the experience truly memorable.' />
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
       <section className='bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white py-20'>
         <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center'>
@@ -296,44 +231,6 @@ export default function TouristsLanding() {
           </p>
         </div>
       </footer>
-    </div>
-  )
-}
-
-function DestinationCard({
-  city,
-  country,
-  tours,
-  image,
-  priceFrom
-}: {
-  city: string
-  country: string
-  tours: number
-  image: string
-  priceFrom: number
-}) {
-  return (
-    <div
-      className='rounded-xl border overflow-hidden cursor-pointer transition-shadow hover:shadow-md'
-      style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
-    >
-      <div
-        className='h-48 flex items-center justify-center text-6xl'
-        style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))' }}
-      >
-        {image}
-      </div>
-      <div className='p-4'>
-        <h3 className='text-xl font-semibold mb-1' style={{ color: 'var(--color-text-heading)' }}>{city}</h3>
-        <p className='text-sm mb-2' style={{ color: 'var(--color-text-secondary)' }}>{country}</p>
-        <div className='flex justify-between items-center'>
-          <span className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>{tours} tours</span>
-          <span className='text-sm font-semibold' style={{ color: 'var(--color-primary)' }}>
-            From ${priceFrom}
-          </span>
-        </div>
-      </div>
     </div>
   )
 }
@@ -386,41 +283,6 @@ function TouristFeature({
       <div className='text-5xl mb-5'>{icon}</div>
       <h3 className='text-xl font-semibold mb-3' style={{ color: 'var(--color-text-heading)' }}>{title}</h3>
       <p style={{ color: 'var(--color-text-secondary)' }}>{description}</p>
-    </div>
-  )
-}
-
-function TravelTestimonial({
-  name,
-  location,
-  tourName,
-  rating,
-  content
-}: {
-  name: string
-  location: string
-  tourName: string
-  rating: number
-  content: string
-}) {
-  return (
-    <div
-      className='p-6 rounded-xl border transition-shadow hover:shadow-md'
-      style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
-    >
-      <div className='flex mb-3'>
-        {[...Array(rating)].map((_, i) => (
-          <span key={i} className='text-xl' style={{ color: 'var(--color-warning)' }}>
-            ★
-          </span>
-        ))}
-      </div>
-      <p className='mb-4' style={{ color: 'var(--color-text-body)' }}>&quot;{content}&quot;</p>
-      <div className='pt-4' style={{ borderTop: '1px solid var(--color-card-border)' }}>
-        <p className='font-semibold' style={{ color: 'var(--color-text-heading)' }}>{name}</p>
-        <p className='text-sm' style={{ color: 'var(--color-text-secondary)' }}>{location}</p>
-        <p className='text-xs mt-1' style={{ color: 'var(--color-primary)' }}>{tourName}</p>
-      </div>
     </div>
   )
 }
